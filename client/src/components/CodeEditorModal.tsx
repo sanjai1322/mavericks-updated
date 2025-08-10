@@ -66,12 +66,23 @@ export default function CodeEditorModal({ isOpen, onClose, assessment }: CodeEdi
     },
     onError: (error: any) => {
       setIsRunning(false);
-      setTestResults(`Error: ${error.message || "Failed to submit code"}`);
-      toast({
-        title: "Submission Error",
-        description: "There was an error submitting your code. Please try again.",
-        variant: "destructive",
-      });
+      console.error('Submission error:', error);
+      const errorMessage = error?.message || "Failed to submit code";
+      if (errorMessage.includes("Authentication") || errorMessage.includes("token")) {
+        setTestResults("❌ Authentication error. Please log in again.");
+        toast({
+          title: "Authentication Required",
+          description: "Please refresh the page and log in again.",
+          variant: "destructive",
+        });
+      } else {
+        setTestResults(`❌ Error: ${errorMessage}`);
+        toast({
+          title: "Submission Error",
+          description: "There was an error submitting your code. Please try again.",
+          variant: "destructive",
+        });
+      }
     },
   });
 

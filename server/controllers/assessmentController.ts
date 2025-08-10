@@ -150,8 +150,8 @@ router.post("/submit", verifyToken, async (req: Request, res: Response) => {
       extractedSkills = getBasicSkills(sourceCode, getLanguageName(languageId));
     }
 
-    // Store the assessment result with extracted skills
-    const userAssessment = await storage.createUserAssessment({
+    // Store the assessment result with extracted skills  
+    const userAssessmentData = {
       userId,
       assessmentId,
       languageId,
@@ -161,9 +161,10 @@ router.post("/submit", verifyToken, async (req: Request, res: Response) => {
       stdout,
       stderr,
       execTime: "0.1s",
-      extractedSkills,
       memory: 1024
-    });
+    };
+
+    const userAssessment = await storage.createUserAssessment(userAssessmentData);
 
     // Update user stats if passed
     if (passed) {

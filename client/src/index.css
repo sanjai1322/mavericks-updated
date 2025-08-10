@@ -24,10 +24,10 @@
   --input: hsl(200, 23.0769%, 97.4510%);
   --ring: hsl(263, 43%, 55%);
   --chart-1: hsl(263, 43%, 55%);
-  --chart-2: hsl(159.7826, 100%, 36.0784%);
-  --chart-3: hsl(42.0290, 92.8251%, 56.2745%);
-  --chart-4: hsl(147.1429, 78.5047%, 41.9608%);
-  --chart-5: hsl(341.4894, 75.2000%, 50.9804%);
+  --chart-2: hsl(200, 85%, 65%);
+  --chart-3: hsl(215, 85%, 75%);
+  --chart-4: hsl(190, 75%, 60%);
+  --chart-5: hsl(230, 80%, 65%);
   --sidebar: hsl(180, 6.6667%, 97.0588%);
   --sidebar-foreground: hsl(210, 25%, 7.8431%);
   --sidebar-primary: hsl(263, 43%, 55%);
@@ -71,18 +71,18 @@
   --input: hsl(207.6923, 27.6596%, 18.4314%);
   --ring: hsl(220, 100%, 60%);
   --chart-1: hsl(220, 100%, 60%);
-  --chart-2: hsl(159.7826, 100%, 36.0784%);
-  --chart-3: hsl(42.0290, 92.8251%, 56.2745%);
-  --chart-4: hsl(147.1429, 78.5047%, 41.9608%);
-  --chart-5: hsl(341.4894, 75.2000%, 50.9804%);
+  --chart-2: hsl(200, 85%, 65%);
+  --chart-3: hsl(215, 85%, 75%);
+  --chart-4: hsl(190, 75%, 60%);
+  --chart-5: hsl(230, 80%, 65%);
   --sidebar: hsl(228, 9.8039%, 10%);
   --sidebar-foreground: hsl(0, 0%, 85.0980%);
-  --sidebar-primary: hsl(51, 100%, 50%);
+  --sidebar-primary: hsl(220, 100%, 60%);
   --sidebar-primary-foreground: hsl(268, 100%, 12%);
   --sidebar-accent: hsl(268, 100%, 12%);
-  --sidebar-accent-foreground: hsl(51, 100%, 50%);
+  --sidebar-accent-foreground: hsl(220, 100%, 60%);
   --sidebar-border: hsl(205.7143, 15.7895%, 26.0784%);
-  --sidebar-ring: hsl(51, 100%, 50%);
+  --sidebar-ring: hsl(220, 100%, 60%);
 }
 
 @layer base {
@@ -101,8 +101,8 @@
 }
 
 @keyframes glow {
-  from { box-shadow: 0 0 20px hsl(51, 100%, 50%); }
-  to { box-shadow: 0 0 30px hsl(51, 100%, 50%), 0 0 40px hsl(51, 100%, 50%); }
+  from { box-shadow: 0 0 20px hsl(220, 100%, 60%); }
+  to { box-shadow: 0 0 30px hsl(220, 100%, 60%), 0 0 40px hsl(220, 100%, 60%); }
 }
 
 .animate-float {
