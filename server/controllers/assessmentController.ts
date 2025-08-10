@@ -236,14 +236,24 @@ router.post("/submit", verifyToken, async (req: Request, res: Response) => {
                   }
                 }
                 
-                // List/Array specific comparison
+                // List/Array specific comparison with better parsing
                 if (!isCorrect && Array.isArray(testCase.expected)) {
                   try {
-                    const actualArray = actualStr.replace(/[\[\]\s]/g, '').split(',').map(x => x.trim());
-                    const expectedArray = testCase.expected.map(x => String(x));
-                    if (JSON.stringify(actualArray) === JSON.stringify(expectedArray)) {
+                    // Handle Python list format: [0, 1] -> [0, 1]
+                    const cleanedActual = actualStr.trim().replace(/\s+/g, '');
+                    const cleanedExpected = JSON.stringify(testCase.expected).replace(/\s+/g, '');
+                    
+                    if (cleanedActual === cleanedExpected) {
                       isCorrect = true;
-                      console.log('✓ Array comparison match');
+                      console.log('✓ Array format match');
+                    } else {
+                      // Try parsing as array elements
+                      const actualArray = actualStr.replace(/[\[\]]/g, '').split(',').map(x => parseInt(x.trim()));
+                      const expectedArray = testCase.expected;
+                      if (JSON.stringify(actualArray) === JSON.stringify(expectedArray)) {
+                        isCorrect = true;
+                        console.log('✓ Array element match');
+                      }
                     }
                   } catch {
                     console.log('Array comparison failed');

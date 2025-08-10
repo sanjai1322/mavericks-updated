@@ -627,6 +627,272 @@ int main() {
         createdAt: new Date(),
       },
 
+      // === GO SECTION ===
+      {
+        id: randomUUID(),
+        title: "Go Basic Functions",
+        description: "Learn Go syntax and basic function creation",
+        difficulty: "Easy",
+        topic: "Go Programming",
+        acceptance: "87.5%",
+        problemStatement: `Write a Go function that adds two integers and returns the result.
+        
+Example:
+Input: a = 10, b = 5
+Output: 15`,
+        starterCode: `package main
+
+import "fmt"
+
+func addNumbers(a int, b int) int {
+    // Your code here
+    return 0
+}
+
+func main() {
+    fmt.Println(addNumbers(10, 5))
+    fmt.Println(addNumbers(3, 7))
+}`,
+        testCases: [
+          { input: { a: 10, b: 5 }, expected: 15 },
+          { input: { a: 3, b: 7 }, expected: 10 },
+          { input: { a: 0, b: 0 }, expected: 0 },
+          { input: { a: -5, b: 8 }, expected: 3 }
+        ] as any,
+        createdAt: new Date(),
+      },
+      {
+        id: randomUUID(),
+        title: "Go Slice Operations",
+        description: "Work with Go slices and arrays",
+        difficulty: "Medium",
+        topic: "Go Data Structures",
+        acceptance: "73.2%",
+        problemStatement: `Write a Go function that finds the maximum element in a slice of integers.
+        
+Example:
+Input: []int{3, 7, 2, 9, 1}
+Output: 9`,
+        starterCode: `package main
+
+import "fmt"
+
+func findMax(numbers []int) int {
+    // Your code here
+    return 0
+}
+
+func main() {
+    nums := []int{3, 7, 2, 9, 1}
+    fmt.Println(findMax(nums))
+}`,
+        testCases: [
+          { input: { numbers: [3,7,2,9,1] }, expected: 9 },
+          { input: { numbers: [1] }, expected: 1 },
+          { input: { numbers: [-1,-5,-2] }, expected: -1 },
+          { input: { numbers: [10,20,15] }, expected: 20 }
+        ] as any,
+        createdAt: new Date(),
+      },
+
+      // === RUST SECTION ===
+      {
+        id: randomUUID(),
+        title: "Rust Ownership Basics",
+        description: "Learn Rust ownership and borrowing",
+        difficulty: "Medium",
+        topic: "Rust Programming",
+        acceptance: "64.8%",
+        problemStatement: `Write a Rust function that calculates the length of a string slice.
+        
+Example:
+Input: "Hello Rust"
+Output: 10`,
+        starterCode: `fn string_length(s: &str) -> usize {
+    // Your code here
+    0
+}
+
+fn main() {
+    println!("{}", string_length("Hello Rust"));
+    println!("{}", string_length("Rust"));
+}`,
+        testCases: [
+          { input: { s: "Hello Rust" }, expected: 10 },
+          { input: { s: "Rust" }, expected: 4 },
+          { input: { s: "" }, expected: 0 },
+          { input: { s: "Programming" }, expected: 11 }
+        ] as any,
+        createdAt: new Date(),
+      },
+
+      // === KOTLIN SECTION ===
+      {
+        id: randomUUID(),
+        title: "Kotlin Data Classes",
+        description: "Work with Kotlin data classes and functions",
+        difficulty: "Easy",
+        topic: "Kotlin Programming",
+        acceptance: "82.7%",
+        problemStatement: `Write a Kotlin function that checks if a number is even.
+        
+Example:
+Input: 4
+Output: true
+
+Input: 7
+Output: false`,
+        starterCode: `fun isEven(number: Int): Boolean {
+    // Your code here
+    return false
+}
+
+fun main() {
+    println(isEven(4))
+    println(isEven(7))
+    println(isEven(0))
+}`,
+        testCases: [
+          { input: { number: 4 }, expected: true },
+          { input: { number: 7 }, expected: false },
+          { input: { number: 0 }, expected: true },
+          { input: { number: -2 }, expected: true }
+        ] as any,
+        createdAt: new Date(),
+      },
+
+      // === SWIFT SECTION ===
+      {
+        id: randomUUID(),
+        title: "Swift Optionals",
+        description: "Learn Swift optional handling",
+        difficulty: "Medium",
+        topic: "Swift Programming",
+        acceptance: "71.4%",
+        problemStatement: `Write a Swift function that safely divides two numbers and returns nil if dividing by zero.
+        
+Example:
+Input: a = 10, b = 2
+Output: Optional(5.0)
+
+Input: a = 10, b = 0
+Output: nil`,
+        starterCode: `func safeDivide(_ a: Double, _ b: Double) -> Double? {
+    // Your code here
+    return nil
+}
+
+print(safeDivide(10, 2))
+print(safeDivide(10, 0))`,
+        testCases: [
+          { input: { a: 10, b: 2 }, expected: 5.0 },
+          { input: { a: 10, b: 0 }, expected: null },
+          { input: { a: 8, b: 4 }, expected: 2.0 },
+          { input: { a: 7, b: 2 }, expected: 3.5 }
+        ] as any,
+        createdAt: new Date(),
+      },
+
+      // === PHP SECTION ===
+      {
+        id: randomUUID(),
+        title: "PHP Array Functions",
+        description: "Work with PHP arrays and built-in functions",
+        difficulty: "Easy",
+        topic: "PHP Programming",
+        acceptance: "89.1%",
+        problemStatement: `Write a PHP function that returns the sum of all elements in an array.
+        
+Example:
+Input: [1, 2, 3, 4, 5]
+Output: 15`,
+        starterCode: `<?php
+function arraySum($numbers) {
+    // Your code here
+    return 0;
+}
+
+echo arraySum([1, 2, 3, 4, 5]) . "\\n";
+echo arraySum([10, 20]) . "\\n";
+?>`,
+        testCases: [
+          { input: { numbers: [1,2,3,4,5] }, expected: 15 },
+          { input: { numbers: [10,20] }, expected: 30 },
+          { input: { numbers: [] }, expected: 0 },
+          { input: { numbers: [-1,1,-2,2] }, expected: 0 }
+        ] as any,
+        createdAt: new Date(),
+      },
+
+      // === RUBY SECTION ===
+      {
+        id: randomUUID(),
+        title: "Ruby Blocks and Iterators",
+        description: "Use Ruby blocks for array manipulation",
+        difficulty: "Medium",
+        topic: "Ruby Programming",
+        acceptance: "75.6%",
+        problemStatement: `Write a Ruby method that returns an array of squares of all even numbers from the input array.
+        
+Example:
+Input: [1, 2, 3, 4, 5, 6]
+Output: [4, 16, 36]`,
+        starterCode: `def squares_of_evens(numbers)
+  # Your code here using Ruby blocks
+  []
+end
+
+puts squares_of_evens([1, 2, 3, 4, 5, 6]).inspect
+puts squares_of_evens([1, 3, 5]).inspect`,
+        testCases: [
+          { input: { numbers: [1,2,3,4,5,6] }, expected: [4, 16, 36] },
+          { input: { numbers: [1,3,5] }, expected: [] },
+          { input: { numbers: [2,4,8] }, expected: [4, 16, 64] },
+          { input: { numbers: [] }, expected: [] }
+        ] as any,
+        createdAt: new Date(),
+      },
+
+      // === C# SECTION ===
+      {
+        id: randomUUID(),
+        title: "C# LINQ Operations",
+        description: "Use C# LINQ for data manipulation",
+        difficulty: "Medium",
+        topic: "C# Programming",
+        acceptance: "68.9%",
+        problemStatement: `Write a C# method that uses LINQ to find all strings longer than a specified length.
+        
+Example:
+Input: ["hello", "world", "C#", "programming"], minLength = 4
+Output: ["hello", "world", "programming"]`,
+        starterCode: `using System;
+using System.Collections.Generic;
+using System.Linq;
+
+class Program 
+{
+    static List<string> FilterByLength(List<string> strings, int minLength)
+    {
+        // Your code here using LINQ
+        return new List<string>();
+    }
+    
+    static void Main()
+    {
+        var words = new List<string> {"hello", "world", "C#", "programming"};
+        Console.WriteLine(string.Join(", ", FilterByLength(words, 4)));
+    }
+}`,
+        testCases: [
+          { input: { strings: ["hello", "world", "C#", "programming"], minLength: 4 }, expected: ["hello", "world", "programming"] },
+          { input: { strings: ["a", "bb", "ccc"], minLength: 2 }, expected: ["bb", "ccc"] },
+          { input: { strings: ["short"], minLength: 10 }, expected: [] },
+          { input: { strings: [], minLength: 3 }, expected: [] }
+        ] as any,
+        createdAt: new Date(),
+      },
+
       // === C SECTION ===
       {
         id: randomUUID(),
@@ -902,10 +1168,107 @@ Explanation: [4,-1,2,1] has the largest sum = 6`,
           { input: { nums: [5,4,-1,7,8] }, expected: 23 }
         ] as any,
         createdAt: new Date(),
+      },
+
+      // === MULTILINGUAL QUIZ EXPANSION - FINAL ADDITIONS ===
+      
+      // Perl Text Processing
+      {
+        id: randomUUID(),
+        title: "Perl Pattern Matching",
+        description: "Advanced regex and text processing in Perl",
+        difficulty: "Hard",
+        topic: "Perl Programming",
+        acceptance: "45.8%",
+        problemStatement: `Extract all valid email addresses from a text string using Perl regex.
+        
+Example:
+Input: "Contact us at hello@example.com or support@test.org for help"
+Output: ["hello@example.com", "support@test.org"]`,
+        starterCode: `#!/usr/bin/perl
+use strict;
+use warnings;
+
+sub extract_emails {
+    my $text = shift;
+    my @emails = ();
+    # Your regex code here
+    return @emails;
+}
+
+my $text = "Contact us at hello@example.com or support@test.org for help";
+my @result = extract_emails($text);
+print join(", ", @result) . "\\n";`,
+        testCases: [
+          { input: { text: "Contact us at hello@example.com or support@test.org" }, expected: ["hello@example.com", "support@test.org"] },
+          { input: { text: "No emails here!" }, expected: [] },
+          { input: { text: "Email: user@domain.com" }, expected: ["user@domain.com"] }
+        ] as any,
+        createdAt: new Date(),
+      },
+
+      // MATLAB Scientific Computing
+      {
+        id: randomUUID(),
+        title: "MATLAB Signal Processing",
+        description: "Basic signal processing operations",
+        difficulty: "Medium",
+        topic: "MATLAB Programming",
+        acceptance: "67.8%",
+        problemStatement: `Calculate the moving average of a signal with window size n.
+        
+Example:
+Input: signal = [1, 2, 3, 4, 5], window = 3  
+Output: [2, 3, 4] (averages of [1,2,3], [2,3,4], [3,4,5])`,
+        starterCode: `function result = moving_average(signal, window_size)
+    % Your code here
+    result = [];
+end
+
+signal = [1, 2, 3, 4, 5];
+result = moving_average(signal, 3);
+disp(result);`,
+        testCases: [
+          { input: { signal: [1,2,3,4,5], window_size: 3 }, expected: [2, 3, 4] },
+          { input: { signal: [10,20,30], window_size: 2 }, expected: [15, 25] },
+          { input: { signal: [1,1,1,1], window_size: 4 }, expected: [1] }
+        ] as any,
+        createdAt: new Date(),
+      },
+
+      // R Statistical Analysis
+      {
+        id: randomUUID(),
+        title: "R Correlation Analysis",
+        description: "Statistical correlation and analysis",
+        difficulty: "Medium",
+        topic: "R Programming",
+        acceptance: "71.5%",
+        problemStatement: `Calculate Pearson correlation coefficient between two vectors.
+        
+Example:
+Input: x = c(1,2,3,4,5), y = c(2,4,6,8,10)
+Output: 1.0 (perfect positive correlation)`,
+        starterCode: `calculate_correlation <- function(x, y) {
+  # Your code here
+  correlation <- 0
+  return(correlation)
+}
+
+x <- c(1, 2, 3, 4, 5)
+y <- c(2, 4, 6, 8, 10)
+result <- calculate_correlation(x, y)
+print(result)`,
+        testCases: [
+          { input: { x: [1,2,3,4,5], y: [2,4,6,8,10] }, expected: 1.0 },
+          { input: { x: [1,2,3], y: [3,2,1] }, expected: -1.0 },
+          { input: { x: [1,1,1], y: [2,2,2] }, expected: null }
+        ] as any,
+        createdAt: new Date(),
       }
     ];
 
-    // Combine all assessments
+    // Combine all multilingual assessments  
     const allAssessments = [...seedAssessments, ...additionalProblems];
     
     allAssessments.forEach(assessment => {
