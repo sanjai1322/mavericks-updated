@@ -294,6 +294,10 @@ The class should handle edge cases and maintain data integrity.`,
 
     // Add comprehensive quiz-based assessments by difficulty levels
     const additionalProblems = [
+      // COMPREHENSIVE QUIZ SYSTEM - MULTIPLE LANGUAGES AND LEVELS
+      
+      // === PYTHON SECTION ===
+      
       // BEGINNER LEVEL (Easy Problems)
       {
         id: randomUUID(),
@@ -517,6 +521,222 @@ Output: 2`,
         createdAt: new Date(),
       },
 
+      // === JAVA SECTION ===
+      {
+        id: randomUUID(),
+        title: "Simple Java Calculator",
+        description: "Create a basic calculator with add, subtract operations",
+        difficulty: "Easy",
+        topic: "Java Basics",
+        acceptance: "89.3%",
+        problemStatement: `Write a Java class with methods to add and subtract two integers.
+        
+Example:
+Input: a = 10, b = 5
+add(10, 5) should return 15
+subtract(10, 5) should return 5`,
+        starterCode: `public class Calculator {
+    public int add(int a, int b) {
+        // Your code here
+        return 0;
+    }
+    
+    public int subtract(int a, int b) {
+        // Your code here  
+        return 0;
+    }
+    
+    public static void main(String[] args) {
+        Calculator calc = new Calculator();
+        System.out.println(calc.add(10, 5));
+        System.out.println(calc.subtract(10, 5));
+    }
+}`,
+        testCases: [
+          { input: { a: 10, b: 5 }, expected: [15, 5] },
+          { input: { a: 0, b: 0 }, expected: [0, 0] },
+          { input: { a: -5, b: 3 }, expected: [-2, -8] },
+          { input: { a: 100, b: 25 }, expected: [125, 75] }
+        ] as any,
+        createdAt: new Date(),
+      },
+      {
+        id: randomUUID(),
+        title: "String Length Counter",
+        description: "Count characters in a Java string",
+        difficulty: "Easy", 
+        topic: "Java Strings",
+        acceptance: "94.7%",
+        problemStatement: `Write a Java method that returns the length of a given string.
+        
+Example:
+Input: "Hello World"
+Output: 11`,
+        starterCode: `public class StringCounter {
+    public int getStringLength(String str) {
+        // Your code here
+        return 0;
+    }
+    
+    public static void main(String[] args) {
+        StringCounter counter = new StringCounter();
+        System.out.println(counter.getStringLength("Hello World"));
+    }
+}`,
+        testCases: [
+          { input: { str: "Hello World" }, expected: 11 },
+          { input: { str: "Java" }, expected: 4 },
+          { input: { str: "" }, expected: 0 },
+          { input: { str: "Programming is fun!" }, expected: 19 }
+        ] as any,
+        createdAt: new Date(),
+      },
+
+      // === C++ SECTION ===
+      {
+        id: randomUUID(),
+        title: "C++ Array Sum",
+        description: "Calculate sum of array elements in C++",
+        difficulty: "Easy",
+        topic: "C++ Arrays",
+        acceptance: "91.2%",
+        problemStatement: `Write a C++ function that calculates the sum of all elements in an integer array.
+        
+Example:
+Input: arr = {1, 2, 3, 4, 5}, size = 5
+Output: 15`,
+        starterCode: `#include <iostream>
+using namespace std;
+
+int arraySum(int arr[], int size) {
+    // Your code here
+    return 0;
+}
+
+int main() {
+    int arr1[] = {1, 2, 3, 4, 5};
+    cout << arraySum(arr1, 5) << endl;
+    return 0;
+}`,
+        testCases: [
+          { input: { arr: [1,2,3,4,5], size: 5 }, expected: 15 },
+          { input: { arr: [10,20,30], size: 3 }, expected: 60 },
+          { input: { arr: [0], size: 1 }, expected: 0 },
+          { input: { arr: [-1,-2,-3], size: 3 }, expected: -6 }
+        ] as any,
+        createdAt: new Date(),
+      },
+
+      // === C SECTION ===
+      {
+        id: randomUUID(),
+        title: "C Factorial Function",
+        description: "Calculate factorial using C language",
+        difficulty: "Medium",
+        topic: "C Programming",
+        acceptance: "76.8%",
+        problemStatement: `Write a C function to calculate the factorial of a given number.
+        
+Example:
+Input: n = 5
+Output: 120 (5! = 5*4*3*2*1 = 120)`,
+        starterCode: `#include <stdio.h>
+
+int factorial(int n) {
+    // Your code here
+    return 0;
+}
+
+int main() {
+    printf("%d\\n", factorial(5));
+    printf("%d\\n", factorial(0));
+    return 0;
+}`,
+        testCases: [
+          { input: { n: 5 }, expected: 120 },
+          { input: { n: 0 }, expected: 1 },
+          { input: { n: 1 }, expected: 1 },
+          { input: { n: 4 }, expected: 24 }
+        ] as any,
+        createdAt: new Date(),
+      },
+
+      // === MORE PYTHON ADVANCED PROBLEMS ===
+      {
+        id: randomUUID(),
+        title: "Python List Comprehension",
+        description: "Use list comprehension to filter and transform data",
+        difficulty: "Medium",
+        topic: "Python Advanced",
+        acceptance: "68.4%",
+        problemStatement: `Write a Python function that takes a list of numbers and returns a new list containing only the squares of even numbers.
+        
+Example:
+Input: [1, 2, 3, 4, 5, 6]
+Output: [4, 16, 36]`,
+        starterCode: `def squares_of_evens(numbers):
+    """Return squares of even numbers using list comprehension."""
+    # Your code here
+    pass`,
+        testCases: [
+          { input: { numbers: [1,2,3,4,5,6] }, expected: [4, 16, 36] },
+          { input: { numbers: [1,3,5] }, expected: [] },
+          { input: { numbers: [2,4,8] }, expected: [4, 16, 64] },
+          { input: { numbers: [] }, expected: [] }
+        ] as any,
+        createdAt: new Date(),
+      },
+      {
+        id: randomUUID(),
+        title: "Python Dictionary Operations",
+        description: "Manipulate dictionaries and count occurrences",
+        difficulty: "Medium", 
+        topic: "Python Data Structures",
+        acceptance: "72.1%",
+        problemStatement: `Write a Python function that takes a list of strings and returns a dictionary with each string as key and its length as value.
+        
+Example:
+Input: ["hello", "world", "python"]
+Output: {"hello": 5, "world": 5, "python": 6}`,
+        starterCode: `def string_lengths(strings):
+    """Create dictionary mapping strings to their lengths."""
+    # Your code here
+    pass`,
+        testCases: [
+          { input: { strings: ["hello", "world", "python"] }, expected: {"hello": 5, "world": 5, "python": 6} },
+          { input: { strings: ["a", "bb", "ccc"] }, expected: {"a": 1, "bb": 2, "ccc": 3} },
+          { input: { strings: [] }, expected: {} },
+          { input: { strings: [""] }, expected: {"": 0} }
+        ] as any,
+        createdAt: new Date(),
+      },
+
+      // === JAVASCRIPT ADVANCED ===
+      {
+        id: randomUUID(),
+        title: "JavaScript Array Methods",
+        description: "Use modern JavaScript array methods",
+        difficulty: "Medium",
+        topic: "JavaScript ES6+",
+        acceptance: "74.3%",
+        problemStatement: `Write a JavaScript function that takes an array of numbers and returns the sum of all numbers greater than 10.
+        
+Example:
+Input: [5, 15, 8, 12, 3, 20]
+Output: 47 (15 + 12 + 20)`,
+        starterCode: `function sumGreaterThan10(numbers) {
+    // Your code here using array methods
+    return 0;
+}`,
+        testCases: [
+          { input: { numbers: [5, 15, 8, 12, 3, 20] }, expected: 47 },
+          { input: { numbers: [1, 2, 3, 4] }, expected: 0 },
+          { input: { numbers: [11, 12, 13] }, expected: 36 },
+          { input: { numbers: [] }, expected: 0 }
+        ] as any,
+        createdAt: new Date(),
+      },
+
       // ADVANCED LEVEL (Hard Problems)
       {
         id: randomUUID(),
@@ -539,6 +759,58 @@ Output: [1,1,2,3,4,5,6,9]`,
           { input: { nums: [1] }, expected: [1] },
           { input: { nums: [] }, expected: [] },
           { input: { nums: [5,4,3,2,1] }, expected: [1,2,3,4,5] }
+        ] as any,
+        createdAt: new Date(),
+      },
+      {
+        id: randomUUID(),
+        title: "Dynamic Programming - Fibonacci",
+        description: "Implement efficient Fibonacci using memoization",
+        difficulty: "Hard",
+        topic: "Dynamic Programming",
+        acceptance: "62.8%",
+        problemStatement: `Implement an efficient Fibonacci function using dynamic programming (memoization).
+        
+Example:
+Input: n = 10
+Output: 55`,
+        starterCode: `def fibonacci_dp(n, memo=None):
+    """Calculate Fibonacci number using dynamic programming."""
+    if memo is None:
+        memo = {}
+    # Your code here
+    pass`,
+        testCases: [
+          { input: { n: 10 }, expected: 55 },
+          { input: { n: 0 }, expected: 0 },
+          { input: { n: 1 }, expected: 1 },
+          { input: { n: 15 }, expected: 610 }
+        ] as any,
+        createdAt: new Date(),
+      },
+      {
+        id: randomUUID(),
+        title: "Graph Algorithms - BFS",
+        description: "Implement breadth-first search on a graph",
+        difficulty: "Hard",
+        topic: "Graph Algorithms",
+        acceptance: "45.2%",
+        problemStatement: `Implement breadth-first search (BFS) to find the shortest path between two nodes in an unweighted graph.
+        
+Example:
+Input: graph = {'A': ['B', 'C'], 'B': ['A', 'D'], 'C': ['A'], 'D': ['B']}, start = 'A', end = 'D'
+Output: ['A', 'B', 'D']`,
+        starterCode: `from collections import deque
+
+def bfs_shortest_path(graph, start, end):
+    """Find shortest path using BFS."""
+    # Your code here
+    pass`,
+        testCases: [
+          { input: { graph: {'A': ['B', 'C'], 'B': ['A', 'D'], 'C': ['A'], 'D': ['B']}, start: 'A', end: 'D' }, expected: ['A', 'B', 'D'] },
+          { input: { graph: {'A': ['B'], 'B': ['C'], 'C': []}, start: 'A', end: 'C' }, expected: ['A', 'B', 'C'] },
+          { input: { graph: {'A': ['B'], 'B': []}, start: 'A', end: 'C' }, expected: null },
+          { input: { graph: {'A': []}, start: 'A', end: 'A' }, expected: ['A'] }
         ] as any,
         createdAt: new Date(),
       },

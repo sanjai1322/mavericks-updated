@@ -125,22 +125,41 @@ router.post("/submit", verifyToken, async (req: Request, res: Response) => {
           try {
             // Prepare test input based on function signature
             let testCode = sourceCode;
+            
             if (sourceCode.includes("def ")) {
               // Python function - add test call
               const funcMatch = sourceCode.match(/def\s+(\w+)\s*\(/);
               if (funcMatch) {
                 const funcName = funcMatch[1];
-                // Better parameter mapping for test cases
-                const paramValues = Object.values(testCase.input).map(v => JSON.stringify(v)).join(', ');
-                testCode += `\n\n# Test case\nresult = ${funcName}(${paramValues})\nprint(result)`;
+                console.log(`Python function detected: ${funcName}`);
+                console.log(`Test case input:`, testCase.input);
+                
+                // Handle different input formats
+                let paramValues;
+                if (testCase.input && typeof testCase.input === 'object') {
+                  paramValues = Object.values(testCase.input).map(v => JSON.stringify(v)).join(', ');
+                } else {
+                  paramValues = JSON.stringify(testCase.input);
+                }
+                
+                testCode += `\n\n# Test execution\ntest_input = ${JSON.stringify(testCase.input)}\nif isinstance(test_input, dict):\n    result = ${funcName}(**test_input)\nelse:\n    result = ${funcName}(test_input)\nprint(result)`;
               }
             } else if (sourceCode.includes("function") || sourceCode.includes("var ") || sourceCode.includes("const ")) {
               // JavaScript function - add test call
               const funcMatch = sourceCode.match(/(?:function\s+(\w+)|(?:var|const|let)\s+(\w+)\s*=)/);
               if (funcMatch) {
                 const funcName = funcMatch[1] || funcMatch[2];
-                const paramValues = Object.values(testCase.input).map(v => JSON.stringify(v)).join(', ');
-                testCode += `\n\n// Test case\nconsole.log(${funcName}(${paramValues}));`;
+                console.log(`JavaScript function detected: ${funcName}`);
+                console.log(`Test case input:`, testCase.input);
+                
+                let paramValues;
+                if (testCase.input && typeof testCase.input === 'object') {
+                  paramValues = Object.values(testCase.input).map(v => JSON.stringify(v)).join(', ');
+                } else {
+                  paramValues = JSON.stringify(testCase.input);
+                }
+                
+                testCode += `\n\n// Test execution\nconst testInput = ${JSON.stringify(testCase.input)};\nlet result;\nif (typeof testInput === 'object' && !Array.isArray(testInput)) {\n    result = ${funcName}(...Object.values(testInput));\n} else {\n    result = ${funcName}(testInput);\n}\nconsole.log(JSON.stringify(result));`;
               }
             }
 
@@ -185,25 +204,54 @@ router.post("/submit", verifyToken, async (req: Request, res: Response) => {
                 return str.replace(/\s+/g, ' ').trim().toLowerCase();
               };
               
-              // Enhanced output comparison logic
-              const isCorrect = result.status.id === 3 && (
-                actualStr === expectedStr || 
-                normalizeOutput(actualStr) === normalizeOutput(expectedStr) ||
-                actualStr === String(testCase.expected) ||
-                // Handle list/array outputs
-                (actualStr.includes('[') && actualStr.includes(']') && 
-                 actualStr.replace(/[\s\[\]]/g, '') === expectedStr.replace(/[\s\[\]]/g, '')) ||
-                // Handle Python list output format
-                (actualStr.replace(/\s+/g, '') === expectedStr.replace(/\s+/g, '')) ||
-                // Try parsing both as JSON and compare
-                (() => {
+              // Enhanced output comparison logic with better debugging
+              console.log(`Comparing outputs:`);
+              console.log(`Expected: ${expectedStr} (type: ${typeof testCase.expected})`);
+              console.log(`Actual: ${actualStr} (status: ${result.status.id})`);
+              
+              let isCorrect = false;
+              
+              if (result.status.id === 3) { // Successful execution
+                // Direct comparison
+                if (actualStr === expectedStr) {
+                  isCorrect = true;
+                  console.log('✓ Direct string match');
+                }
+                // Normalized comparison
+                else if (normalizeOutput(actualStr) === normalizeOutput(expectedStr)) {
+                  isCorrect = true;
+                  console.log('✓ Normalized string match');
+                }
+                // JSON comparison for complex types
+                else {
                   try {
-                    return JSON.stringify(JSON.parse(actualStr)) === JSON.stringify(testCase.expected);
-                  } catch {
-                    return false;
+                    const actualParsed = JSON.parse(actualStr);
+                    const expectedParsed = testCase.expected;
+                    if (JSON.stringify(actualParsed) === JSON.stringify(expectedParsed)) {
+                      isCorrect = true;
+                      console.log('✓ JSON comparison match');
+                    }
+                  } catch (parseError) {
+                    console.log('JSON parse failed, trying other comparisons');
                   }
-                })()
-              );
+                }
+                
+                // List/Array specific comparison
+                if (!isCorrect && Array.isArray(testCase.expected)) {
+                  try {
+                    const actualArray = actualStr.replace(/[\[\]\s]/g, '').split(',').map(x => x.trim());
+                    const expectedArray = testCase.expected.map(x => String(x));
+                    if (JSON.stringify(actualArray) === JSON.stringify(expectedArray)) {
+                      isCorrect = true;
+                      console.log('✓ Array comparison match');
+                    }
+                  } catch {
+                    console.log('Array comparison failed');
+                  }
+                }
+              }
+              
+              console.log(`Final result: ${isCorrect ? 'PASSED' : 'FAILED'}`);
               
               if (isCorrect) {
                 passedTests++;
