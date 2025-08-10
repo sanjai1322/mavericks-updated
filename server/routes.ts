@@ -31,8 +31,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   try {
     const recommenderRoutes = await import('./routes/recommender.js');
     app.use('/api', recommenderRoutes.default);
-  } catch (error) {
-    console.log('AI routes not available yet:', error.message);
+  } catch (error: any) {
+    console.log('AI routes not available yet:', error?.message || 'Unknown error');
   }
 
   const httpServer = createServer(app);

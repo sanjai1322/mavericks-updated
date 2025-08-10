@@ -364,7 +364,8 @@ var longestPalindrome = function(s) {
     const path: LearningPath = { 
       ...insertPath, 
       id, 
-      createdAt: new Date() 
+      createdAt: new Date(),
+      progress: insertPath.progress ?? 0
     };
     this.learningPaths.set(id, path);
     return path;
@@ -388,7 +389,11 @@ var longestPalindrome = function(s) {
     const hackathon: Hackathon = { 
       ...insertHackathon, 
       id, 
-      createdAt: new Date() 
+      createdAt: new Date(),
+      startDate: insertHackathon.startDate ?? null,
+      endDate: insertHackathon.endDate ?? null,
+      participants: insertHackathon.participants ?? 0,
+      technologies: insertHackathon.technologies ?? null
     };
     this.hackathons.set(id, hackathon);
     return hackathon;
@@ -404,7 +409,10 @@ var longestPalindrome = function(s) {
     const progress: UserProgress = { 
       ...insertProgress, 
       id, 
-      updatedAt: new Date() 
+      updatedAt: new Date(),
+      progress: insertProgress.progress ?? 0,
+      userId: insertProgress.userId ?? null,
+      pathId: insertProgress.pathId ?? null
     };
     this.userProgress.set(id, progress);
     return progress;
@@ -420,7 +428,12 @@ var longestPalindrome = function(s) {
     const submission: Submission = { 
       ...insertSubmission, 
       id, 
-      createdAt: new Date() 
+      createdAt: new Date(),
+      rank: insertSubmission.rank ?? null,
+      score: insertSubmission.score ?? null,
+      prize: insertSubmission.prize ?? null,
+      userId: insertSubmission.userId ?? null,
+      hackathonId: insertSubmission.hackathonId ?? null
     };
     this.submissions.set(id, submission);
     return submission;
@@ -439,7 +452,9 @@ var longestPalindrome = function(s) {
     const activity: Activity = { 
       ...insertActivity, 
       id, 
-      createdAt: new Date() 
+      createdAt: new Date(),
+      description: insertActivity.description ?? null,
+      userId: insertActivity.userId ?? null
     };
     this.activities.set(id, activity);
     return activity;
@@ -475,7 +490,8 @@ var longestPalindrome = function(s) {
       stdout: insertUserAssessment.stdout || null,
       stderr: insertUserAssessment.stderr || null,
       execTime: insertUserAssessment.execTime || null,
-      memory: insertUserAssessment.memory || null
+      memory: insertUserAssessment.memory || null,
+      extractedSkills: insertUserAssessment.extractedSkills ?? null
     };
     this.userAssessments.set(id, userAssessment);
     return userAssessment;
