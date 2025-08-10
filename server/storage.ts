@@ -12,7 +12,9 @@ import {
   type Submission,
   type InsertSubmission,
   type Activity,
-  type InsertActivity
+  type InsertActivity,
+  type UserAssessment,
+  type InsertUserAssessment
 } from "@shared/schema";
 import { randomUUID } from "crypto";
 
@@ -54,6 +56,11 @@ export interface IStorage {
   
   // Leaderboard methods
   getLeaderboard(): Promise<User[]>;
+  
+  // User Assessment methods
+  getUserAssessments(userId: string): Promise<UserAssessment[]>;
+  getUserAssessmentByChallenge(userId: string, assessmentId: string): Promise<UserAssessment | undefined>;
+  createUserAssessment(assessment: InsertUserAssessment): Promise<UserAssessment>;
 }
 
 export class MemStorage implements IStorage {
@@ -64,6 +71,7 @@ export class MemStorage implements IStorage {
   private userProgress: Map<string, UserProgress>;
   private submissions: Map<string, Submission>;
   private activities: Map<string, Activity>;
+  private userAssessments: Map<string, UserAssessment>;
 
   constructor() {
     this.users = new Map();
@@ -73,6 +81,7 @@ export class MemStorage implements IStorage {
     this.userProgress = new Map();
     this.submissions = new Map();
     this.activities = new Map();
+    this.userAssessments = new Map();
     this.seedData();
   }
 
@@ -106,7 +115,7 @@ var twoSum = function(nums, target) {
         testCases: [
           { input: { nums: [2, 7, 11, 15], target: 9 }, expected: [0, 1] },
           { input: { nums: [3, 2, 4], target: 6 }, expected: [1, 2] }
-        ],
+        ] as any,
         createdAt: new Date(),
       },
       {
@@ -125,7 +134,7 @@ var inorderTraversal = function(root) {
     // Your code here
     
 };`,
-        testCases: [],
+        testCases: [] as any,
         createdAt: new Date(),
       },
       {
@@ -144,7 +153,7 @@ var longestPalindrome = function(s) {
     // Your code here
     
 };`,
-        testCases: [],
+        testCases: [] as any,
         createdAt: new Date(),
       }
     ];
@@ -244,7 +253,7 @@ var longestPalindrome = function(s) {
         endDate: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000), // 2 days from now
         participants: 1247,
         prize: "$5,000 in prizes",
-        technologies: ["React", "Node.js", "MongoDB"],
+        technologies: ["React", "Node.js", "MongoDB"] as any,
         createdAt: new Date(),
       },
       {
@@ -256,7 +265,7 @@ var longestPalindrome = function(s) {
         endDate: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000), // 5 days from now
         participants: 892,
         prize: "$10,000 in prizes",
-        technologies: ["Python", "TensorFlow", "OpenAI"],
+        technologies: ["Python", "TensorFlow", "OpenAI"] as any,
         createdAt: new Date(),
       },
       {
@@ -268,7 +277,7 @@ var longestPalindrome = function(s) {
         endDate: new Date(Date.now() + 13 * 24 * 60 * 60 * 1000), // 13 days from now
         participants: 0,
         prize: "$7,500 in prizes",
-        technologies: ["React Native", "Flutter", "Swift"],
+        technologies: ["React Native", "Flutter", "Swift"] as any,
         createdAt: new Date(),
       }
     ];
@@ -297,11 +306,14 @@ var longestPalindrome = function(s) {
       ...insertUser, 
       id, 
       createdAt: new Date(),
-      level: 1,
-      points: 0,
-      streak: 0,
-      problemsSolved: 0,
-      rank: this.users.size + 1
+      level: insertUser.level || 1,
+      points: insertUser.points || 0,
+      streak: insertUser.streak || 0,
+      problemsSolved: insertUser.problemsSolved || 0,
+      rank: insertUser.rank || this.users.size + 1,
+      title: insertUser.title || "Developer",
+      bio: insertUser.bio || null,
+      skills: insertUser.skills || null
     };
     this.users.set(id, user);
     return user;
@@ -330,7 +342,9 @@ var longestPalindrome = function(s) {
     const assessment: Assessment = { 
       ...insertAssessment, 
       id, 
-      createdAt: new Date() 
+      createdAt: new Date(),
+      starterCode: insertAssessment.starterCode || null,
+      testCases: insertAssessment.testCases || null
     };
     this.assessments.set(id, assessment);
     return assessment;
@@ -434,8 +448,37 @@ var longestPalindrome = function(s) {
   // Leaderboard methods
   async getLeaderboard(): Promise<User[]> {
     return Array.from(this.users.values())
-      .sort((a, b) => b.points - a.points)
+      .sort((a, b) => (b.points || 0) - (a.points || 0))
       .slice(0, 50); // Return top 50 users
+  }
+
+  // User Assessment methods
+  async getUserAssessments(userId: string): Promise<UserAssessment[]> {
+    return Array.from(this.userAssessments.values()).filter(assessment => assessment.userId === userId);
+  }
+
+  async getUserAssessmentByChallenge(userId: string, assessmentId: string): Promise<UserAssessment | undefined> {
+    return Array.from(this.userAssessments.values())
+      .find(assessment => assessment.userId === userId && assessment.assessmentId === assessmentId);
+  }
+
+  async createUserAssessment(insertUserAssessment: InsertUserAssessment): Promise<UserAssessment> {
+    const id = randomUUID();
+    const userAssessment: UserAssessment = { 
+      ...insertUserAssessment, 
+      id, 
+      submissionTime: new Date(),
+      userId: insertUserAssessment.userId || null,
+      assessmentId: insertUserAssessment.assessmentId || null,
+      score: insertUserAssessment.score || null,
+      passed: insertUserAssessment.passed || null,
+      stdout: insertUserAssessment.stdout || null,
+      stderr: insertUserAssessment.stderr || null,
+      execTime: insertUserAssessment.execTime || null,
+      memory: insertUserAssessment.memory || null
+    };
+    this.userAssessments.set(id, userAssessment);
+    return userAssessment;
   }
 }
 

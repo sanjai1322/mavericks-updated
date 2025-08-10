@@ -89,6 +89,21 @@ export const activities = pgTable("activities", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+export const userAssessments = pgTable("user_assessments", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id),
+  assessmentId: varchar("assessment_id").references(() => assessments.id),
+  languageId: integer("language_id").notNull(),
+  sourceCode: text("source_code").notNull(),
+  score: integer("score").default(0),
+  passed: boolean("passed").default(false),
+  stdout: text("stdout"),
+  stderr: text("stderr"),
+  execTime: text("exec_time"),
+  memory: integer("memory"),
+  submissionTime: timestamp("submission_time").defaultNow(),
+});
+
 // Insert schemas
 export const insertUserSchema = createInsertSchema(users).omit({
   id: true,
@@ -124,6 +139,11 @@ export const insertActivitySchema = createInsertSchema(activities).omit({
   createdAt: true,
 });
 
+export const insertUserAssessmentSchema = createInsertSchema(userAssessments).omit({
+  id: true,
+  submissionTime: true,
+});
+
 // Login schema
 export const loginSchema = z.object({
   username: z.string().min(1, "Username is required"),
@@ -145,4 +165,36 @@ export type InsertSubmission = z.infer<typeof insertSubmissionSchema>;
 export type Submission = typeof submissions.$inferSelect;
 export type InsertActivity = z.infer<typeof insertActivitySchema>;
 export type Activity = typeof activities.$inferSelect;
+export type InsertUserAssessment = z.infer<typeof insertUserAssessmentSchema>;
+export type UserAssessment = typeof userAssessments.$inferSelect;
 export type LoginCredentials = z.infer<typeof loginSchema>;
+
+// Judge0 related types
+export type Judge0Language = {
+  id: number;
+  name: string;
+  is_archived: boolean;
+  source_file: string;
+  compile_cmd: string;
+  run_cmd: string;
+};
+
+export type Judge0Submission = {
+  language_id: number;
+  source_code: string;
+  stdin: string;
+  expected_output: string;
+};
+
+export type Judge0Result = {
+  token: string;
+  status: {
+    id: number;
+    description: string;
+  };
+  stdout: string;
+  stderr: string;
+  compile_output: string;
+  time: string;
+  memory: number;
+};

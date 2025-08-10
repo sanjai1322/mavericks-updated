@@ -1,9 +1,12 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import type { Assessment } from "@shared/schema";
+import { useToast } from "@/hooks/use-toast";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
+import type { Assessment, Judge0Language } from "@shared/schema";
 
 interface CodeEditorModalProps {
   isOpen: boolean;
@@ -12,16 +15,90 @@ interface CodeEditorModalProps {
 }
 
 export default function CodeEditorModal({ isOpen, onClose, assessment }: CodeEditorModalProps) {
-  const [selectedLanguage, setSelectedLanguage] = useState("javascript");
+  const [selectedLanguage, setSelectedLanguage] = useState<number>(63); // Default to JavaScript
   const [code, setCode] = useState("");
   const [testResults, setTestResults] = useState<string>("");
+  const [isRunning, setIsRunning] = useState(false);
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
 
-  const handleRun = () => {
-    setTestResults("Running tests... (This would integrate with code execution service)");
-  };
+  // Fetch available languages
+  const { data: languages, isLoading: languagesLoading } = useQuery({
+    queryKey: ["/api/assessments/languages"],
+    enabled: isOpen,
+  });
+
+  // Submit code mutation
+  const submitMutation = useMutation({
+    mutationFn: async (submissionData: { assessmentId: string; languageId: number; sourceCode: string }) => {
+      return apiRequest("/api/assessments/submit", {
+        method: "POST",
+        body: submissionData,
+      });
+    },
+    onSuccess: (result) => {
+      setIsRunning(false);
+      if (result.passed) {
+        setTestResults(`✅ Success! Score: ${result.score}/100\n\nOutput:\n${result.stdout}`);
+        toast({
+          title: "Assessment Completed!",
+          description: `Great job! You scored ${result.score}/100`,
+        });
+        // Invalidate queries to refresh user stats
+        queryClient.invalidateQueries({ queryKey: ["/api/auth/me"] });
+        queryClient.invalidateQueries({ queryKey: ["/api/assessments/history"] });
+      } else {
+        setTestResults(`❌ Failed. Score: ${result.score}/100\n\nOutput:\n${result.stdout}\n\nErrors:\n${result.stderr}`);
+        toast({
+          title: "Try Again",
+          description: "Your solution didn't pass all tests. Keep trying!",
+          variant: "destructive",
+        });
+      }
+    },
+    onError: (error: any) => {
+      setIsRunning(false);
+      setTestResults(`Error: ${error.message || "Failed to submit code"}`);
+      toast({
+        title: "Submission Error",
+        description: "There was an error submitting your code. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Reset state when modal opens/closes
+  useEffect(() => {
+    if (isOpen && assessment) {
+      setCode(assessment.starterCode || "");
+      setTestResults("");
+      setSelectedLanguage(63); // Default to JavaScript
+    }
+  }, [isOpen, assessment]);
 
   const handleSubmit = () => {
-    setTestResults("Solution submitted! (This would be processed by the backend)");
+    if (!assessment || !code.trim()) {
+      toast({
+        title: "Missing Code",
+        description: "Please write your solution before submitting.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsRunning(true);
+    setTestResults("Running your code...");
+    
+    submitMutation.mutate({
+      assessmentId: assessment.id,
+      languageId: selectedLanguage,
+      sourceCode: code,
+    });
+  };
+
+  const getLanguageName = (languages: Judge0Language[], id: number) => {
+    const lang = languages?.find(l => l.id === id);
+    return lang?.name || "Unknown";
   };
 
   if (!assessment) return null;
@@ -97,29 +174,44 @@ export default function CodeEditorModal({ isOpen, onClose, assessment }: CodeEdi
                 {/* Editor Toolbar */}
                 <div className="p-4 border-b border-gray-200 dark:border-gray-700">
                   <div className="flex items-center justify-between">
-                    <Select value={selectedLanguage} onValueChange={setSelectedLanguage}>
-                      <SelectTrigger className="w-40">
-                        <SelectValue />
+                    <Select 
+                      value={selectedLanguage.toString()} 
+                      onValueChange={(value) => setSelectedLanguage(parseInt(value))}
+                      disabled={languagesLoading}
+                    >
+                      <SelectTrigger className="w-60">
+                        <SelectValue>
+                          {languagesLoading ? "Loading languages..." : getLanguageName(languages, selectedLanguage)}
+                        </SelectValue>
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="javascript">JavaScript</SelectItem>
-                        <SelectItem value="python">Python</SelectItem>
-                        <SelectItem value="java">Java</SelectItem>
-                        <SelectItem value="cpp">C++</SelectItem>
+                        {languages?.map((lang: Judge0Language) => (
+                          <SelectItem key={lang.id} value={lang.id.toString()}>
+                            {lang.name}
+                          </SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                     <div className="flex space-x-2">
                       <Button 
-                        onClick={handleRun}
-                        className="bg-green-500 hover:bg-green-600 text-white"
-                      >
-                        <i className="fas fa-play mr-1"></i> Run
-                      </Button>
-                      <Button 
                         onClick={handleSubmit}
-                        className="bg-blue-500 hover:bg-blue-600 text-white"
+                        disabled={isRunning || !code.trim()}
+                        className="bg-blue-500 hover:bg-blue-600 text-white disabled:bg-gray-400"
                       >
-                        <i className="fas fa-check mr-1"></i> Submit
+                        {isRunning ? (
+                          <>
+                            <motion.div
+                              className="w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2"
+                              animate={{ rotate: 360 }}
+                              transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                            />
+                            Running...
+                          </>
+                        ) : (
+                          <>
+                            <i className="fas fa-check mr-1"></i> Submit
+                          </>
+                        )}
                       </Button>
                     </div>
                   </div>
@@ -140,8 +232,16 @@ export default function CodeEditorModal({ isOpen, onClose, assessment }: CodeEdi
                   <h4 className="font-medium mb-2 text-gray-900 dark:text-white">
                     Test Results
                   </h4>
-                  <div className="text-sm text-gray-600 dark:text-gray-400">
-                    {testResults || "Run your code to see test results here..."}
+                  <div className="text-sm font-mono max-h-32 overflow-y-auto">
+                    {testResults ? (
+                      <pre className="whitespace-pre-wrap text-gray-700 dark:text-gray-300">
+                        {testResults}
+                      </pre>
+                    ) : (
+                      <div className="text-gray-600 dark:text-gray-400">
+                        Write your solution and click Submit to see results...
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>

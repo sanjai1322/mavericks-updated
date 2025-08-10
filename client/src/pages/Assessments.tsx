@@ -16,7 +16,7 @@ export default function Assessments() {
   const [topicFilter, setTopicFilter] = useState("all");
 
   const { data: assessments, isLoading } = useQuery({
-    queryKey: ["/api/assessments"],
+    queryKey: ["/api/assessments/challenges"],
     enabled: !!user,
   });
 
@@ -126,39 +126,41 @@ export default function Assessments() {
           >
             {isLoading ? (
               <div className="p-8 text-center">
-                <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-light-primary"></div>
-                <p className="mt-2 text-gray-600 dark:text-gray-400">Loading assessments...</p>
+                <div className="animate-spin w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full mx-auto mb-4"></div>
+                <p className="text-gray-600 dark:text-gray-400">Loading assessments...</p>
               </div>
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead className="bg-gray-50 dark:bg-gray-700">
                     <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                         Problem
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                         Difficulty
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                         Topic
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                         Acceptance
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                         Action
                       </th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-                    {filteredAssessments?.map((assessment: Assessment) => (
+                  <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                    {filteredAssessments?.map((assessment: Assessment, index: number) => (
                       <motion.tr
                         key={assessment.id}
-                        whileHover={{ backgroundColor: "rgba(0,0,0,0.02)" }}
-                        className="hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer"
+                        initial={{ y: 20, opacity: 0 }}
+                        animate={{ y: 0, opacity: 1 }}
+                        transition={{ delay: index * 0.1 }}
+                        className="hover:bg-gray-50 dark:hover:bg-gray-700"
                       >
-                        <td className="px-6 py-4">
+                        <td className="px-6 py-4 whitespace-nowrap">
                           <div>
                             <div className="text-sm font-medium text-gray-900 dark:text-white">
                               {assessment.title}
@@ -168,23 +170,23 @@ export default function Assessments() {
                             </div>
                           </div>
                         </td>
-                        <td className="px-6 py-4">
+                        <td className="px-6 py-4 whitespace-nowrap">
                           <span className={`px-2 py-1 text-xs rounded-full ${getDifficultyColor(assessment.difficulty)}`}>
                             {assessment.difficulty}
                           </span>
                         </td>
-                        <td className="px-6 py-4 text-sm text-gray-900 dark:text-white">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                           {assessment.topic}
                         </td>
-                        <td className="px-6 py-4 text-sm text-gray-900 dark:text-white">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                           {assessment.acceptance}
                         </td>
-                        <td className="px-6 py-4">
+                        <td className="px-6 py-4 whitespace-nowrap">
                           <Button
                             onClick={() => openCodeEditor(assessment)}
-                            className="bg-light-primary dark:bg-dark-accent text-white hover:opacity-90 transition-opacity"
+                            className="bg-blue-500 hover:bg-blue-600 text-white"
                           >
-                            Start
+                            Start Challenge
                           </Button>
                         </td>
                       </motion.tr>
@@ -197,10 +199,11 @@ export default function Assessments() {
         </div>
       </div>
 
+      {/* Code Editor Modal */}
       <CodeEditorModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        assessment={selectedAssessment || undefined}
+        assessment={selectedAssessment}
       />
     </div>
   );
