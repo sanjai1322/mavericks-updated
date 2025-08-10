@@ -5,7 +5,10 @@ import Navbar from "@/components/Navbar";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Code, Brain } from "lucide-react";
 import CodeEditorModal from "@/components/CodeEditorModal";
+import { QuizSection } from "@/components/QuizSection";
 import type { Assessment } from "@shared/schema";
 
 export default function Assessments() {
@@ -67,12 +70,30 @@ export default function Assessments() {
             className="mb-8"
           >
             <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-              Coding Assessments
+              Programming Challenges
             </h1>
             <p className="text-gray-600 dark:text-gray-400">
-              Challenge yourself with our curated coding problems
+              Master your coding skills with quizzes and hands-on programming challenges
             </p>
           </motion.div>
+
+          <Tabs defaultValue="coding" className="space-y-6">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="coding" className="flex items-center space-x-2">
+                <Code className="w-4 h-4" />
+                <span>Coding Challenges</span>
+              </TabsTrigger>
+              <TabsTrigger value="quiz" className="flex items-center space-x-2">
+                <Brain className="w-4 h-4" />
+                <span>Language Quizzes</span>
+              </TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="quiz" className="space-y-6">
+              <QuizSection />
+            </TabsContent>
+
+            <TabsContent value="coding" className="space-y-6">
 
           {/* Filters */}
           <motion.div
@@ -196,6 +217,9 @@ export default function Assessments() {
               </div>
             )}
           </motion.div>
+          
+            </TabsContent>
+          </Tabs>
         </div>
       </div>
 

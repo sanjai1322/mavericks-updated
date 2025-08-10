@@ -77,52 +77,121 @@ router.post("/submit", verifyToken, async (req: Request, res: Response) => {
       return res.status(404).json({ message: "Assessment not found" });
     }
 
-    // For demo purposes, we'll simulate a simple test
-    // In a real implementation, you'd run proper test cases
+    // Run proper test cases evaluation
     let passed = false;
     let stdout = "";
     let stderr = "";
     let score = 0;
+    let testResults = [];
 
     try {
-      // Create Judge0 submission
-      const submission: Judge0Submission = {
-        language_id: languageId,
-        source_code: sourceCode,
-        stdin: "",
-        expected_output: ""
-      };
-
-      const submitResponse = await fetch(`${JUDGE0_API_URL}/submissions?base64_encoded=false&wait=true`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-RapidAPI-Key": JUDGE0_API_KEY,
-          "X-RapidAPI-Host": "judge0-ce.p.rapidapi.com"
-        },
-        body: JSON.stringify(submission)
-      });
-
-      if (submitResponse.ok) {
-        const result: Judge0Result = await submitResponse.json() as Judge0Result;
-        stdout = result.stdout || "";
-        stderr = result.stderr || result.compile_output || "";
+      // If assessment has test cases, run them  
+      if (assessment.testCases && Array.isArray(assessment.testCases) && assessment.testCases.length > 0) {
+        let passedTests = 0;
         
-        // Simple pass criteria: code executed without errors
-        passed = result.status.id === 3 && !stderr; // Status 3 = Accepted
-        score = passed ? 100 : 0;
+        for (const testCase of assessment.testCases) {
+          try {
+            // Prepare test input based on function signature
+            let testCode = sourceCode;
+            if (sourceCode.includes("def ")) {
+              // Python function - add test call
+              const funcMatch = sourceCode.match(/def\s+(\w+)\s*\(/);
+              if (funcMatch) {
+                const funcName = funcMatch[1];
+                const inputStr = JSON.stringify(testCase.input);
+                testCode += `\n\n# Test case\nresult = ${funcName}(${Object.values(testCase.input).map(v => JSON.stringify(v)).join(', ')})\nprint(result)`;
+              }
+            } else if (sourceCode.includes("function") || sourceCode.includes("var ") || sourceCode.includes("const ")) {
+              // JavaScript function - add test call
+              const funcMatch = sourceCode.match(/(?:function\s+(\w+)|(?:var|const|let)\s+(\w+)\s*=)/);
+              if (funcMatch) {
+                const funcName = funcMatch[1] || funcMatch[2];
+                testCode += `\n\n// Test case\nconsole.log(${funcName}(${Object.values(testCase.input).map(v => JSON.stringify(v)).join(', ')}));`;
+              }
+            }
+
+            // Submit to Judge0
+            const submission: Judge0Submission = {
+              language_id: languageId,
+              source_code: testCode,
+              stdin: "",
+              expected_output: ""
+            };
+
+            const submitResponse = await fetch(`${JUDGE0_API_URL}/submissions?base64_encoded=false&wait=true`, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                "X-RapidAPI-Key": JUDGE0_API_KEY,
+                "X-RapidAPI-Host": "judge0-ce.p.rapidapi.com"
+              },
+              body: JSON.stringify(submission)
+            });
+
+            if (submitResponse.ok) {
+              const result: Judge0Result = await submitResponse.json() as Judge0Result;
+              const output = result.stdout?.trim() || "";
+              const expectedOutput = JSON.stringify(testCase.expected).replace(/"/g, '');
+              
+              if (result.status.id === 3 && output === expectedOutput) {
+                passedTests++;
+                testResults.push({ passed: true, input: testCase.input, expected: testCase.expected, actual: output });
+              } else {
+                testResults.push({ passed: false, input: testCase.input, expected: testCase.expected, actual: output, error: result.stderr });
+              }
+            } else {
+              testResults.push({ passed: false, input: testCase.input, expected: testCase.expected, actual: "", error: "Execution failed" });
+            }
+          } catch (testError: any) {
+            testResults.push({ passed: false, input: testCase.input, expected: testCase.expected, actual: "", error: testError?.message || "Unknown error" });
+          }
+        }
+
+        const totalTests = Array.isArray(assessment.testCases) ? assessment.testCases.length : 0;
+        passed = passedTests === totalTests;
+        score = totalTests > 0 ? Math.round((passedTests / totalTests) * 100) : 0;
+        stdout = `Passed ${passedTests}/${totalTests} test cases`;
+        stderr = passed ? "" : `Failed ${totalTests - passedTests} test cases`;
       } else {
-        // Enhanced fallback evaluation when Judge0 responds but execution fails
-        const hasFunction = sourceCode.includes("function") || sourceCode.includes("def") || sourceCode.includes("public") || sourceCode.includes("main");
-        const hasLogic = sourceCode.includes("if") || sourceCode.includes("for") || sourceCode.includes("while");
-        const hasReturn = sourceCode.includes("return") || sourceCode.includes("print") || sourceCode.includes("console.log");
-        const hasMinLength = sourceCode.trim().length > 30;
-        
-        const passedChecks = [hasFunction, hasLogic, hasReturn, hasMinLength].filter(Boolean).length;
-        passed = passedChecks >= 3;
-        score = Math.min(passedChecks * 25, 100);
-        stdout = passed ? `Code validation complete (${passedChecks}/4 checks passed)` : "Code validation failed";
-        stderr = passed ? "" : `Missing required elements: ${4 - passedChecks} checks failed`;
+        // Fallback: basic code execution without specific test cases
+        const submission: Judge0Submission = {
+          language_id: languageId,
+          source_code: sourceCode,
+          stdin: "",
+          expected_output: ""
+        };
+
+        const submitResponse = await fetch(`${JUDGE0_API_URL}/submissions?base64_encoded=false&wait=true`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-RapidAPI-Key": JUDGE0_API_KEY,
+            "X-RapidAPI-Host": "judge0-ce.p.rapidapi.com"
+          },
+          body: JSON.stringify(submission)
+        });
+
+        if (submitResponse.ok) {
+          const result: Judge0Result = await submitResponse.json() as Judge0Result;
+          stdout = result.stdout || "";
+          stderr = result.stderr || result.compile_output || "";
+          
+          // Basic pass criteria: code executed without errors
+          passed = result.status.id === 3 && !stderr;
+          score = passed ? 100 : 0;
+        } else {
+          // Enhanced fallback evaluation when Judge0 responds but execution fails
+          const hasFunction = sourceCode.includes("function") || sourceCode.includes("def") || sourceCode.includes("public") || sourceCode.includes("main");
+          const hasLogic = sourceCode.includes("if") || sourceCode.includes("for") || sourceCode.includes("while");
+          const hasReturn = sourceCode.includes("return") || sourceCode.includes("print") || sourceCode.includes("console.log");
+          const hasMinLength = sourceCode.trim().length > 30;
+          
+          const passedChecks = [hasFunction, hasLogic, hasReturn, hasMinLength].filter(Boolean).length;
+          passed = passedChecks >= 3;
+          score = Math.min(passedChecks * 25, 100);
+          stdout = passed ? `Code validation complete (${passedChecks}/4 checks passed)` : "Code validation failed";
+          stderr = passed ? "" : `Missing required elements: ${4 - passedChecks} checks failed`;
+        }
       }
     } catch (apiError) {
       console.error("Judge0 API error:", apiError);
@@ -143,11 +212,46 @@ router.post("/submit", verifyToken, async (req: Request, res: Response) => {
     let extractedSkills: string[] = [];
     try {
       const { extractSkillsFromCode } = await import('../agents/profileAgent.js');
-      const languageName = getLanguageName(languageId);
+      const languageName = languageId === 71 ? "Python" : languageId === 63 ? "JavaScript" : "Unknown";
+      console.log("Extracting skills for language:", languageName);
       extractedSkills = await extractSkillsFromCode(sourceCode, languageName);
-    } catch (error) {
-      console.log('Profile Agent not available, using basic skill extraction');
-      extractedSkills = getBasicSkills(sourceCode, getLanguageName(languageId));
+      console.log("Extracted skills:", extractedSkills);
+    } catch (skillError) {
+      console.error("Error extracting skills:", skillError);
+      // Fallback skill extraction based on code analysis
+      extractedSkills = extractSkillsFallback(sourceCode, languageId === 71 ? "Python" : languageId === 63 ? "JavaScript" : "Unknown");
+    }
+
+    // Fallback skill extraction function
+    function extractSkillsFallback(code: string, language: string): string[] {
+      const skills = [];
+      
+      // Language-specific patterns
+      if (language === "Python") {
+        if (code.includes("def ")) skills.push("function definition");
+        if (code.includes("for ") || code.includes("while ")) skills.push("loops");
+        if (code.includes("if ")) skills.push("conditionals");
+        if (code.includes("[") && code.includes("for") && code.includes("in")) skills.push("list comprehension");
+        if (code.includes("class ")) skills.push("object-oriented programming");
+        if (code.includes("import ")) skills.push("module usage");
+        if (code.includes("return ")) skills.push("function return values");
+      } else if (language === "JavaScript") {
+        if (code.includes("function") || code.includes("=>")) skills.push("function definition");
+        if (code.includes("for") || code.includes("while")) skills.push("loops");
+        if (code.includes("if")) skills.push("conditionals");
+        if (code.includes("array") || code.includes("[")) skills.push("array manipulation");
+        if (code.includes("class")) skills.push("object-oriented programming");
+        if (code.includes("return")) skills.push("function return values");
+      }
+
+      // General programming concepts
+      if (code.includes("sort")) skills.push("sorting algorithms");
+      if (code.includes("hash") || code.includes("map") || code.includes("dict")) skills.push("hash tables");
+      if (code.includes("recursion") || code.match(/(\w+)\s*\(\s*\1\s*\(/)) skills.push("recursion");
+      if (code.includes("binary") || code.includes("divide")) skills.push("divide and conquer");
+      if (code.includes("dynamic") || code.includes("memo")) skills.push("dynamic programming");
+      
+      return skills.slice(0, 8); // Limit to 8 skills
     }
 
     // Store the assessment result with extracted skills  

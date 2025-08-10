@@ -257,7 +257,101 @@ The class should handle edge cases and maintain data integrity.`,
       }
     ];
 
-    seedAssessments.forEach(assessment => {
+    // Add more LeetCode-style problems
+    const additionalProblems = [
+      {
+        id: randomUUID(),
+        title: "Valid Parentheses",
+        description: "Check if parentheses are valid",
+        difficulty: "Easy", 
+        topic: "Stack",
+        acceptance: "89.2%",
+        problemStatement: `Given a string s containing just the characters '(', ')', '{', '}', '[' and ']', determine if the input string is valid.
+
+An input string is valid if:
+1. Open brackets must be closed by the same type of brackets
+2. Open brackets must be closed in the correct order
+
+Example:
+Input: "()"
+Output: true
+
+Input: "([)]"
+Output: false`,
+        starterCode: `def isValid(s):
+    """
+    Check if the parentheses string is valid.
+    """
+    # Your code here
+    pass`,
+        testCases: [
+          { input: { s: "()" }, expected: true },
+          { input: { s: "()[]{}" }, expected: true },
+          { input: { s: "([)]" }, expected: false }
+        ] as any,
+        createdAt: new Date(),
+      },
+      {
+        id: randomUUID(),
+        title: "Fibonacci Sequence",
+        description: "Calculate the nth Fibonacci number",
+        difficulty: "Easy",
+        topic: "Dynamic Programming",
+        acceptance: "95.1%",
+        problemStatement: `The Fibonacci numbers, commonly denoted F(n) form a sequence, called the Fibonacci sequence, such that each number is the sum of the two preceding ones, starting from 0 and 1.
+
+Given n, calculate F(n).
+
+Example:
+Input: n = 4
+Output: 3
+Explanation: F(4) = F(3) + F(2) = 2 + 1 = 3`,
+        starterCode: `def fib(n):
+    """
+    Calculate the nth Fibonacci number.
+    """
+    # Your code here
+    pass`,
+        testCases: [
+          { input: { n: 0 }, expected: 0 },
+          { input: { n: 1 }, expected: 1 },
+          { input: { n: 4 }, expected: 3 },
+          { input: { n: 10 }, expected: 55 }
+        ] as any,
+        createdAt: new Date(),
+      },
+      {
+        id: randomUUID(),
+        title: "Maximum Subarray",
+        description: "Find the contiguous subarray with the largest sum",
+        difficulty: "Medium",
+        topic: "Arrays",
+        acceptance: "82.3%",
+        problemStatement: `Given an integer array nums, find the contiguous subarray (containing at least one number) which has the largest sum and return its sum.
+
+Example:
+Input: nums = [-2,1,-3,4,-1,2,1,-5,4]
+Output: 6
+Explanation: [4,-1,2,1] has the largest sum = 6`,
+        starterCode: `def maxSubArray(nums):
+    """
+    Find the maximum sum of contiguous subarray.
+    """
+    # Your code here
+    pass`,
+        testCases: [
+          { input: { nums: [-2,1,-3,4,-1,2,1,-5,4] }, expected: 6 },
+          { input: { nums: [1] }, expected: 1 },
+          { input: { nums: [5,4,-1,7,8] }, expected: 23 }
+        ] as any,
+        createdAt: new Date(),
+      }
+    ];
+
+    // Combine all assessments
+    const allAssessments = [...seedAssessments, ...additionalProblems];
+    
+    allAssessments.forEach(assessment => {
       this.assessments.set(assessment.id, assessment);
     });
 
