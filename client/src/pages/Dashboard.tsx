@@ -47,7 +47,7 @@ export default function Dashboard() {
             className="mb-8"
           >
             <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-              Welcome back, {user.firstName}! 👋
+              Welcome back, {user.firstName || user.username}! 👋
             </h1>
             <p className="text-gray-600 dark:text-gray-400">
               Ready to continue your coding journey?
@@ -68,12 +68,12 @@ export default function Dashboard() {
                     <div className="flex items-center space-x-4 mb-6">
                       <div className="w-16 h-16 bg-gradient-to-br from-light-primary to-light-accent rounded-full flex items-center justify-center">
                         <span className="text-white text-xl font-bold">
-                          {user.firstName.charAt(0)}{user.lastName.charAt(0)}
+                          {user.firstName?.charAt(0) || user.username?.charAt(0) || 'U'}{user.lastName?.charAt(0) || ''}
                         </span>
                       </div>
                       <div>
                         <h2 className="text-xl font-semibold">
-                          {user.firstName} {user.lastName}
+                          {user.firstName && user.lastName ? `${user.firstName} ${user.lastName}` : user.username}
                         </h2>
                         <p className="text-gray-600 dark:text-gray-400">
                           {user.title || "Developer"}

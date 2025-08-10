@@ -35,9 +35,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const response = await apiRequest('POST', '/api/auth/login', credentials);
       return response.json();
     },
-    onSuccess: (userData) => {
-      setUser(userData);
-      queryClient.setQueryData(["/api/auth/me"], userData);
+    onSuccess: (response) => {
+      setUser(response.user);
+      queryClient.setQueryData(["/api/auth/me"], response.user);
       queryClient.invalidateQueries({ queryKey: ["/api"] });
     },
   });

@@ -32,8 +32,14 @@ export default function Navbar() {
     setTheme(theme === "dark" ? "light" : "dark");
   };
 
-  const getInitials = (firstName: string, lastName: string) => {
-    return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
+  const getInitials = (firstName?: string, lastName?: string, username?: string) => {
+    if (firstName && lastName) {
+      return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
+    }
+    if (username) {
+      return username.charAt(0).toUpperCase();
+    }
+    return 'U';
   };
 
   const visibleNavLinks = navLinks.filter(link => !link.requiresAuth || user);
@@ -105,11 +111,13 @@ export default function Navbar() {
                   <Button variant="ghost" className="flex items-center space-x-2">
                     <div className="w-8 h-8 bg-gradient-to-br from-light-primary to-light-accent rounded-full flex items-center justify-center">
                       <span className="text-white text-sm font-medium">
-                        {getInitials(user.firstName, user.lastName)}
+                        {getInitials(user.firstName, user.lastName, user.username)}
                       </span>
                     </div>
                     {!isMobile && (
-                      <span className="font-medium">{user.firstName} {user.lastName}</span>
+                      <span className="font-medium">
+                        {user.firstName && user.lastName ? `${user.firstName} ${user.lastName}` : user.username}
+                      </span>
                     )}
                   </Button>
                 </DropdownMenuTrigger>
