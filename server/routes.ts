@@ -32,7 +32,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
     const recommenderRoutes = await import('./routes/recommender.js');
     app.use('/api', recommenderRoutes.default);
   } catch (error: any) {
-    console.log('AI routes not available yet:', error?.message || 'Unknown error');
+    console.log('Legacy AI routes not available:', error?.message || 'Unknown error');
+  }
+
+  // New recommendation system routes
+  try {
+    const { recommendationRoutes } = await import('./controllers/recommendationController');
+    app.use('/api/recommendations', recommendationRoutes);
+  } catch (error: any) {
+    console.log('Recommendation routes not available:', error?.message || 'Unknown error');
   }
 
   const httpServer = createServer(app);

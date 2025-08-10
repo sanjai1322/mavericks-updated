@@ -11,6 +11,7 @@ const sidebarLinks = [
   { href: "/learning", label: "Learning Path", icon: "fas fa-route" },
   { href: "/hackathons", label: "Hackathons", icon: "fas fa-trophy" },
   { href: "/leaderboard", label: "Leaderboard", icon: "fas fa-medal" },
+  { href: "/recommendations", label: "AI Recommendations", icon: "fas fa-robot" },
 ];
 
 interface SidebarProps {
