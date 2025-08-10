@@ -11,6 +11,8 @@ export const users = pgTable("users", {
   firstName: text("first_name").notNull(),
   lastName: text("last_name").notNull(),
   title: text("title").default("Developer"),
+  bio: text("bio"),
+  skills: text("skills").array(),
   level: integer("level").default(1),
   points: integer("points").default(0),
   streak: integer("streak").default(0),

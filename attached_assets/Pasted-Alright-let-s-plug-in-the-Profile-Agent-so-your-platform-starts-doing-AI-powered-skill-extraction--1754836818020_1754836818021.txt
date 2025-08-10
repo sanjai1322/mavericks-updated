@@ -1,0 +1,118 @@
+Alright — let’s plug in the Profile Agent so your platform starts doing AI-powered skill extraction from user bios.
+
+We’ll use qwen/qwen3-coder:free from OpenRouter for this since it’s code-focused and good at structured JSON output.
+
+Step 1 — Add Profile Agent
+In /server/agents/profileAgent.js:
+
+js
+Copy
+Edit
+const fetch = require("node-fetch");
+const REPLIT_DB_URL = process.env.REPLIT_DB_URL; // If using Replit DB
+const DB = require("@replit/database");
+const db = new DB();
+
+async function extractSkillsFromBio(bio) {
+  try {
+    const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${process.env.OPENROUTER_KEY}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        model: "qwen/qwen3-coder:free",
+        messages: [
+          {
+            role: "system",
+            content:
+              "You are an AI that extracts programming skills from user bios. Respond ONLY with a JSON array of skills."
+          },
+          { role: "user", content: bio }
+        ],
+        temperature: 0
+      })
+    });
+
+    const data = await res.json();
+    const skillsText = data.choices[0].message.content;
+
+    // Try to parse the JSON safely
+    let skills = [];
+    try {
+      skills = JSON.parse(skillsText);
+    } catch {
+      console.error("Error parsing skills JSON:", skillsText);
+    }
+
+    return skills;
+  } catch (err) {
+    console.error("Error calling OpenRouter:", err);
+    return [];
+  }
+}
+
+async function updateUserProfile(userId, bio) {
+  const skills = await extractSkillsFromBio(bio);
+
+  let user = (await db.get(`user:${userId}`)) || {};
+  user.bio = bio;
+  user.skills = skills;
+
+  await db.set(`user:${userId}`, user);
+
+  return user;
+}
+
+module.exports = { updateUserProfile };
+Step 2 — Create Profile Route
+In /server/routes/profile.js:
+
+js
+Copy
+Edit
+const express = require("express");
+const router = express.Router();
+const { updateUserProfile } = require("../agents/profileAgent");
+
+router.post("/update", async (req, res) => {
+  const { userId, bio } = req.body;
+
+  if (!userId || !bio) {
+    return res.status(400).json({ error: "Missing userId or bio" });
+  }
+
+  const updatedUser = await updateUserProfile(userId, bio);
+  res.json(updatedUser);
+});
+
+module.exports = router;
+Step 3 — Register the Route
+In /server/routes/index.js (or your main server file):
+
+js
+Copy
+Edit
+const profileRoutes = require("./profile");
+app.use("/profile", profileRoutes);
+Step 4 — Test It
+From your frontend Profile page, send a request to:
+
+bash
+Copy
+Edit
+POST /profile/update
+{
+  "userId": "USER_ID_HERE",
+  "bio": "I am a full-stack developer experienced in Python, React, and AWS cloud."
+}
+Expected response:
+
+json
+Copy
+Edit
+{
+  "bio": "I am a full-stack developer experienced in Python, React, and AWS cloud.",
+  "skills": ["Python", "React", "AWS Cloud"]
+}

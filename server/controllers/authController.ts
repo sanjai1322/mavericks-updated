@@ -12,7 +12,14 @@ const SALT_ROUNDS = 10;
 // Middleware to verify JWT token
 export const verifyToken = async (req: Request, res: Response, next: any) => {
   try {
-    const token = req.headers.authorization?.split(" ")[1] || req.cookies?.token;
+    // Check both cookie and authorization header
+    let token = req.cookies?.token;
+    if (!token && req.headers.authorization) {
+      const authHeader = req.headers.authorization;
+      if (authHeader.startsWith('Bearer ')) {
+        token = authHeader.split(' ')[1];
+      }
+    }
     
     if (!token) {
       return res.status(401).json({ message: "Authentication token required" });

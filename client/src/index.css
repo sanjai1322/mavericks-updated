@@ -39,7 +39,7 @@
   
   /* Mavericks Custom Colors */
   --dark-primary: hsl(268, 100%, 12%);
-  --dark-accent: hsl(51, 100%, 50%);
+  --dark-accent: hsl(220, 100%, 60%);
   --dark-bg: hsl(256, 50%, 9%);
   --light-primary: hsl(263, 43%, 55%);
   --light-accent: hsl(263, 77%, 66%);
@@ -58,19 +58,19 @@
   --popover: hsl(256, 50%, 9%);
   --popover-foreground: hsl(200, 6.6667%, 91.1765%);
   --primary: hsl(268, 100%, 12%);
-  --primary-foreground: hsl(51, 100%, 50%);
+  --primary-foreground: hsl(220, 100%, 60%);
   --secondary: hsl(195.0000, 15.3846%, 94.9020%);
   --secondary-foreground: hsl(210, 25%, 7.8431%);
   --muted: hsl(0, 0%, 9.4118%);
   --muted-foreground: hsl(210, 3.3898%, 46.2745%);
   --accent: hsl(268, 100%, 12%);
-  --accent-foreground: hsl(51, 100%, 50%);
+  --accent-foreground: hsl(220, 100%, 60%);
   --destructive: hsl(356.3033, 90.5579%, 54.3137%);
   --destructive-foreground: hsl(0, 0%, 100%);
   --border: hsl(210, 5.2632%, 14.9020%);
   --input: hsl(207.6923, 27.6596%, 18.4314%);
-  --ring: hsl(51, 100%, 50%);
-  --chart-1: hsl(51, 100%, 50%);
+  --ring: hsl(220, 100%, 60%);
+  --chart-1: hsl(220, 100%, 60%);
   --chart-2: hsl(159.7826, 100%, 36.0784%);
   --chart-3: hsl(42.0290, 92.8251%, 56.2745%);
   --chart-4: hsl(147.1429, 78.5047%, 41.9608%);
