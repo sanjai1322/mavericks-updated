@@ -1,0 +1,45 @@
+Create a monorepo in Replit for the Mavericks Coding Platform with the following:
+
+1. General:
+- Two folders: /client (React + Vite + TailwindCSS) and /server (Node.js + Express).
+- Shared color palette: Dark purple (#1E003E) + Yellow (#FFD700) for dark theme, White + Purple for light theme.
+- Implement a theme toggle (dark/light) that remembers user preference (localStorage).
+- Use Poppins font globally.
+- Smooth animations with Framer Motion for page transitions and button hovers.
+- Fully responsive for desktop and mobile.
+
+2. Frontend (/client):
+- Pages: Landing, Login, Register, Dashboard, Assessments, Learning Path, Hackathons, Leaderboard.
+- Components:
+  - Navbar with logo, theme toggle, and user menu.
+  - Sidebar navigation (collapsible on mobile).
+  - Card component for features/resources.
+  - Progress stepper component for dashboard progress.
+  - Modal component for coding editor.
+- Landing page: Hero section with platform name "Mavericks Coding Platform" and tagline "Learn. Compete. Grow." plus feature cards.
+- Dashboard: Profile card, progress tracker, quick actions.
+- Assessments: Table of challenges, “Start” button opens modal with code editor (placeholder for now).
+- Learning Path: Resource cards with titles, descriptions, “View” buttons.
+- Hackathons: List of ongoing/upcoming hackathons, “Join” buttons, submissions section.
+- Leaderboard: Table with rank, username, score, badges.
+
+3. Backend (/server):
+- Express server with CORS, dotenv, and a routes folder.
+- Routes:
+  - /auth/register and /auth/login with JWT-based auth (dummy in-memory DB for now).
+  - /profile (GET, POST) to handle profile data.
+  - /assessments (GET, POST) placeholder for later code execution logic.
+  - /learning-path (GET) placeholder for AI recommendations.
+  - /hackathons (GET, POST) placeholder for events.
+  - /leaderboard (GET) placeholder for scores.
+- controllers folder for route logic.
+- agents folder with empty files for profileAgent.js, assessmentAgent.js, recommenderAgent.js, hackathonAgent.js, trackerAgent.js.
+
+4. Integration:
+- Connect frontend forms (login/register/profile) to backend routes using Axios.
+- Show dummy data in Assessments, Learning Path, Hackathons, and Leaderboard pages.
+- Ensure smooth navigation between pages.
+
+5. Extra:
+- Code should be clean, well-structured, and commented for easy extension.
+- Add instructions in README.md for running both frontend and backend in Replit.
