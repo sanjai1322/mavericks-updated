@@ -36,10 +36,14 @@ export default function CodeEditorModal({ isOpen, onClose, assessment }: CodeEdi
         body: submissionData,
       });
     },
-    onSuccess: (result) => {
+    onSuccess: (result: any) => {
       setIsRunning(false);
       if (result.passed) {
-        setTestResults(`✅ Success! Score: ${result.score}/100\n\nOutput:\n${result.stdout}`);
+        let resultText = `✅ Success! Score: ${result.score}/100\n\nOutput:\n${result.stdout}`;
+        if (result.extractedSkills && result.extractedSkills.length > 0) {
+          resultText += `\n\n🧠 AI-Detected Skills: ${result.extractedSkills.join(', ')}`;
+        }
+        setTestResults(resultText);
         toast({
           title: "Assessment Completed!",
           description: `Great job! You scored ${result.score}/100`,
@@ -48,7 +52,11 @@ export default function CodeEditorModal({ isOpen, onClose, assessment }: CodeEdi
         queryClient.invalidateQueries({ queryKey: ["/api/auth/me"] });
         queryClient.invalidateQueries({ queryKey: ["/api/assessments/history"] });
       } else {
-        setTestResults(`❌ Failed. Score: ${result.score}/100\n\nOutput:\n${result.stdout}\n\nErrors:\n${result.stderr}`);
+        let resultText = `❌ Failed. Score: ${result.score}/100\n\nOutput:\n${result.stdout}\n\nErrors:\n${result.stderr}`;
+        if (result.extractedSkills && result.extractedSkills.length > 0) {
+          resultText += `\n\n🧠 AI-Detected Skills: ${result.extractedSkills.join(', ')}`;
+        }
+        setTestResults(resultText);
         toast({
           title: "Try Again",
           description: "Your solution didn't pass all tests. Keep trying!",
@@ -96,8 +104,8 @@ export default function CodeEditorModal({ isOpen, onClose, assessment }: CodeEdi
     });
   };
 
-  const getLanguageName = (languages: Judge0Language[], id: number) => {
-    const lang = languages?.find(l => l.id === id);
+  const getLanguageName = (languages: any, id: number) => {
+    const lang = (languages as Judge0Language[] || []).find(l => l.id === id);
     return lang?.name || "Unknown";
   };
 
@@ -185,7 +193,7 @@ export default function CodeEditorModal({ isOpen, onClose, assessment }: CodeEdi
                         </SelectValue>
                       </SelectTrigger>
                       <SelectContent>
-                        {languages?.map((lang: Judge0Language) => (
+                        {(languages as Judge0Language[] || []).map((lang: Judge0Language) => (
                           <SelectItem key={lang.id} value={lang.id.toString()}>
                             {lang.name}
                           </SelectItem>
