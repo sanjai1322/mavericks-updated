@@ -25,6 +25,7 @@ function Router() {
       <Route path="/dashboard" component={Dashboard} />
       <Route path="/assessments" component={Assessments} />
       <Route path="/learning" component={LearningPath} />
+      <Route path="/ai-learning" component={LearningPath} />
       <Route path="/hackathons" component={Hackathons} />
       <Route path="/leaderboard" component={Leaderboard} />
       <Route component={NotFound} />

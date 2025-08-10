@@ -101,6 +101,7 @@ export const userAssessments = pgTable("user_assessments", {
   stderr: text("stderr"),
   execTime: text("exec_time"),
   memory: integer("memory"),
+  extractedSkills: text("extracted_skills").array(),
   submissionTime: timestamp("submission_time").defaultNow(),
 });
 

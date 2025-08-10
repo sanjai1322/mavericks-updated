@@ -26,6 +26,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Leaderboard routes
   app.use("/api/leaderboard", leaderboardRoutes);
+  
+  // AI-powered recommendation routes
+  try {
+    const recommenderRoutes = await import('./routes/recommender.js');
+    app.use('/api', recommenderRoutes.default);
+  } catch (error) {
+    console.log('AI routes not available yet:', error.message);
+  }
 
   const httpServer = createServer(app);
   return httpServer;

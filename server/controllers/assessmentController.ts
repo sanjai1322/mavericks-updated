@@ -132,7 +132,18 @@ router.post("/submit", verifyToken, async (req: Request, res: Response) => {
       stderr = passed ? "" : "Basic syntax check failed";
     }
 
-    // Store the assessment result
+    // Extract skills from submitted code using AI Profile Agent
+    let extractedSkills: string[] = [];
+    try {
+      const { extractSkillsFromCode } = await import('../agents/profileAgent.js');
+      const languageName = getLanguageName(languageId);
+      extractedSkills = await extractSkillsFromCode(sourceCode, languageName);
+    } catch (error) {
+      console.log('Profile Agent not available, using basic skill extraction');
+      extractedSkills = getBasicSkills(sourceCode, getLanguageName(languageId));
+    }
+
+    // Store the assessment result with extracted skills
     const userAssessment = await storage.createUserAssessment({
       userId,
       assessmentId,
@@ -143,6 +154,7 @@ router.post("/submit", verifyToken, async (req: Request, res: Response) => {
       stdout,
       stderr,
       execTime: "0.1s",
+      extractedSkills,
       memory: 1024
     });
 
@@ -171,6 +183,7 @@ router.post("/submit", verifyToken, async (req: Request, res: Response) => {
       score,
       stdout,
       stderr,
+      extractedSkills,
       submissionId: userAssessment.id
     });
 
@@ -223,5 +236,30 @@ router.get("/:id", async (req: Request, res: Response) => {
     res.status(500).json({ message: "Internal server error" });
   }
 });
+
+// Helper function to get language name from ID
+function getLanguageName(languageId: number): string {
+  const languageMap: { [key: number]: string } = {
+    63: 'javascript',
+    71: 'python', 
+    62: 'java',
+    54: 'cpp'
+  };
+  return languageMap[languageId] || 'unknown';
+}
+
+// Basic skill extraction fallback
+function getBasicSkills(code: string, language: string): string[] {
+  const skills: string[] = [];
+  const codeStr = code.toLowerCase();
+  
+  // Basic patterns
+  if (codeStr.includes('for') || codeStr.includes('while')) skills.push('loops');
+  if (codeStr.includes('if') || codeStr.includes('else')) skills.push('conditionals');
+  if (codeStr.includes('function') || codeStr.includes('def')) skills.push('functions');
+  if (codeStr.includes('array') || codeStr.includes('list')) skills.push('arrays');
+  
+  return skills.slice(0, 5);
+}
 
 export default router;
