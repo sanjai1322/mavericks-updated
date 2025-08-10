@@ -2,16 +2,71 @@
 import fetch from "node-fetch";
 
 const HF_KEY = process.env.HUGGINGFACE_API_KEY;
+const OPENROUTER_KEY = process.env.OPENROUTER_API_KEY;
 
 // AI-powered skill extraction from user submissions and activity
 async function extractSkillsFromCode(codeSubmission, language) {
-  if (!HF_KEY) {
-    // Fallback skill extraction without AI
-    return extractSkillsFallback(codeSubmission, language);
+  // Try OpenRouter API first (better than Hugging Face for this task)
+  if (OPENROUTER_KEY) {
+    try {
+      const prompt = `Analyze this ${language} code and extract programming skills demonstrated:
+
+${codeSubmission}
+
+List the key programming concepts, algorithms, and skills shown in this code. Focus on:
+- Data structures used
+- Algorithms implemented
+- Programming patterns
+- Language-specific features
+- Problem-solving approaches
+
+Respond with a comma-separated list of skills only.`;
+
+      const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${OPENROUTER_KEY}`,
+          "Content-Type": "application/json",
+          "HTTP-Referer": "https://mavericks-coding-platform.replit.app",
+          "X-Title": "Mavericks Coding Platform"
+        },
+        body: JSON.stringify({
+          model: "anthropic/claude-3.5-sonnet",
+          messages: [
+            {
+              role: "user",
+              content: prompt
+            }
+          ],
+          max_tokens: 150,
+          temperature: 0.3
+        })
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        const skillsText = result.choices?.[0]?.message?.content || "";
+        
+        // Parse skills from response
+        const skills = skillsText
+          .split(',')
+          .map(s => s.trim().toLowerCase())
+          .filter(s => s.length > 0 && s.length < 50)
+          .slice(0, 10);
+
+        if (skills.length > 0) {
+          return skills;
+        }
+      }
+    } catch (error) {
+      console.error("OpenRouter API error:", error);
+    }
   }
 
-  try {
-    const prompt = `Analyze this ${language} code and extract programming skills demonstrated:
+  // Fallback to Hugging Face
+  if (HF_KEY) {
+    try {
+      const prompt = `Analyze this ${language} code and extract programming skills demonstrated:
 
 ${codeSubmission}
 
@@ -24,42 +79,43 @@ List the key programming concepts, algorithms, and skills shown in this code. Fo
 
 Respond with a comma-separated list of skills.`;
 
-    const response = await fetch("https://api-inference.huggingface.co/models/microsoft/DialoGPT-medium", {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${HF_KEY}`,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        inputs: prompt,
-        parameters: {
-          max_new_tokens: 150,
-          temperature: 0.3
+      const response = await fetch("https://api-inference.huggingface.co/models/microsoft/DialoGPT-medium", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${HF_KEY}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          inputs: prompt,
+          parameters: {
+            max_new_tokens: 150,
+            temperature: 0.3
+          }
+        })
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        const skillsText = result[0]?.generated_text || "";
+        
+        // Parse skills from response
+        const skills = skillsText
+          .split(',')
+          .map(s => s.trim().toLowerCase())
+          .filter(s => s.length > 0 && s.length < 50)
+          .slice(0, 10);
+
+        if (skills.length > 0) {
+          return skills;
         }
-      })
-    });
-
-    if (!response.ok) {
-      console.error("HF API error:", response.status, await response.text());
-      return extractSkillsFallback(codeSubmission, language);
+      }
+    } catch (error) {
+      console.error("HF API error:", error);
     }
-
-    const result = await response.json();
-    const skillsText = result[0]?.generated_text || "";
-    
-    // Parse skills from response
-    const skills = skillsText
-      .split(',')
-      .map(s => s.trim().toLowerCase())
-      .filter(s => s.length > 0 && s.length < 50)
-      .slice(0, 10); // Limit to 10 skills
-
-    return skills.length > 0 ? skills : extractSkillsFallback(codeSubmission, language);
-    
-  } catch (error) {
-    console.error("Error in AI skill extraction:", error);
-    return extractSkillsFallback(codeSubmission, language);
   }
+
+  // Fallback skill extraction without AI
+  return extractSkillsFallback(codeSubmission, language);
 }
 
 // Fallback skill extraction using pattern matching

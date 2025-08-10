@@ -36,6 +36,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     },
     onSuccess: (response) => {
       setUser(response.user);
+      if (response.token) {
+        localStorage.setItem('authToken', response.token);
+      }
       queryClient.setQueryData(["/api/auth/me"], response.user);
       queryClient.invalidateQueries({ queryKey: ["/api"] });
     },
@@ -53,6 +56,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     },
     onSuccess: () => {
       setUser(null);
+      localStorage.removeItem('authToken');
       queryClient.clear();
       queryClient.removeQueries({ queryKey: ["/api/auth/me"] });
     },

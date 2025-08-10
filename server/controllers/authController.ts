@@ -22,6 +22,7 @@ export const verifyToken = async (req: Request, res: Response, next: any) => {
     }
     
     if (!token) {
+      console.log("No token found in cookies or headers");
       return res.status(401).json({ message: "Authentication token required" });
     }
 
@@ -29,12 +30,14 @@ export const verifyToken = async (req: Request, res: Response, next: any) => {
     const user = await storage.getUser(decoded.userId);
     
     if (!user) {
+      console.log("User not found for token:", decoded.userId);
       return res.status(401).json({ message: "User not found" });
     }
 
     (req as any).user = user;
     next();
   } catch (error) {
+    console.log("Token verification error:", error);
     res.status(401).json({ message: "Invalid or expired token" });
   }
 };
