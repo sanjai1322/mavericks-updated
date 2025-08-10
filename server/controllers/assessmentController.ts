@@ -11,6 +11,38 @@ const router = Router();
 const JUDGE0_API_URL = "https://judge0-ce.p.rapidapi.com";
 const JUDGE0_API_KEY = process.env.RAPIDAPI_KEY || "demo-key"; // You can use demo or get a real API key
 
+// Fallback skill extraction function
+function extractSkillsFallback(code: string, language: string): string[] {
+  const skills = [];
+  
+  // Language-specific patterns
+  if (language === "Python") {
+    if (code.includes("def ")) skills.push("function definition");
+    if (code.includes("for ") || code.includes("while ")) skills.push("loops");
+    if (code.includes("if ")) skills.push("conditionals");
+    if (code.includes("[") && code.includes("for") && code.includes("in")) skills.push("list comprehension");
+    if (code.includes("class ")) skills.push("object-oriented programming");
+    if (code.includes("import ")) skills.push("module usage");
+    if (code.includes("return ")) skills.push("function return values");
+  } else if (language === "JavaScript") {
+    if (code.includes("function") || code.includes("=>")) skills.push("function definition");
+    if (code.includes("for") || code.includes("while")) skills.push("loops");
+    if (code.includes("if")) skills.push("conditionals");
+    if (code.includes("array") || code.includes("[")) skills.push("array manipulation");
+    if (code.includes("class")) skills.push("object-oriented programming");
+    if (code.includes("return")) skills.push("function return values");
+  }
+
+  // General programming concepts
+  if (code.includes("sort")) skills.push("sorting algorithms");
+  if (code.includes("hash") || code.includes("map") || code.includes("dict")) skills.push("hash tables");
+  if (code.includes("recursion") || code.match(/(\w+)\s*\(\s*\1\s*\(/)) skills.push("recursion");
+  if (code.includes("binary") || code.includes("divide")) skills.push("divide and conquer");
+  if (code.includes("dynamic") || code.includes("memo")) skills.push("dynamic programming");
+  
+  return skills.slice(0, 8); // Limit to 8 skills
+}
+
 // Get all challenges
 router.get("/challenges", async (req: Request, res: Response) => {
   try {
@@ -131,13 +163,45 @@ router.post("/submit", verifyToken, async (req: Request, res: Response) => {
             if (submitResponse.ok) {
               const result: Judge0Result = await submitResponse.json() as Judge0Result;
               const output = result.stdout?.trim() || "";
-              const expectedOutput = JSON.stringify(testCase.expected).replace(/"/g, '');
               
-              if (result.status.id === 3 && output === expectedOutput) {
-                passedTests++;
-                testResults.push({ passed: true, input: testCase.input, expected: testCase.expected, actual: output });
+              // Better output comparison logic
+              let expectedStr: string;
+              let actualStr: string = output;
+              
+              if (typeof testCase.expected === 'string') {
+                expectedStr = testCase.expected;
+              } else if (Array.isArray(testCase.expected)) {
+                expectedStr = JSON.stringify(testCase.expected);
+              } else if (typeof testCase.expected === 'object') {
+                expectedStr = JSON.stringify(testCase.expected);
               } else {
-                testResults.push({ passed: false, input: testCase.input, expected: testCase.expected, actual: output, error: result.stderr });
+                expectedStr = String(testCase.expected);
+              }
+              
+              // Normalize both strings for comparison
+              const normalizeOutput = (str: string) => {
+                return str.replace(/\s+/g, ' ').trim().toLowerCase();
+              };
+              
+              const isCorrect = result.status.id === 3 && (
+                actualStr === expectedStr || 
+                normalizeOutput(actualStr) === normalizeOutput(expectedStr) ||
+                actualStr === String(testCase.expected) ||
+                (actualStr.includes('[') && actualStr.includes(']') && 
+                 actualStr.replace(/[\s\[\]]/g, '') === expectedStr.replace(/[\s\[\]]/g, ''))
+              );
+              
+              if (isCorrect) {
+                passedTests++;
+                testResults.push({ passed: true, input: testCase.input, expected: testCase.expected, actual: actualStr });
+              } else {
+                testResults.push({ 
+                  passed: false, 
+                  input: testCase.input, 
+                  expected: testCase.expected, 
+                  actual: actualStr, 
+                  error: result.stderr || `Expected: ${expectedStr}, Got: ${actualStr}`
+                });
               }
             } else {
               testResults.push({ passed: false, input: testCase.input, expected: testCase.expected, actual: "", error: "Execution failed" });
@@ -211,48 +275,23 @@ router.post("/submit", verifyToken, async (req: Request, res: Response) => {
     // Extract skills from submitted code using AI Profile Agent
     let extractedSkills: string[] = [];
     try {
-      const { extractSkillsFromCode } = await import('../agents/profileAgent.js');
-      const languageName = languageId === 71 ? "Python" : languageId === 63 ? "JavaScript" : "Unknown";
-      console.log("Extracting skills for language:", languageName);
-      extractedSkills = await extractSkillsFromCode(sourceCode, languageName);
-      console.log("Extracted skills:", extractedSkills);
+      // Try to import and use the AI profile agent
+      const profileAgent = await import('../agents/profileAgent.js');
+      if (profileAgent && profileAgent.extractSkillsFromCode) {
+        const languageName = languageId === 71 ? "Python" : languageId === 63 ? "JavaScript" : "Unknown";
+        console.log("Extracting skills for language:", languageName);
+        extractedSkills = await profileAgent.extractSkillsFromCode(sourceCode, languageName);
+        console.log("Extracted skills:", extractedSkills);
+      } else {
+        throw new Error("Profile agent not available");
+      }
     } catch (skillError) {
       console.error("Error extracting skills:", skillError);
       // Fallback skill extraction based on code analysis
       extractedSkills = extractSkillsFallback(sourceCode, languageId === 71 ? "Python" : languageId === 63 ? "JavaScript" : "Unknown");
     }
 
-    // Fallback skill extraction function
-    function extractSkillsFallback(code: string, language: string): string[] {
-      const skills = [];
-      
-      // Language-specific patterns
-      if (language === "Python") {
-        if (code.includes("def ")) skills.push("function definition");
-        if (code.includes("for ") || code.includes("while ")) skills.push("loops");
-        if (code.includes("if ")) skills.push("conditionals");
-        if (code.includes("[") && code.includes("for") && code.includes("in")) skills.push("list comprehension");
-        if (code.includes("class ")) skills.push("object-oriented programming");
-        if (code.includes("import ")) skills.push("module usage");
-        if (code.includes("return ")) skills.push("function return values");
-      } else if (language === "JavaScript") {
-        if (code.includes("function") || code.includes("=>")) skills.push("function definition");
-        if (code.includes("for") || code.includes("while")) skills.push("loops");
-        if (code.includes("if")) skills.push("conditionals");
-        if (code.includes("array") || code.includes("[")) skills.push("array manipulation");
-        if (code.includes("class")) skills.push("object-oriented programming");
-        if (code.includes("return")) skills.push("function return values");
-      }
 
-      // General programming concepts
-      if (code.includes("sort")) skills.push("sorting algorithms");
-      if (code.includes("hash") || code.includes("map") || code.includes("dict")) skills.push("hash tables");
-      if (code.includes("recursion") || code.match(/(\w+)\s*\(\s*\1\s*\(/)) skills.push("recursion");
-      if (code.includes("binary") || code.includes("divide")) skills.push("divide and conquer");
-      if (code.includes("dynamic") || code.includes("memo")) skills.push("dynamic programming");
-      
-      return skills.slice(0, 8); // Limit to 8 skills
-    }
 
     // Store the assessment result with extracted skills  
     const userAssessmentData = {

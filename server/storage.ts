@@ -114,7 +114,9 @@ var twoSum = function(nums, target) {
 };`,
         testCases: [
           { input: { nums: [2, 7, 11, 15], target: 9 }, expected: [0, 1] },
-          { input: { nums: [3, 2, 4], target: 6 }, expected: [1, 2] }
+          { input: { nums: [3, 2, 4], target: 6 }, expected: [1, 2] },
+          { input: { nums: [3, 3], target: 6 }, expected: [0, 1] },
+          { input: { nums: [1, 2, 3, 4, 5], target: 9 }, expected: [3, 4] }
         ] as any,
         createdAt: new Date(),
       },
@@ -158,6 +160,37 @@ var longestPalindrome = function(s) {
       },
       {
         id: randomUUID(),
+        title: "Two Sum (Python)",
+        description: "Find two numbers that add up to a target - Python version",
+        difficulty: "Easy",
+        topic: "Arrays",
+        acceptance: "87.3%",
+        problemStatement: `Given a list of integers nums and an integer target, return indices of the two numbers such that they add up to target.
+
+You may assume that each input would have exactly one solution, and you may not use the same element twice.
+
+Example:
+Input: nums = [2,7,11,15], target = 9
+Output: [0,1]
+Explanation: Because nums[0] + nums[1] == 9, we return [0, 1].`,
+        starterCode: `def two_sum(nums, target):
+    """
+    Find two numbers that add up to target.
+    Return their indices as a list.
+    """
+    # Your code here
+    pass`,
+        testCases: [
+          { input: { nums: [2, 7, 11, 15], target: 9 }, expected: [0, 1] },
+          { input: { nums: [3, 2, 4], target: 6 }, expected: [1, 2] },
+          { input: { nums: [3, 3], target: 6 }, expected: [0, 1] },
+          { input: { nums: [1, 2, 3, 4, 5], target: 9 }, expected: [3, 4] },
+          { input: { nums: [0, 4, 3, 0], target: 0 }, expected: [0, 3] }
+        ] as any,
+        createdAt: new Date(),
+      },
+      {
+        id: randomUUID(),
         title: "Python List Comprehension",
         description: "Create lists using Python comprehensions",
         difficulty: "Easy",
@@ -179,7 +212,9 @@ Use Python list comprehension for the solution.`,
     pass`,
         testCases: [
           { input: { numbers: [1, 2, 3, 4, 5, 6] }, expected: [4, 16, 36] },
-          { input: { numbers: [10, 15, 20, 25] }, expected: [100, 400] }
+          { input: { numbers: [10, 15, 20, 25] }, expected: [100, 400] },
+          { input: { numbers: [1, 3, 5, 7, 9] }, expected: [] },
+          { input: { numbers: [2, 4, 6, 8] }, expected: [4, 16, 36, 64] }
         ] as any,
         createdAt: new Date(),
       },
@@ -287,7 +322,9 @@ Output: false`,
         testCases: [
           { input: { s: "()" }, expected: true },
           { input: { s: "()[]{}" }, expected: true },
-          { input: { s: "([)]" }, expected: false }
+          { input: { s: "([)]" }, expected: false },
+          { input: { s: "(((" }, expected: false },
+          { input: { s: "" }, expected: true }
         ] as any,
         createdAt: new Date(),
       },
