@@ -25,15 +25,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   });
 
   useEffect(() => {
-    if (currentUser) {
-      setUser(currentUser);
+    if (currentUser && typeof currentUser === 'object' && 'id' in currentUser) {
+      setUser(currentUser as User);
     }
   }, [currentUser]);
 
   const loginMutation = useMutation({
     mutationFn: async (credentials: LoginCredentials) => {
-      const response = await apiRequest('POST', '/api/auth/login', credentials);
-      return response.json();
+      return await apiRequest('/api/auth/login', { method: 'POST', body: credentials });
     },
     onSuccess: (response) => {
       setUser(response.user);
@@ -44,14 +43,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const registerMutation = useMutation({
     mutationFn: async (userData: InsertUser) => {
-      const response = await apiRequest('POST', '/api/auth/register', userData);
-      return response.json();
+      return await apiRequest('/api/auth/register', { method: 'POST', body: userData });
     },
   });
 
   const logoutMutation = useMutation({
     mutationFn: async () => {
-      await apiRequest('POST', '/api/auth/logout');
+      return await apiRequest('/api/auth/logout', { method: 'POST' });
     },
     onSuccess: () => {
       setUser(null);

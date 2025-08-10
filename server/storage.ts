@@ -155,6 +155,105 @@ var longestPalindrome = function(s) {
 };`,
         testCases: [] as any,
         createdAt: new Date(),
+      },
+      {
+        id: randomUUID(),
+        title: "Python List Comprehension",
+        description: "Create lists using Python comprehensions",
+        difficulty: "Easy",
+        topic: "Python Basics",
+        acceptance: "92.1%",
+        problemStatement: `Write a function that takes a list of numbers and returns a new list containing only the even numbers, squared.
+
+Example:
+Input: [1, 2, 3, 4, 5, 6]
+Output: [4, 16, 36]
+
+Use Python list comprehension for the solution.`,
+        starterCode: `def filter_and_square_evens(numbers):
+    """
+    Return a list of squared even numbers from the input list.
+    Use list comprehension.
+    """
+    # Your code here
+    pass`,
+        testCases: [
+          { input: { numbers: [1, 2, 3, 4, 5, 6] }, expected: [4, 16, 36] },
+          { input: { numbers: [10, 15, 20, 25] }, expected: [100, 400] }
+        ] as any,
+        createdAt: new Date(),
+      },
+      {
+        id: randomUUID(),
+        title: "Python Dictionary Manipulation",
+        description: "Work with Python dictionaries and data processing",
+        difficulty: "Medium",
+        topic: "Data Structures",
+        acceptance: "78.5%",
+        problemStatement: `Given a list of dictionaries representing students, write a function that:
+1. Filters students with grades >= 85
+2. Returns a dictionary mapping student names to their grades
+3. Sorts the result by grade in descending order
+
+Example:
+Input: [{"name": "Alice", "grade": 90}, {"name": "Bob", "grade": 75}, {"name": "Carol", "grade": 95}]
+Output: {"Carol": 95, "Alice": 90}`,
+        starterCode: `def process_students(students):
+    """
+    Process student data and return top performers.
+    """
+    # Your code here
+    pass`,
+        testCases: [
+          { 
+            input: { students: [{"name": "Alice", "grade": 90}, {"name": "Bob", "grade": 75}, {"name": "Carol", "grade": 95}] }, 
+            expected: {"Carol": 95, "Alice": 90} 
+          }
+        ] as any,
+        createdAt: new Date(),
+      },
+      {
+        id: randomUUID(),
+        title: "Python Class Design",
+        description: "Implement object-oriented programming concepts",
+        difficulty: "Hard",
+        topic: "OOP",
+        acceptance: "65.2%",
+        problemStatement: `Design a Python class 'BankAccount' with the following features:
+1. Constructor that takes initial balance
+2. Methods: deposit(), withdraw(), get_balance()
+3. Withdraw should not allow negative balance
+4. All transactions should be logged
+5. Implement a method to get transaction history
+
+The class should handle edge cases and maintain data integrity.`,
+        starterCode: `class BankAccount:
+    def __init__(self, initial_balance=0):
+        """Initialize the bank account."""
+        # Your code here
+        pass
+    
+    def deposit(self, amount):
+        """Deposit money to the account."""
+        # Your code here
+        pass
+    
+    def withdraw(self, amount):
+        """Withdraw money from the account."""
+        # Your code here
+        pass
+    
+    def get_balance(self):
+        """Get current balance."""
+        # Your code here
+        pass
+    
+    def get_transaction_history(self):
+        """Get list of all transactions."""
+        # Your code here
+        pass`,
+        testCases: [] as any,
+        createdAt: new Date(),
       }
     ];
 

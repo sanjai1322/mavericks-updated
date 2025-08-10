@@ -73,16 +73,16 @@ export default function Navbar() {
             <div className="hidden md:flex items-center space-x-8">
               {visibleNavLinks.map((link) => (
                 <Link key={link.href} href={link.href}>
-                  <motion.a
+                  <motion.span
                     whileHover={{ scale: 1.1 }}
-                    className={`transition-colors ${
+                    className={`transition-colors cursor-pointer ${
                       location === link.href
                         ? "text-light-primary dark:text-dark-accent font-semibold"
                         : "text-gray-600 dark:text-gray-300 hover:text-light-primary dark:hover:text-dark-accent"
                     }`}
                   >
                     {link.label}
-                  </motion.a>
+                  </motion.span>
                 </Link>
               ))}
             </div>
