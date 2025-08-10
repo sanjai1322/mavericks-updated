@@ -173,7 +173,7 @@ Example:
 Input: nums = [2,7,11,15], target = 9
 Output: [0,1]
 Explanation: Because nums[0] + nums[1] == 9, we return [0, 1].`,
-        starterCode: `def two_sum(nums, target):
+        starterCode: `def twoSum(nums, target):
     """
     Find two numbers that add up to target.
     Return their indices as a list.
@@ -292,8 +292,256 @@ The class should handle edge cases and maintain data integrity.`,
       }
     ];
 
-    // Add more LeetCode-style problems
+    // Add comprehensive quiz-based assessments by difficulty levels
     const additionalProblems = [
+      // BEGINNER LEVEL (Easy Problems)
+      {
+        id: randomUUID(),
+        title: "Sum of Two Integers",
+        description: "Calculate the sum of two numbers",
+        difficulty: "Easy",
+        topic: "Math",
+        acceptance: "98.5%",
+        problemStatement: `Write a function that takes two integers and returns their sum.
+        
+Example:
+Input: a = 5, b = 3
+Output: 8`,
+        starterCode: `def add_numbers(a, b):
+    """Add two numbers and return the sum."""
+    # Your code here
+    pass`,
+        testCases: [
+          { input: { a: 5, b: 3 }, expected: 8 },
+          { input: { a: -1, b: 1 }, expected: 0 },
+          { input: { a: 0, b: 0 }, expected: 0 },
+          { input: { a: -5, b: -3 }, expected: -8 }
+        ] as any,
+        createdAt: new Date(),
+      },
+      {
+        id: randomUUID(),
+        title: "Find Maximum Number",
+        description: "Find the largest number in a list",
+        difficulty: "Easy",
+        topic: "Arrays",
+        acceptance: "94.2%",
+        problemStatement: `Write a function that finds the maximum number in a list of integers.
+        
+Example:
+Input: nums = [1, 5, 3, 9, 2]
+Output: 9`,
+        starterCode: `def find_max(nums):
+    """Find the maximum number in the list."""
+    # Your code here
+    pass`,
+        testCases: [
+          { input: { nums: [1, 5, 3, 9, 2] }, expected: 9 },
+          { input: { nums: [-1, -5, -3] }, expected: -1 },
+          { input: { nums: [42] }, expected: 42 },
+          { input: { nums: [0, 0, 0] }, expected: 0 }
+        ] as any,
+        createdAt: new Date(),
+      },
+      {
+        id: randomUUID(),
+        title: "Count Vowels",
+        description: "Count the number of vowels in a string",
+        difficulty: "Easy",
+        topic: "Strings",
+        acceptance: "91.7%",
+        problemStatement: `Write a function that counts the number of vowels (a, e, i, o, u) in a given string.
+        
+Example:
+Input: s = "hello world"
+Output: 3`,
+        starterCode: `def count_vowels(s):
+    """Count vowels in the string."""
+    # Your code here
+    pass`,
+        testCases: [
+          { input: { s: "hello world" }, expected: 3 },
+          { input: { s: "PROGRAMMING" }, expected: 3 },
+          { input: { s: "xyz" }, expected: 0 },
+          { input: { s: "aeiou" }, expected: 5 }
+        ] as any,
+        createdAt: new Date(),
+      },
+      {
+        id: randomUUID(),
+        title: "Reverse String",
+        description: "Reverse the characters in a string",
+        difficulty: "Easy",
+        topic: "Strings",
+        acceptance: "96.1%",
+        problemStatement: `Write a function that reverses a string.
+        
+Example:
+Input: s = "hello"
+Output: "olleh"`,
+        starterCode: `def reverse_string(s):
+    """Reverse the input string."""
+    # Your code here
+    pass`,
+        testCases: [
+          { input: { s: "hello" }, expected: "olleh" },
+          { input: { s: "Python" }, expected: "nohtyP" },
+          { input: { s: "a" }, expected: "a" },
+          { input: { s: "" }, expected: "" }
+        ] as any,
+        createdAt: new Date(),
+      },
+      {
+        id: randomUUID(),
+        title: "Even or Odd",
+        description: "Check if a number is even or odd",
+        difficulty: "Easy",
+        topic: "Math",
+        acceptance: "99.1%",
+        problemStatement: `Write a function that determines if a number is even or odd.
+        
+Example:
+Input: n = 4
+Output: "even"
+        
+Input: n = 7
+Output: "odd"`,
+        starterCode: `def check_even_odd(n):
+    """Check if number is even or odd."""
+    # Your code here
+    pass`,
+        testCases: [
+          { input: { n: 4 }, expected: "even" },
+          { input: { n: 7 }, expected: "odd" },
+          { input: { n: 0 }, expected: "even" },
+          { input: { n: -3 }, expected: "odd" }
+        ] as any,
+        createdAt: new Date(),
+      },
+
+      // INTERMEDIATE LEVEL (Medium Problems)
+      {
+        id: randomUUID(),
+        title: "Find Duplicates",
+        description: "Find duplicate numbers in an array",
+        difficulty: "Medium",
+        topic: "Arrays",
+        acceptance: "73.4%",
+        problemStatement: `Given an array of integers, find all numbers that appear more than once.
+        
+Example:
+Input: nums = [1, 2, 3, 2, 4, 3]
+Output: [2, 3]`,
+        starterCode: `def find_duplicates(nums):
+    """Find all duplicate numbers in the array."""
+    # Your code here
+    pass`,
+        testCases: [
+          { input: { nums: [1, 2, 3, 2, 4, 3] }, expected: [2, 3] },
+          { input: { nums: [1, 1, 1] }, expected: [1] },
+          { input: { nums: [1, 2, 3] }, expected: [] },
+          { input: { nums: [] }, expected: [] }
+        ] as any,
+        createdAt: new Date(),
+      },
+      {
+        id: randomUUID(),
+        title: "Rotate Array",
+        description: "Rotate array to the right by k steps",
+        difficulty: "Medium",
+        topic: "Arrays",
+        acceptance: "68.9%",
+        problemStatement: `Given an array, rotate the array to the right by k steps.
+        
+Example:
+Input: nums = [1,2,3,4,5,6,7], k = 3
+Output: [5,6,7,1,2,3,4]`,
+        starterCode: `def rotate_array(nums, k):
+    """Rotate array to the right by k steps."""
+    # Your code here
+    pass`,
+        testCases: [
+          { input: { nums: [1,2,3,4,5,6,7], k: 3 }, expected: [5,6,7,1,2,3,4] },
+          { input: { nums: [1,2], k: 1 }, expected: [2,1] },
+          { input: { nums: [1], k: 1 }, expected: [1] },
+          { input: { nums: [1,2,3], k: 4 }, expected: [3,1,2] }
+        ] as any,
+        createdAt: new Date(),
+      },
+      {
+        id: randomUUID(),
+        title: "Longest Common Prefix",
+        description: "Find the longest common prefix among strings",
+        difficulty: "Medium",
+        topic: "Strings",
+        acceptance: "71.8%",
+        problemStatement: `Write a function to find the longest common prefix string amongst an array of strings.
+        
+Example:
+Input: strs = ["flower","flow","flight"]
+Output: "fl"`,
+        starterCode: `def longest_common_prefix(strs):
+    """Find longest common prefix among all strings."""
+    # Your code here
+    pass`,
+        testCases: [
+          { input: { strs: ["flower","flow","flight"] }, expected: "fl" },
+          { input: { strs: ["dog","racecar","car"] }, expected: "" },
+          { input: { strs: ["test","test","test"] }, expected: "test" },
+          { input: { strs: [""] }, expected: "" }
+        ] as any,
+        createdAt: new Date(),
+      },
+      {
+        id: randomUUID(),
+        title: "Binary Search",
+        description: "Implement binary search algorithm",
+        difficulty: "Medium",
+        topic: "Search Algorithms",
+        acceptance: "77.2%",
+        problemStatement: `Given a sorted array and a target value, return the index if the target is found. If not, return -1.
+        
+Example:
+Input: nums = [1,3,5,7,9], target = 5
+Output: 2`,
+        starterCode: `def binary_search(nums, target):
+    """Find target using binary search."""
+    # Your code here
+    pass`,
+        testCases: [
+          { input: { nums: [1,3,5,7,9], target: 5 }, expected: 2 },
+          { input: { nums: [1,3,5,7,9], target: 6 }, expected: -1 },
+          { input: { nums: [1], target: 1 }, expected: 0 },
+          { input: { nums: [], target: 1 }, expected: -1 }
+        ] as any,
+        createdAt: new Date(),
+      },
+
+      // ADVANCED LEVEL (Hard Problems)
+      {
+        id: randomUUID(),
+        title: "Merge Sort Implementation",
+        description: "Implement the merge sort algorithm",
+        difficulty: "Hard",
+        topic: "Sorting",
+        acceptance: "54.7%",
+        problemStatement: `Implement merge sort to sort an array of integers in ascending order.
+        
+Example:
+Input: nums = [3,1,4,1,5,9,2,6]
+Output: [1,1,2,3,4,5,6,9]`,
+        starterCode: `def merge_sort(nums):
+    """Sort array using merge sort algorithm."""
+    # Your code here
+    pass`,
+        testCases: [
+          { input: { nums: [3,1,4,1,5,9,2,6] }, expected: [1,1,2,3,4,5,6,9] },
+          { input: { nums: [1] }, expected: [1] },
+          { input: { nums: [] }, expected: [] },
+          { input: { nums: [5,4,3,2,1] }, expected: [1,2,3,4,5] }
+        ] as any,
+        createdAt: new Date(),
+      },
       {
         id: randomUUID(),
         title: "Valid Parentheses",
@@ -313,7 +561,7 @@ Output: true
 
 Input: "([)]"
 Output: false`,
-        starterCode: `def isValid(s):
+        starterCode: `def is_valid_parentheses(s):
     """
     Check if the parentheses string is valid.
     """

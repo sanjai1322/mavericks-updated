@@ -130,15 +130,17 @@ router.post("/submit", verifyToken, async (req: Request, res: Response) => {
               const funcMatch = sourceCode.match(/def\s+(\w+)\s*\(/);
               if (funcMatch) {
                 const funcName = funcMatch[1];
-                const inputStr = JSON.stringify(testCase.input);
-                testCode += `\n\n# Test case\nresult = ${funcName}(${Object.values(testCase.input).map(v => JSON.stringify(v)).join(', ')})\nprint(result)`;
+                // Better parameter mapping for test cases
+                const paramValues = Object.values(testCase.input).map(v => JSON.stringify(v)).join(', ');
+                testCode += `\n\n# Test case\nresult = ${funcName}(${paramValues})\nprint(result)`;
               }
             } else if (sourceCode.includes("function") || sourceCode.includes("var ") || sourceCode.includes("const ")) {
               // JavaScript function - add test call
               const funcMatch = sourceCode.match(/(?:function\s+(\w+)|(?:var|const|let)\s+(\w+)\s*=)/);
               if (funcMatch) {
                 const funcName = funcMatch[1] || funcMatch[2];
-                testCode += `\n\n// Test case\nconsole.log(${funcName}(${Object.values(testCase.input).map(v => JSON.stringify(v)).join(', ')}));`;
+                const paramValues = Object.values(testCase.input).map(v => JSON.stringify(v)).join(', ');
+                testCode += `\n\n// Test case\nconsole.log(${funcName}(${paramValues}));`;
               }
             }
 
@@ -183,12 +185,24 @@ router.post("/submit", verifyToken, async (req: Request, res: Response) => {
                 return str.replace(/\s+/g, ' ').trim().toLowerCase();
               };
               
+              // Enhanced output comparison logic
               const isCorrect = result.status.id === 3 && (
                 actualStr === expectedStr || 
                 normalizeOutput(actualStr) === normalizeOutput(expectedStr) ||
                 actualStr === String(testCase.expected) ||
+                // Handle list/array outputs
                 (actualStr.includes('[') && actualStr.includes(']') && 
-                 actualStr.replace(/[\s\[\]]/g, '') === expectedStr.replace(/[\s\[\]]/g, ''))
+                 actualStr.replace(/[\s\[\]]/g, '') === expectedStr.replace(/[\s\[\]]/g, '')) ||
+                // Handle Python list output format
+                (actualStr.replace(/\s+/g, '') === expectedStr.replace(/\s+/g, '')) ||
+                // Try parsing both as JSON and compare
+                (() => {
+                  try {
+                    return JSON.stringify(JSON.parse(actualStr)) === JSON.stringify(testCase.expected);
+                  } catch {
+                    return false;
+                  }
+                })()
               );
               
               if (isCorrect) {
