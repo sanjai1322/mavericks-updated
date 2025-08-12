@@ -49,6 +49,7 @@ The Mavericks Coding Platform is a comprehensive coding education application bu
 
 Preferred communication style: Simple, everyday language.
 Feature priorities: Multilingual quiz expansion with comprehensive programming language coverage.
+Testing approach: Prefers sample solutions to verify assessment functionality.
 
 ## System Architecture
 
