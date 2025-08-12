@@ -76,10 +76,7 @@ export default function ResumeUpload() {
 
           const response = await apiRequest("/api/resume/upload", {
             method: "POST",
-            body: JSON.stringify(uploadData),
-            headers: {
-              "Content-Type": "application/json"
-            }
+            body: uploadData
           });
 
           setUploadProgress(80);
