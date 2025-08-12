@@ -127,8 +127,25 @@ Return only valid JSON:`;
       }
 
       // Clean and parse JSON response
-      const cleanedContent = content.replace(/```json\n?|\n?```/g, '').trim();
-      return JSON.parse(cleanedContent);
+      let cleanedContent = content.replace(/```json\n?|\n?```/g, '').trim();
+      
+      // Remove any extra quotes or escape characters that might cause parsing issues
+      cleanedContent = cleanedContent.replace(/^["'`]+|["'`]+$/g, '').trim();
+      
+      // Try to find JSON object if response contains extra text
+      const jsonMatch = cleanedContent.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        cleanedContent = jsonMatch[0];
+      }
+      
+      // Attempt to parse JSON with better error handling
+      try {
+        return JSON.parse(cleanedContent);
+      } catch (parseError) {
+        console.error('JSON parsing failed. Content:', cleanedContent.substring(0, 200));
+        console.error('Parse error:', parseError.message);
+        throw new Error('Invalid JSON response from AI service');
+      }
     } catch (error) {
       console.error('OpenRouter parsing error:', error);
       return null;

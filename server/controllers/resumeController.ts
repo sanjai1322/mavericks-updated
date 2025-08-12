@@ -74,8 +74,14 @@ export const uploadResume = async (req: AuthenticatedRequest, res: Response) => 
       console.log('Resume parsed successfully:', aiAnalysis?.summary || 'Analysis completed');
     } catch (error) {
       console.error('Resume parsing failed:', error);
+      
+      // Provide more specific error details for debugging
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      console.error('Full error details:', errorMessage);
+      
       return res.status(500).json({ 
-        message: "Failed to parse resume content. Please try again or contact support." 
+        message: "Failed to parse resume content. Please ensure the file contains readable text and try again.",
+        error: errorMessage
       });
     }
 
