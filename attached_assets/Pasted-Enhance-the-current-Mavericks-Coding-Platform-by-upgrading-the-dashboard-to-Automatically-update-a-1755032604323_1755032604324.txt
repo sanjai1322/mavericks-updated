@@ -1,0 +1,106 @@
+Enhance the current Mavericks Coding Platform by upgrading the dashboard to:
+
+Automatically update and display user resumes and extracted skills in real time.
+
+Dynamically align assessments and learning paths based on resume content and assessment performance.
+
+Feature Details
+1. Resume Upload & Skill Extraction
+Allow users to upload or update their resume directly from the dashboard.
+
+Use AI/NLP to:
+
+Parse the resume.
+
+Identify and list skills (e.g., Python, Data Science, WebApp, Figma).
+
+Display extracted skills on the dashboard in a “Skill Summary” section.
+
+Store extracted skills in the user profile for further processing.
+
+2. Skill-Based Assessment Alignment
+Match assessments to the skills extracted from the resume.
+
+Example: If a user lists Python, Data Science, Figma, create relevant tests:
+
+Python programming challenges.
+
+Data analysis projects.
+
+UI/UX design exercises in Figma.
+
+Ensure the assessment difficulty adapts based on user performance.
+
+3. Personalized Learning Path
+Before assessment:
+
+Analyze the resume to detect strengths and build a preliminary learning plan focusing on advanced topics in strong areas.
+
+After assessment:
+
+Identify weak areas from test results.
+
+Generate a personalized course path:
+
+Mix skill-refreshers in weak topics.
+
+Include advanced learning modules for strong topics.
+
+Present this in the dashboard under “My Learning Path”.
+
+API Requirements
+We’ll likely need three API integrations for this:
+
+Resume Parsing & NLP Skill Extraction
+
+To extract skills, experience, and keywords from uploaded resumes.
+
+Suggested:
+
+OpenAI API (via OpenRouter) – GPT model for parsing & skill mapping.
+
+Or Rchilli / Sovren (Resume parsing APIs).
+
+Skill → Assessment Mapping API
+
+A logic layer (can be internal) that connects skills to existing assessment templates.
+
+Could also use AI to dynamically create new challenges based on skill keywords.
+
+Personalized Learning Recommendation API
+
+AI-powered recommendation system that:
+
+Takes skill strengths (resume).
+
+Takes weaknesses (assessment results).
+
+Outputs a learning path.
+
+Suggested:
+
+OpenAI GPT-4/5 (via OpenRouter) for reasoning + course structuring.
+
+Optional: Integration with Coursera/EdX API for fetching real course links.
+
+UI Alignment
+No major UI changes — only:
+
+Add a “Resume & Skills” section in the existing dashboard.
+
+Add a “My Learning Path” panel under the same dashboard layout.
+
+Show extracted skills visually (tags or list) without changing design style.
+
+All new backend logic will integrate seamlessly with existing UI components.
+
+If you give me the three API keys (OpenRouter GPT, resume parser API, and maybe an education/course API),
+I can prepare the backend enhancement plan so it:
+
+Parses resumes.
+
+Extracts skills.
+
+Aligns assessments.
+
+Builds a personalized learning plan.
