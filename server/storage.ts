@@ -37,6 +37,7 @@ export interface IStorage {
   getLearningPaths(): Promise<LearningPath[]>;
   getLearningPath(id: string): Promise<LearningPath | undefined>;
   createLearningPath(path: InsertLearningPath): Promise<LearningPath>;
+  getUserLearningPaths(userId: string): Promise<LearningPath[]>;
   
   // Hackathon methods
   getHackathons(): Promise<Hackathon[]>;
@@ -1497,6 +1498,10 @@ print(result)`,
     };
     this.learningPaths.set(id, path);
     return path;
+  }
+
+  async getUserLearningPaths(userId: string): Promise<LearningPath[]> {
+    return Array.from(this.learningPaths.values()).filter(path => path.userId === userId);
   }
 
   // Hackathon methods

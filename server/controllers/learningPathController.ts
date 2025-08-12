@@ -9,7 +9,7 @@ export const generatePersonalizedLearningPath = async (req: AuthenticatedRequest
       return res.status(401).json({ message: "Authentication required" });
     }
 
-    const user = await storage.getUserById(req.user.id);
+    const user = await storage.getUser(req.user.id);
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
@@ -63,7 +63,7 @@ export const getUserLearningProgress = async (req: AuthenticatedRequest, res: Re
       return res.status(401).json({ message: "Authentication required" });
     }
 
-    const user = await storage.getUserById(req.user.id);
+    const user = await storage.getUser(req.user.id);
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
@@ -115,7 +115,7 @@ export const updateLearningProgress = async (req: AuthenticatedRequest, res: Res
     }
 
     // Update user's progress (you might want to create a separate progress tracking table)
-    const user = await storage.getUserById(req.user.id);
+    const user = await storage.getUser(req.user.id);
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
@@ -409,7 +409,7 @@ function getComplementarySkills(domain: string): string[] {
 
 async function updateSkillsFromProgress(userId: string, pathId: string, completedSections: string[]) {
   try {
-    const user = await storage.getUserById(userId);
+    const user = await storage.getUser(userId);
     if (!user) return;
     
     const skillStrengths = user.skillStrengths || {};

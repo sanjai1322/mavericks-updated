@@ -266,7 +266,7 @@ function generateQuizRecommendations(language: string, topicAnalysis: any, diffi
 // Update user's skill strengths based on quiz performance
 async function updateUserSkillsFromQuiz(userId: string, language: string, topicAnalysis: any, score: number) {
   try {
-    const user = await storage.getUserById(userId);
+    const user = await storage.getUser(userId);
     if (!user) return;
     
     const skillStrengths = user.skillStrengths || {};

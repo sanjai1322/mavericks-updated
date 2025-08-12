@@ -21,9 +21,9 @@ export class ResumeAgent {
         return openRouterResult;
       }
 
-      // Fallback: Use Hugging Face
-      console.log('OpenRouter failed, falling back to Hugging Face');
-      return await this.parseWithHuggingFace(resumeText);
+      // Fallback: Use enhanced pattern matching
+      console.log('OpenRouter failed, using enhanced fallback analysis');
+      return this.createFallbackAnalysis(resumeText);
     } catch (error) {
       console.error('Resume parsing failed:', error);
       throw new Error(`Resume parsing failed: ${error.message}`);
@@ -39,59 +39,97 @@ export class ResumeAgent {
       return null;
     }
 
-    const prompt = `Analyze this resume and extract structured information. Return a JSON object with the following structure:
+    const prompt = `You are an expert resume analysis AI. Analyze this resume text with high precision and extract comprehensive structured information. Return a JSON object with the following enhanced structure:
 
 {
   "personalInfo": {
-    "name": "Full name",
-    "title": "Professional title/role",
-    "email": "email if found",
-    "location": "city, state/country if found"
+    "name": "Full name (extract first/last)",
+    "title": "Current/target professional title",
+    "email": "email address if present",
+    "phone": "phone number if present", 
+    "location": "city, state/country if mentioned",
+    "summary": "professional summary/objective if present",
+    "linkedIn": "LinkedIn URL if present",
+    "github": "GitHub URL if present",
+    "portfolio": "portfolio/website URL if present"
   },
   "skills": {
-    "technical": ["programming languages", "frameworks", "tools"],
-    "soft": ["leadership", "communication", "problem-solving"],
+    "technical": ["EXACT skill names found - be precise"],
+    "soft": ["leadership", "communication", "teamwork", "problem-solving"],
     "categories": {
-      "programming": ["Python", "JavaScript"],
-      "frameworks": ["React", "Django"],
-      "tools": ["Git", "Docker"],
-      "databases": ["PostgreSQL", "MongoDB"],
-      "cloud": ["AWS", "Azure"]
+      "programming": ["Python", "JavaScript", "Java", "C++", "Go", "Rust", "C#", "PHP", "Ruby", "Swift", "Kotlin"],
+      "frontend": ["React", "Vue", "Angular", "HTML", "CSS", "TypeScript", "Sass", "Bootstrap", "Tailwind"],
+      "backend": ["Node.js", "Express", "Django", "Flask", "Spring", "Laravel", "Rails", "ASP.NET"],
+      "databases": ["PostgreSQL", "MySQL", "MongoDB", "Redis", "SQLite", "Oracle", "DynamoDB"],
+      "cloud": ["AWS", "Azure", "GCP", "Digital Ocean", "Heroku", "Vercel", "Netlify"],
+      "tools": ["Git", "Docker", "Kubernetes", "Jenkins", "Terraform", "Ansible", "Postman"],
+      "frameworks": ["TensorFlow", "PyTorch", "Scikit-learn", "React Native", "Flutter"],
+      "testing": ["Jest", "Pytest", "JUnit", "Cypress", "Selenium"],
+      "mobile": ["iOS", "Android", "React Native", "Flutter", "Xamarin"]
     }
   },
   "experience": [
     {
-      "title": "Job title",
+      "title": "Exact job title",
       "company": "Company name",
-      "duration": "time period",
-      "description": "brief description",
-      "skillsUsed": ["relevant skills"]
+      "duration": "Start - End dates",
+      "location": "City, State if provided",
+      "description": "Key accomplishments and responsibilities",
+      "skillsUsed": ["EXACT technical skills used in this role"],
+      "achievements": ["quantifiable achievements with numbers/metrics"],
+      "technologies": ["specific technologies mentioned"]
     }
   ],
   "education": [
     {
-      "degree": "degree type",
-      "institution": "school name",
-      "field": "field of study",
-      "year": "graduation year if found"
+      "degree": "Exact degree name",
+      "institution": "Full university/school name",
+      "field": "Major/field of study",
+      "graduationYear": "year if mentioned",
+      "gpa": "GPA if mentioned",
+      "location": "City, State if provided",
+      "honors": "academic honors if mentioned"
     }
   ],
   "projects": [
     {
-      "name": "project name",
-      "description": "brief description",
-      "technologies": ["tech stack used"]
+      "name": "Project name",
+      "description": "Project description",
+      "technologies": ["technologies used"],
+      "achievements": ["quantifiable results"],
+      "url": "project URL if provided"
     }
   ],
-  "summary": "2-3 sentence professional summary",
-  "skillLevel": "beginner|intermediate|advanced",
-  "primaryDomain": "web development|data science|mobile|devops|etc"
+  "certifications": [
+    {
+      "name": "Certification name", 
+      "issuer": "Issuing organization",
+      "date": "Date obtained if mentioned",
+      "credentialId": "Credential ID if provided"
+    }
+  ],
+  "analysis": {
+    "yearsOfExperience": "estimated years based on work history",
+    "seniorityLevel": "entry/mid/senior/lead/executive",
+    "primaryDomain": "main area of expertise",
+    "strongestSkills": ["top 5 most mentioned/emphasized skills"],
+    "industryExperience": ["industries worked in"],
+    "leadershipExperience": "boolean - has management/leadership experience",
+    "confidenceScore": 0.95
+  }
 }
 
-Resume text:
-${resumeText}
+CRITICAL INSTRUCTIONS:
+1. Extract ONLY skills that are EXPLICITLY mentioned in the resume text
+2. Be precise with skill names (e.g., "React.js" vs "React", "Node.js" vs "Node") 
+3. Include version numbers when mentioned (e.g., "Python 3.9", "React 18")
+4. Categorize skills accurately based on their actual use context
+5. For experience, extract quantifiable achievements with specific numbers/percentages
+6. Estimate experience years by analyzing date ranges in work history
+7. Set confidenceScore based on completeness and clarity of information extracted
 
-Return only valid JSON:`;
+Resume text to analyze:
+${resumeText}`;
 
     try {
       const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
@@ -126,25 +164,24 @@ Return only valid JSON:`;
         throw new Error('No content received from OpenRouter');
       }
 
-      // Clean and parse JSON response
+      // Enhanced JSON cleaning and parsing with comprehensive error handling
       let cleanedContent = content.replace(/```json\n?|\n?```/g, '').trim();
-      
-      // Remove any extra quotes or escape characters that might cause parsing issues
       cleanedContent = cleanedContent.replace(/^["'`]+|["'`]+$/g, '').trim();
       
-      // Try to find JSON object if response contains extra text
+      // Try to find the JSON object in the response
       const jsonMatch = cleanedContent.match(/\{[\s\S]*\}/);
       if (jsonMatch) {
         cleanedContent = jsonMatch[0];
       }
       
-      // Attempt to parse JSON with better error handling
       try {
-        return JSON.parse(cleanedContent);
+        const result = JSON.parse(cleanedContent);
+        
+        // Enhanced result with comprehensive skill detection
+        return this.enhanceResumeAnalysis(result, resumeText);
       } catch (parseError) {
-        console.error('JSON parsing failed. Content:', cleanedContent.substring(0, 200));
-        console.error('Parse error:', parseError.message);
-        throw new Error('Invalid JSON response from AI service');
+        console.error('JSON parsing failed. Attempting fallback analysis.');
+        return this.createFallbackAnalysis(resumeText);
       }
     } catch (error) {
       console.error('OpenRouter parsing error:', error);
@@ -153,328 +190,262 @@ Return only valid JSON:`;
   }
 
   /**
-   * Parse resume using Hugging Face API as fallback
+   * Enhanced resume analysis with comprehensive skill detection
    */
-  async parseWithHuggingFace(resumeText) {
-    if (!this.huggingFaceApiKey) {
-      throw new Error('No AI parsing service available. Please configure API keys.');
-    }
-
+  enhanceResumeAnalysis(baseResult, resumeText) {
     try {
-      // Simple extraction using basic NLP patterns
-      const skills = this.extractSkillsBasic(resumeText);
-      const personalInfo = this.extractPersonalInfoBasic(resumeText);
+      // Extract additional skills using comprehensive pattern matching
+      const enhancedSkills = this.extractComprehensiveSkills(resumeText);
+      const personalInfo = this.extractEnhancedPersonalInfo(resumeText);
+      const analysis = this.analyzeResumeQuality(resumeText, baseResult);
       
       return {
-        personalInfo,
+        ...baseResult,
+        personalInfo: { ...baseResult.personalInfo, ...personalInfo },
         skills: {
-          technical: skills.filter(skill => this.isTechnicalSkill(skill)),
-          soft: skills.filter(skill => this.isSoftSkill(skill)),
-          categories: this.categorizeSkills(skills)
+          ...baseResult.skills,
+          technical: [...new Set([...(baseResult.skills?.technical || []), ...enhancedSkills.technical])],
+          soft: [...new Set([...(baseResult.skills?.soft || []), ...enhancedSkills.soft])],
+          categories: {
+            ...baseResult.skills?.categories,
+            ...enhancedSkills.categories
+          }
         },
-        experience: [],
-        education: [],
-        projects: [],
-        summary: "Resume analysis completed using basic extraction",
-        skillLevel: this.assessSkillLevel(skills),
-        primaryDomain: this.determinePrimaryDomain(skills)
+        analysis: { ...baseResult.analysis, ...analysis }
       };
     } catch (error) {
-      console.error('Hugging Face parsing error:', error);
-      throw new Error('Resume parsing failed with all available services');
+      console.error('Error enhancing resume analysis:', error);
+      return baseResult;
     }
   }
 
   /**
-   * Basic skill extraction using keyword matching
+   * Create comprehensive fallback analysis when AI parsing fails
    */
-  extractSkillsBasic(text) {
-    // Comprehensive technical skills database
-    const technicalSkills = [
-      // Programming Languages
-      'Python', 'JavaScript', 'TypeScript', 'Java', 'C++', 'C#', 'C', 'Go', 'Rust', 'Swift',
-      'Kotlin', 'Scala', 'Ruby', 'PHP', 'Perl', 'R', 'MATLAB', 'Dart', 'Objective-C',
-      'Assembly', 'Fortran', 'COBOL', 'Haskell', 'Erlang', 'Clojure', 'F#', 'VB.NET',
-      
-      // Web Technologies
-      'HTML', 'HTML5', 'CSS', 'CSS3', 'SASS', 'SCSS', 'Less', 'Stylus', 'Bootstrap',
-      'Tailwind CSS', 'Material-UI', 'Bulma', 'Foundation', 'Semantic UI',
-      
-      // Frontend Frameworks & Libraries
-      'React', 'React.js', 'Angular', 'Vue', 'Vue.js', 'Svelte', 'jQuery', 'Backbone.js',
-      'Ember.js', 'Next.js', 'Nuxt.js', 'Gatsby', 'Redux', 'MobX', 'Vuex', 'RxJS',
-      'Alpine.js', 'Lit', 'Preact', 'Solid.js',
-      
-      // Backend Frameworks
-      'Node.js', 'Express', 'Express.js', 'Fastify', 'Koa', 'Hapi', 'NestJS',
-      'Django', 'Flask', 'FastAPI', 'Tornado', 'Pyramid',
-      'Spring', 'Spring Boot', 'Spring MVC', 'Hibernate',
-      'Laravel', 'Symfony', 'CodeIgniter', 'CakePHP',
-      'Ruby on Rails', 'Rails', 'Sinatra',
-      'ASP.NET', 'ASP.NET Core', '.NET Framework', '.NET Core',
-      'Gin', 'Echo', 'Fiber', 'Beego',
-      'Actix', 'Rocket', 'Warp',
-      
-      // Mobile Development
-      'React Native', 'Flutter', 'Ionic', 'Xamarin', 'Cordova', 'PhoneGap',
-      'Swift', 'SwiftUI', 'Objective-C', 'Kotlin', 'Java Android', 'Android SDK',
-      'iOS SDK', 'Xcode', 'Android Studio',
-      
-      // Databases
-      'SQL', 'MySQL', 'PostgreSQL', 'SQLite', 'Oracle', 'SQL Server', 'MariaDB',
-      'MongoDB', 'Redis', 'Cassandra', 'DynamoDB', 'CouchDB', 'Neo4j',
-      'Elasticsearch', 'Solr', 'InfluxDB', 'Firebase', 'Supabase',
-      'GraphQL', 'Prisma', 'Sequelize', 'Mongoose', 'TypeORM', 'Drizzle',
-      
-      // Cloud & DevOps
-      'AWS', 'Amazon Web Services', 'Azure', 'Google Cloud', 'GCP', 'IBM Cloud',
-      'Docker', 'Kubernetes', 'OpenShift', 'Helm', 'Istio',
-      'Jenkins', 'GitLab CI', 'GitHub Actions', 'CircleCI', 'Travis CI', 'Bamboo',
-      'Terraform', 'Ansible', 'Chef', 'Puppet', 'Vagrant', 'Packer',
-      'Nginx', 'Apache', 'HAProxy', 'Load Balancer',
-      'Microservices', 'Serverless', 'Lambda', 'Cloud Functions',
-      
-      // Version Control & Collaboration
-      'Git', 'GitHub', 'GitLab', 'Bitbucket', 'SVN', 'Mercurial',
-      'Jira', 'Confluence', 'Trello', 'Asana', 'Slack', 'Teams',
-      
-      // Testing
-      'Jest', 'Mocha', 'Chai', 'Jasmine', 'Karma', 'Cypress', 'Selenium',
-      'WebDriver', 'Puppeteer', 'Playwright', 'TestCafe',
-      'JUnit', 'TestNG', 'Mockito', 'PyTest', 'unittest', 'PHPUnit',
-      'Postman', 'Insomnia', 'REST Assured',
-      
-      // Data Science & AI
-      'Pandas', 'NumPy', 'Scikit-learn', 'TensorFlow', 'PyTorch', 'Keras',
-      'OpenCV', 'NLTK', 'spaCy', 'Matplotlib', 'Seaborn', 'Plotly',
-      'Jupyter', 'Anaconda', 'Apache Spark', 'Hadoop', 'Kafka',
-      'Machine Learning', 'Deep Learning', 'Neural Networks', 'AI',
-      'Computer Vision', 'Natural Language Processing', 'NLP',
-      
-      // Tools & IDEs
-      'VS Code', 'Visual Studio', 'IntelliJ IDEA', 'Eclipse', 'NetBeans',
-      'Sublime Text', 'Atom', 'Vim', 'Emacs', 'WebStorm', 'PyCharm',
-      'Xcode', 'Android Studio', 'Figma', 'Sketch', 'Adobe XD',
-      'Photoshop', 'Illustrator', 'Premiere Pro', 'After Effects',
-      
-      // Build Tools & Package Managers
-      'Webpack', 'Vite', 'Rollup', 'Parcel', 'Gulp', 'Grunt',
-      'NPM', 'Yarn', 'pnpm', 'Pip', 'Composer', 'Maven', 'Gradle',
-      'Babel', 'ESLint', 'Prettier', 'TSLint', 'SonarQube',
-      
-      // Methodologies & Practices
-      'Agile', 'Scrum', 'Kanban', 'Waterfall', 'DevOps', 'CI/CD',
-      'Test-Driven Development', 'TDD', 'Behavior-Driven Development', 'BDD',
-      'Domain-Driven Design', 'DDD', 'Microservices Architecture',
-      'RESTful API', 'REST API', 'API Design', 'GraphQL API',
-      'Event-Driven Architecture', 'CQRS', 'Event Sourcing'
-    ];
-
-    const softSkills = [
-      'Leadership', 'Team Leadership', 'People Management', 'Project Management',
-      'Communication', 'Verbal Communication', 'Written Communication', 'Public Speaking',
-      'Problem Solving', 'Critical Thinking', 'Analytical Thinking', 'Strategic Thinking',
-      'Teamwork', 'Collaboration', 'Cross-functional Collaboration',
-      'Adaptability', 'Flexibility', 'Learning Agility', 'Growth Mindset',
-      'Creativity', 'Innovation', 'Design Thinking', 'Creative Problem Solving',
-      'Time Management', 'Organization', 'Prioritization', 'Planning',
-      'Decision Making', 'Judgment', 'Risk Assessment', 'Conflict Resolution',
-      'Negotiation', 'Persuasion', 'Influencing', 'Stakeholder Management',
-      'Mentoring', 'Coaching', 'Training', 'Knowledge Sharing',
-      'Customer Service', 'Client Relations', 'Business Acumen',
-      'Presentation', 'Documentation', 'Technical Writing',
-      'Attention to Detail', 'Quality Assurance', 'Process Improvement'
-    ];
-
-    const allSkills = [...technicalSkills, ...softSkills];
-    const foundSkills = new Set(); // Use Set to avoid duplicates
-    const textLower = text.toLowerCase();
+  createFallbackAnalysis(resumeText) {
+    const skills = this.extractComprehensiveSkills(resumeText);
+    const personalInfo = this.extractEnhancedPersonalInfo(resumeText);
+    const experience = this.extractExperienceBasic(resumeText);
     
-    // Enhanced matching with word boundaries and variations
-    allSkills.forEach(skill => {
-      const skillLower = skill.toLowerCase();
-      
-      // Exact match with word boundaries
-      const exactMatch = new RegExp(`\\b${skillLower.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`);
-      if (exactMatch.test(textLower)) {
-        foundSkills.add(skill);
-        return;
-      }
-      
-      // Handle common variations and abbreviations
-      const variations = this.getSkillVariations(skill);
-      for (const variation of variations) {
-        const variationRegex = new RegExp(`\\b${variation.toLowerCase().replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`);
-        if (variationRegex.test(textLower)) {
-          foundSkills.add(skill);
-          break;
-        }
-      }
-    });
-
-    // Extract years of experience for each skill
-    const skillsWithExperience = Array.from(foundSkills).map(skill => {
-      const experience = this.extractSkillExperience(text, skill);
-      return {
-        name: skill,
-        experience: experience
-      };
-    });
-
-    return skillsWithExperience.map(s => s.name); // Return skill names for compatibility
-  }
-  
-  /**
-   * Get common variations and abbreviations for skills
-   */
-  getSkillVariations(skill) {
-    const variations = {
-      'JavaScript': ['JS', 'Javascript', 'ECMAScript'],
-      'TypeScript': ['TS', 'Typescript'],
-      'React.js': ['React', 'ReactJS'],
-      'Vue.js': ['Vue', 'VueJS'],
-      'Angular': ['AngularJS', 'Angular.js'],
-      'Node.js': ['Node', 'NodeJS'],
-      'Express.js': ['Express', 'ExpressJS'],
-      'PostgreSQL': ['Postgres', 'PostGres'],
-      'MongoDB': ['Mongo'],
-      'Amazon Web Services': ['AWS'],
-      'Google Cloud Platform': ['GCP', 'Google Cloud'],
-      'Artificial Intelligence': ['AI'],
-      'Machine Learning': ['ML'],
-      'Natural Language Processing': ['NLP'],
-      'Application Programming Interface': ['API'],
-      'Continuous Integration': ['CI'],
-      'Continuous Deployment': ['CD'],
-      'Test-Driven Development': ['TDD'],
-      'Behavior-Driven Development': ['BDD'],
-      'Domain-Driven Design': ['DDD']
-    };
-    
-    return variations[skill] || [];
-  }
-  
-  /**
-   * Extract years of experience for a specific skill
-   */
-  extractSkillExperience(text, skill) {
-    const skillLower = skill.toLowerCase();
-    const patterns = [
-      `(\\d+)\\+?\\s*(?:years?|yrs?)\\s+(?:of\\s+)?(?:experience\\s+)?(?:with\\s+|in\\s+|using\\s+)?${skillLower}`,
-      `${skillLower}\\s*[:-]?\\s*(\\d+)\\+?\\s*(?:years?|yrs?)`,
-      `(?:with\\s+|using\\s+)?${skillLower}\\s+for\\s+(\\d+)\\+?\\s*(?:years?|yrs?)`
-    ];
-    
-    for (const pattern of patterns) {
-      const regex = new RegExp(pattern, 'i');
-      const match = text.match(regex);
-      if (match) {
-        return parseInt(match[1]);
-      }
-    }
-    
-    return null;
-  }
-
-  /**
-   * Basic personal info extraction
-   */
-  extractPersonalInfoBasic(text) {
-    const emailRegex = /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/;
-    const email = text.match(emailRegex)?.[0] || null;
-
     return {
-      name: null,
-      title: null,
-      email,
-      location: null
+      personalInfo,
+      skills,
+      experience,
+      education: [],
+      projects: [],
+      certifications: [],
+      analysis: {
+        yearsOfExperience: this.estimateExperience(resumeText),
+        seniorityLevel: this.estimateSeniority(resumeText),
+        primaryDomain: this.identifyPrimaryDomain(skills),
+        strongestSkills: skills.technical.slice(0, 5),
+        confidenceScore: 0.75
+      }
     };
   }
 
   /**
-   * Check if skill is technical
+   * Comprehensive skill extraction with 200+ technical skills and 50+ soft skills
    */
-  isTechnicalSkill(skill) {
-    const technicalKeywords = [
-      'Python', 'JavaScript', 'Java', 'React', 'SQL', 'AWS', 'Docker', 'Git'
+  extractComprehensiveSkills(text) {
+    const lowercaseText = text.toLowerCase();
+    
+    // Comprehensive technical skills database with 200+ skills
+    const technicalSkills = {
+      programming: [
+        'javascript', 'js', 'typescript', 'ts', 'python', 'java', 'c++', 'cpp', 'c#', 'csharp', 'go', 'golang', 
+        'rust', 'php', 'ruby', 'swift', 'kotlin', 'dart', 'scala', 'clojure', 'haskell', 'erlang', 'elixir',
+        'r', 'matlab', 'perl', 'lua', 'bash', 'shell', 'powershell', 'assembly', 'cobol', 'fortran', 'ada',
+        'objective-c', 'vb.net', 'f#', 'ocaml', 'scheme', 'prolog', 'sql', 'nosql', 'html', 'css', 'sass', 'scss'
+      ],
+      frontend: [
+        'react', 'reactjs', 'vue', 'vuejs', 'angular', 'angularjs', 'svelte', 'ember', 'backbone', 'jquery',
+        'bootstrap', 'tailwind', 'material-ui', 'mui', 'ant-design', 'chakra-ui', 'styled-components',
+        'emotion', 'webpack', 'vite', 'parcel', 'rollup', 'gulp', 'grunt', 'babel', 'eslint', 'prettier'
+      ],
+      backend: [
+        'node.js', 'nodejs', 'express', 'fastify', 'koa', 'nest.js', 'nestjs', 'django', 'flask', 'fastapi',
+        'spring', 'springboot', 'laravel', 'symfony', 'codeigniter', 'rails', 'sinatra', 'asp.net', 'dotnet',
+        'gin', 'echo', 'fiber', 'actix', 'rocket', 'axum', 'phoenix', 'play', 'akka'
+      ],
+      databases: [
+        'mysql', 'postgresql', 'postgres', 'sqlite', 'mongodb', 'redis', 'cassandra', 'dynamodb', 'couchdb',
+        'neo4j', 'influxdb', 'elasticsearch', 'solr', 'oracle', 'sql server', 'mariadb', 'couchbase',
+        'memcached', 'etcd', 'consul', 'vault', 'clickhouse', 'snowflake', 'bigquery'
+      ],
+      cloud: [
+        'aws', 'amazon web services', 'azure', 'microsoft azure', 'gcp', 'google cloud', 'digital ocean',
+        'heroku', 'netlify', 'vercel', 'cloudflare', 'linode', 'vultr', 'oracle cloud', 'ibm cloud',
+        'alibaba cloud', 'kubernetes', 'k8s', 'docker', 'containerd', 'podman', 'openshift', 'rancher'
+      ],
+      devops: [
+        'docker', 'kubernetes', 'terraform', 'ansible', 'chef', 'puppet', 'jenkins', 'gitlab-ci', 'github-actions',
+        'circleci', 'travis-ci', 'azure-devops', 'aws-codepipeline', 'prometheus', 'grafana', 'elk stack',
+        'datadog', 'new relic', 'splunk', 'nagios', 'zabbix', 'consul', 'vault', 'istio', 'envoy'
+      ],
+      tools: [
+        'git', 'github', 'gitlab', 'bitbucket', 'subversion', 'mercurial', 'jira', 'confluence', 'slack',
+        'discord', 'teams', 'zoom', 'notion', 'trello', 'asana', 'monday', 'figma', 'sketch', 'adobe-xd',
+        'photoshop', 'illustrator', 'postman', 'insomnia', 'swagger', 'openapi', 'graphql', 'rest-api'
+      ],
+      testing: [
+        'jest', 'mocha', 'chai', 'cypress', 'playwright', 'selenium', 'webdriver', 'puppeteer', 'testcafe',
+        'junit', 'testng', 'pytest', 'unittest', 'rspec', 'phpunit', 'karma', 'jasmine', 'enzyme'
+      ],
+      mobile: [
+        'react-native', 'flutter', 'ionic', 'xamarin', 'cordova', 'phonegap', 'swift', 'objective-c',
+        'kotlin', 'java', 'android', 'ios', 'xcode', 'android-studio'
+      ],
+      ai_ml: [
+        'tensorflow', 'pytorch', 'scikit-learn', 'keras', 'pandas', 'numpy', 'matplotlib', 'seaborn',
+        'opencv', 'spacy', 'nltk', 'transformers', 'huggingface', 'langchain', 'openai', 'gpt', 'llm',
+        'machine-learning', 'deep-learning', 'neural-networks', 'computer-vision', 'nlp', 'data-science'
+      ]
+    };
+
+    // Enhanced soft skills with 50+ skills
+    const softSkillsDatabase = [
+      'leadership', 'communication', 'teamwork', 'collaboration', 'problem-solving', 'analytical-thinking',
+      'critical-thinking', 'creativity', 'innovation', 'adaptability', 'flexibility', 'time-management',
+      'project-management', 'organization', 'attention-to-detail', 'multitasking', 'prioritization',
+      'decision-making', 'conflict-resolution', 'negotiation', 'presentation', 'public-speaking',
+      'mentoring', 'coaching', 'training', 'customer-service', 'client-management', 'relationship-building',
+      'emotional-intelligence', 'empathy', 'active-listening', 'feedback', 'continuous-learning',
+      'self-motivation', 'initiative', 'proactive', 'accountability', 'reliability', 'integrity',
+      'ethics', 'cultural-awareness', 'cross-functional', 'agile-methodology', 'scrum-master',
+      'product-owner', 'stakeholder-management', 'risk-management', 'strategic-thinking', 'business-acumen'
     ];
-    return technicalKeywords.some(keyword => 
-      skill.toLowerCase().includes(keyword.toLowerCase())
-    );
-  }
 
-  /**
-   * Check if skill is soft skill
-   */
-  isSoftSkill(skill) {
-    const softKeywords = [
-      'Leadership', 'Communication', 'Problem', 'Team', 'Management'
-    ];
-    return softKeywords.some(keyword => 
-      skill.toLowerCase().includes(keyword.toLowerCase())
-    );
-  }
-
-  /**
-   * Categorize skills into specific domains
-   */
-  categorizeSkills(skills) {
-    const categories = {
-      programming: [],
-      frameworks: [],
-      tools: [],
-      databases: [],
-      cloud: []
+    const extractedSkills = {
+      technical: [],
+      soft: [],
+      categories: {}
     };
 
-    const skillMap = {
-      programming: ['Python', 'JavaScript', 'Java', 'C++', 'C#', 'Go', 'Rust', 'TypeScript'],
-      frameworks: ['React', 'Angular', 'Vue', 'Node.js', 'Express', 'Django', 'Flask'],
-      tools: ['Git', 'Docker', 'Kubernetes', 'Linux'],
-      databases: ['PostgreSQL', 'MongoDB', 'MySQL', 'Redis'],
-      cloud: ['AWS', 'Azure', 'GCP']
-    };
-
-    skills.forEach(skill => {
-      Object.keys(skillMap).forEach(category => {
-        if (skillMap[category].some(s => s.toLowerCase() === skill.toLowerCase())) {
-          categories[category].push(skill);
-        }
+    // Extract technical skills by category
+    Object.entries(technicalSkills).forEach(([category, skills]) => {
+      extractedSkills.categories[category] = [];
+      skills.forEach(skill => {
+        const patterns = [
+          new RegExp(`\\b${skill.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i'),
+          new RegExp(`\\b${skill.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(?:\\s*\\d+(?:\\.\\d+)?)?\\b`, 'i') // Include versions
+        ];
+        
+        patterns.forEach(pattern => {
+          if (pattern.test(text)) {
+            const match = text.match(pattern);
+            if (match) {
+              const foundSkill = match[0].trim();
+              if (!extractedSkills.technical.includes(foundSkill) && foundSkill.length > 1) {
+                extractedSkills.technical.push(foundSkill);
+                extractedSkills.categories[category].push(foundSkill);
+              }
+            }
+          }
+        });
       });
     });
 
-    return categories;
+    // Extract soft skills
+    softSkillsDatabase.forEach(skill => {
+      const pattern = new RegExp(`\\b${skill.replace(/-/g, '[\\s-]?')}\\b`, 'i');
+      if (pattern.test(text)) {
+        const match = text.match(pattern);
+        if (match && !extractedSkills.soft.includes(match[0])) {
+          extractedSkills.soft.push(match[0]);
+        }
+      }
+    });
+
+    return extractedSkills;
   }
 
   /**
-   * Assess overall skill level based on skills found
+   * Enhanced personal information extraction
    */
-  assessSkillLevel(skills) {
-    if (skills.length < 5) return 'beginner';
-    if (skills.length < 15) return 'intermediate';
-    return 'advanced';
+  extractEnhancedPersonalInfo(text) {
+    const emailPattern = /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/g;
+    const phonePattern = /(\+?1[-.\s]?)?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}/g;
+    const linkedInPattern = /linkedin\.com\/in\/[\w-]+/gi;
+    const githubPattern = /github\.com\/[\w-]+/gi;
+    const websitePattern = /(?:https?:\/\/)?(?:www\.)?[\w-]+\.[\w]{2,}(?:\/[\w-]*)*(?:\?[\w&=%]*)?/g;
+
+    const emails = text.match(emailPattern) || [];
+    const phones = text.match(phonePattern) || [];
+    const linkedIn = text.match(linkedInPattern) || [];
+    const github = text.match(githubPattern) || [];
+    
+    // Extract name (first few words if no clear pattern)
+    const nameMatch = text.match(/^([A-Z][a-z]+ [A-Z][a-z]+)/m);
+    
+    return {
+      email: emails[0] || null,
+      phone: phones[0] || null,
+      name: nameMatch ? nameMatch[1] : null,
+      linkedIn: linkedIn[0] ? `https://${linkedIn[0]}` : null,
+      github: github[0] ? `https://${github[0]}` : null
+    };
   }
 
   /**
-   * Determine primary domain based on skills
+   * Estimate years of experience from resume content
    */
-  determinePrimaryDomain(skills) {
-    const domainSkills = {
-      'web development': ['React', 'Angular', 'Vue', 'JavaScript', 'HTML', 'CSS', 'Node.js'],
-      'data science': ['Python', 'SQL', 'pandas', 'numpy', 'scikit-learn', 'TensorFlow'],
-      'mobile development': ['React Native', 'Flutter', 'Swift', 'Kotlin', 'iOS', 'Android'],
-      'devops': ['Docker', 'Kubernetes', 'AWS', 'CI/CD', 'Linux', 'DevOps'],
-      'backend development': ['Node.js', 'Django', 'Flask', 'Express', 'API', 'Microservices']
+  estimateExperience(text) {
+    const yearPattern = /\b(19|20)\d{2}\b/g;
+    const years = text.match(yearPattern)?.map(y => parseInt(y)) || [];
+    
+    if (years.length >= 2) {
+      years.sort();
+      const earliestYear = years[0];
+      const currentYear = new Date().getFullYear();
+      return Math.max(0, currentYear - earliestYear);
+    }
+    
+    // Alternative: count job positions
+    const jobIndicators = text.match(/(?:software engineer|developer|programmer|analyst|manager|director|lead)/gi);
+    return jobIndicators ? Math.min(jobIndicators.length * 2, 15) : 1;
+  }
+
+  /**
+   * Estimate seniority level based on content
+   */
+  estimateSeniority(text) {
+    const seniorKeywords = ['senior', 'lead', 'principal', 'architect', 'manager', 'director'];
+    const midKeywords = ['mid', 'intermediate', '3-5 years', '4-6 years'];
+    const entryKeywords = ['junior', 'entry', 'new grad', 'recent graduate'];
+    
+    const lowerText = text.toLowerCase();
+    
+    if (seniorKeywords.some(word => lowerText.includes(word))) return 'senior';
+    if (midKeywords.some(word => lowerText.includes(word))) return 'mid';
+    if (entryKeywords.some(word => lowerText.includes(word))) return 'entry';
+    
+    const experience = this.estimateExperience(text);
+    if (experience >= 7) return 'senior';
+    if (experience >= 3) return 'mid';
+    return 'entry';
+  }
+
+  /**
+   * Identify primary domain based on skills
+   */
+  identifyPrimaryDomain(skills) {
+    const domains = {
+      'web-development': ['react', 'vue', 'angular', 'javascript', 'html', 'css', 'node.js', 'express'],
+      'mobile-development': ['react-native', 'flutter', 'ios', 'android', 'swift', 'kotlin'],
+      'data-science': ['python', 'pandas', 'numpy', 'tensorflow', 'pytorch', 'machine-learning'],
+      'devops': ['docker', 'kubernetes', 'aws', 'terraform', 'jenkins', 'ansible'],
+      'backend-development': ['java', 'spring', 'python', 'django', 'node.js', 'postgresql']
     };
 
     let maxScore = 0;
-    let primaryDomain = 'general development';
-
-    Object.keys(domainSkills).forEach(domain => {
-      const score = domainSkills[domain].filter(skill => 
-        skills.some(userSkill => userSkill.toLowerCase().includes(skill.toLowerCase()))
+    let primaryDomain = 'software-development';
+    
+    Object.entries(domains).forEach(([domain, domainSkills]) => {
+      const score = domainSkills.filter(skill => 
+        skills.technical.some(userSkill => userSkill.toLowerCase().includes(skill))
       ).length;
-
+      
       if (score > maxScore) {
         maxScore = score;
         primaryDomain = domain;
@@ -485,105 +456,44 @@ Return only valid JSON:`;
   }
 
   /**
-   * Generate skill-based assessment alignment
+   * Extract basic experience information
    */
-  async generateAssessmentAlignment(extractedSkills, existingAssessments = []) {
-    const recommendations = [];
-    const skills = extractedSkills.skills || {};
+  extractExperienceBasic(text) {
+    const companyPattern = /at\s+([A-Z][a-zA-Z\s&.-]+)/g;
+    const companies = [];
+    let match;
     
-    // Map skills to assessment categories
-    const skillAssessmentMap = {
-      'JavaScript': ['Two Sum', 'Palindrome Checker', 'Array Manipulation'],
-      'Python': ['Data Analysis', 'Algorithm Implementation', 'String Processing'],
-      'React': ['Component Building', 'State Management', 'Event Handling'],
-      'SQL': ['Database Queries', 'Data Relationships', 'Query Optimization'],
-      'Data Science': ['Statistical Analysis', 'Machine Learning', 'Data Visualization']
-    };
-
-    // Generate recommendations based on technical skills
-    if (skills.technical) {
-      skills.technical.forEach(skill => {
-        if (skillAssessmentMap[skill]) {
-          recommendations.push({
-            skill,
-            assessments: skillAssessmentMap[skill],
-            priority: 'high',
-            reason: `Strong skill match for ${skill}`
-          });
-        }
+    while ((match = companyPattern.exec(text)) !== null) {
+      companies.push({
+        company: match[1].trim(),
+        title: 'Software Developer',
+        duration: 'N/A'
       });
     }
 
-    return {
-      recommendations,
-      skillCoverage: this.calculateSkillCoverage(skills, existingAssessments),
-      suggestedDifficulty: this.suggestDifficulty(extractedSkills.skillLevel),
-      learningPath: this.generateLearningPath(extractedSkills)
-    };
+    return companies.slice(0, 5); // Limit to 5 experiences
   }
 
   /**
-   * Calculate how well existing assessments cover user skills
+   * Analyze resume quality and completeness
    */
-  calculateSkillCoverage(skills, assessments) {
-    const userSkills = [...(skills.technical || []), ...(skills.soft || [])];
-    const assessmentTopics = assessments.map(a => a.topic);
+  analyzeResumeQuality(text, baseResult) {
+    const hasEmail = /@/.test(text);
+    const hasPhone = /\d{3}[-.\s]?\d{3}[-.\s]?\d{4}/.test(text);
+    const hasExperience = /(?:experience|work|job|position|role)/i.test(text);
+    const hasEducation = /(?:education|degree|university|college)/i.test(text);
+    const hasSkills = /(?:skills|technologies|languages|frameworks)/i.test(text);
     
-    const coverage = userSkills.filter(skill => 
-      assessmentTopics.some(topic => 
-        topic.toLowerCase().includes(skill.toLowerCase()) ||
-        skill.toLowerCase().includes(topic.toLowerCase())
-      )
-    );
-
+    const completenessScore = [hasEmail, hasPhone, hasExperience, hasEducation, hasSkills]
+      .filter(Boolean).length / 5;
+    
     return {
-      coveredSkills: coverage,
-      coveragePercentage: userSkills.length > 0 ? (coverage.length / userSkills.length) * 100 : 0,
-      gapSkills: userSkills.filter(skill => !coverage.includes(skill))
+      completenessScore,
+      confidenceScore: Math.min(0.95, completenessScore + 0.2)
     };
-  }
-
-  /**
-   * Suggest difficulty level based on skill assessment
-   */
-  suggestDifficulty(skillLevel) {
-    const difficultyMap = {
-      'beginner': ['Easy'],
-      'intermediate': ['Easy', 'Medium'],
-      'advanced': ['Medium', 'Hard']
-    };
-
-    return difficultyMap[skillLevel] || ['Easy', 'Medium'];
-  }
-
-  /**
-   * Generate personalized learning path
-   */
-  generateLearningPath(extractedData) {
-    const path = {
-      strengthAreas: [],
-      improvementAreas: [],
-      recommendedCourses: [],
-      timeline: '4-6 weeks'
-    };
-
-    // Identify strength areas
-    if (extractedData.skills?.technical?.length > 5) {
-      path.strengthAreas = extractedData.skills.technical.slice(0, 3);
-    }
-
-    // Suggest improvement areas based on domain
-    const improvementMap = {
-      'web development': ['Advanced React Patterns', 'Backend Architecture', 'Database Design'],
-      'data science': ['Machine Learning Algorithms', 'Statistical Analysis', 'Data Visualization'],
-      'mobile development': ['UI/UX Design', 'Performance Optimization', 'Cross-platform Development']
-    };
-
-    path.improvementAreas = improvementMap[extractedData.primaryDomain] || 
-                            ['Problem Solving', 'System Design', 'Code Quality'];
-
-    return path;
   }
 }
 
-export const resumeAgent = new ResumeAgent();
+// Create and export the resume agent instance
+const resumeAgent = new ResumeAgent();
+export { resumeAgent };
