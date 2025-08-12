@@ -44,6 +44,8 @@ The Mavericks Coding Platform is a comprehensive coding education application bu
 - Enhanced error handling and logging for debugging
 - Fixed LSP errors and code structure issues
 - Improved skill extraction with better fallback handling
+- Fixed critical array comparison bug in assessment evaluation (whitespace normalization)
+- Enhanced output parsing to handle different Judge0 status codes properly
 
 ## User Preferences
 

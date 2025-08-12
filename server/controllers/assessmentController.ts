@@ -204,59 +204,78 @@ router.post("/submit", verifyToken, async (req: Request, res: Response) => {
                 return str.replace(/\s+/g, ' ').trim().toLowerCase();
               };
               
-              // Enhanced output comparison logic with better debugging
+              // Enhanced output comparison logic with robust array handling
               console.log(`Comparing outputs:`);
               console.log(`Expected: ${expectedStr} (type: ${typeof testCase.expected})`);
               console.log(`Actual: ${actualStr} (status: ${result.status.id})`);
               
               let isCorrect = false;
               
-              if (result.status.id === 3) { // Successful execution
-                // Direct comparison
+              if (result.status.id === 3 || result.status.id === 4) { // Successful execution (3) or Memory Limit Exceeded but with output (4)
+                // Direct comparison first
                 if (actualStr === expectedStr) {
                   isCorrect = true;
                   console.log('✓ Direct string match');
                 }
-                // Normalized comparison
-                else if (normalizeOutput(actualStr) === normalizeOutput(expectedStr)) {
-                  isCorrect = true;
-                  console.log('✓ Normalized string match');
-                }
-                // JSON comparison for complex types
-                else {
+                // Handle array comparisons specifically
+                else if (Array.isArray(testCase.expected)) {
                   try {
-                    const actualParsed = JSON.parse(actualStr);
-                    const expectedParsed = testCase.expected;
-                    if (JSON.stringify(actualParsed) === JSON.stringify(expectedParsed)) {
-                      isCorrect = true;
-                      console.log('✓ JSON comparison match');
-                    }
-                  } catch (parseError) {
-                    console.log('JSON parse failed, trying other comparisons');
-                  }
-                }
-                
-                // List/Array specific comparison with better parsing
-                if (!isCorrect && Array.isArray(testCase.expected)) {
-                  try {
-                    // Handle Python list format: [0, 1] -> [0, 1]
+                    // Remove all whitespace and compare
                     const cleanedActual = actualStr.trim().replace(/\s+/g, '');
                     const cleanedExpected = JSON.stringify(testCase.expected).replace(/\s+/g, '');
                     
+                    console.log(`Cleaned actual: "${cleanedActual}"`);
+                    console.log(`Cleaned expected: "${cleanedExpected}"`);
+                    
                     if (cleanedActual === cleanedExpected) {
                       isCorrect = true;
-                      console.log('✓ Array format match');
+                      console.log('✓ Array whitespace-normalized match');
                     } else {
-                      // Try parsing as array elements
-                      const actualArray = actualStr.replace(/[\[\]]/g, '').split(',').map(x => parseInt(x.trim()));
-                      const expectedArray = testCase.expected;
-                      if (JSON.stringify(actualArray) === JSON.stringify(expectedArray)) {
-                        isCorrect = true;
-                        console.log('✓ Array element match');
+                      // Try JSON parsing the actual output
+                      try {
+                        const actualParsed = JSON.parse(actualStr);
+                        if (JSON.stringify(actualParsed) === JSON.stringify(testCase.expected)) {
+                          isCorrect = true;
+                          console.log('✓ JSON parsed array match');
+                        }
+                      } catch (parseError) {
+                        // Manual array parsing as fallback
+                        const actualArray = actualStr.replace(/[\[\]\s]/g, '').split(',').map(x => {
+                          const num = parseInt(x.trim());
+                          return isNaN(num) ? x.trim() : num;
+                        });
+                        
+                        if (JSON.stringify(actualArray) === JSON.stringify(testCase.expected)) {
+                          isCorrect = true;
+                          console.log('✓ Manual array parsing match');
+                        }
                       }
                     }
-                  } catch {
-                    console.log('Array comparison failed');
+                  } catch (error) {
+                    console.log('Array comparison error:', error.message);
+                  }
+                }
+                // String/primitive comparisons
+                else {
+                  // Normalized comparison for strings/numbers
+                  if (normalizeOutput(actualStr) === normalizeOutput(expectedStr)) {
+                    isCorrect = true;
+                    console.log('✓ Normalized match');
+                  } else {
+                    // Try type conversion
+                    try {
+                      const actualParsed = JSON.parse(actualStr);
+                      if (actualParsed === testCase.expected || String(actualParsed) === String(testCase.expected)) {
+                        isCorrect = true;
+                        console.log('✓ Type-converted match');
+                      }
+                    } catch {
+                      // Direct value comparison
+                      if (String(actualStr).trim() === String(testCase.expected)) {
+                        isCorrect = true;
+                        console.log('✓ String conversion match');
+                      }
+                    }
                   }
                 }
               }
