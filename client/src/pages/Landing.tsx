@@ -43,11 +43,7 @@ const features = [
   }
 ];
 
-const stats = [
-  { number: "500+", label: "Coding Challenges" },
-  { number: "10K+", label: "Active Learners" },
-  { number: "50+", label: "Hackathons Hosted" }
-];
+
 
 export default function Landing() {
   const { user } = useAuth();
@@ -133,28 +129,7 @@ export default function Landing() {
             )}
           </motion.div>
 
-          {/* Feature Stats */}
-          <motion.div
-            initial={{ y: 50, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ duration: 0.8, delay: 0.8 }}
-            className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto"
-          >
-            {stats.map((stat, index) => (
-              <motion.div
-                key={index}
-                whileHover={{ scale: 1.05 }}
-                className="text-center"
-              >
-                <div className="text-3xl font-bold text-light-primary dark:text-dark-accent mb-2">
-                  {stat.number}
-                </div>
-                <div className="text-gray-600 dark:text-gray-400">
-                  {stat.label}
-                </div>
-              </motion.div>
-            ))}
-          </motion.div>
+
         </div>
       </section>
 

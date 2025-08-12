@@ -15,6 +15,8 @@ The Mavericks Coding Platform is a comprehensive coding education application bu
   - JWT_SECRET for authentication tokens
   - HUGGINGFACE_API_KEY for AI skill analysis
   - OPENROUTER_API_KEY for advanced recommendations
+- Updated dark theme to professional blue color scheme for better user experience
+- Removed statistics section from landing page per user preference  
 - Project now fully compatible with standard Replit deployment
 
 ## Previous Changes (August 10, 2025)
