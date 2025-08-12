@@ -37,7 +37,7 @@ export const sampleQuizzes: Quiz[] = [
     title: "JavaScript Fundamentals",
     description: "Test your knowledge of JavaScript basics including variables, functions, and data types",
     language: "JavaScript",
-    timeLimit: 15,
+    timeLimit: 25,
     questions: [
       {
         id: "js-q1",
@@ -112,6 +112,81 @@ export const sampleQuizzes: Quiz[] = [
         explanation: "The push() method adds one or more elements to the end of an array and returns the new length of the array.",
         difficulty: "Easy",
         topic: "Arrays",
+        language: "JavaScript"
+      },
+      {
+        id: "js-q6",
+        question: "What is the output of 'console.log(0.1 + 0.2 === 0.3)'?",
+        options: [
+          "true",
+          "false",
+          "undefined",
+          "NaN"
+        ],
+        correctAnswer: 1,
+        explanation: "Due to floating-point precision issues in JavaScript, 0.1 + 0.2 equals 0.30000000000000004, not exactly 0.3.",
+        difficulty: "Medium",
+        topic: "Data Types",
+        language: "JavaScript"
+      },
+      {
+        id: "js-q7",
+        question: "Which method creates a new array with all elements that pass a test?",
+        options: [
+          "array.find()",
+          "array.filter()",
+          "array.map()",
+          "array.forEach()"
+        ],
+        correctAnswer: 1,
+        explanation: "The filter() method creates a new array with all elements that pass the test implemented by the provided function.",
+        difficulty: "Medium",
+        topic: "Arrays",
+        language: "JavaScript"
+      },
+      {
+        id: "js-q8",
+        question: "What does 'this' refer to in JavaScript arrow functions?",
+        options: [
+          "The function itself",
+          "The global object",
+          "The lexical scope where the function is defined",
+          "The object that calls the function"
+        ],
+        correctAnswer: 2,
+        explanation: "Arrow functions don't have their own 'this' binding; they inherit 'this' from the enclosing lexical scope.",
+        difficulty: "Hard",
+        topic: "Functions",
+        language: "JavaScript"
+      },
+      {
+        id: "js-q9",
+        question: "Which of the following creates a deep copy of an object?",
+        options: [
+          "Object.assign({}, obj)",
+          "JSON.parse(JSON.stringify(obj))",
+          "{...obj}",
+          "obj.clone()"
+        ],
+        correctAnswer: 1,
+        explanation: "JSON.parse(JSON.stringify(obj)) creates a deep copy, though it has limitations with functions, undefined, and circular references.",
+        difficulty: "Hard",
+        topic: "Objects",
+        language: "JavaScript"
+      },
+      {
+        id: "js-q10",
+        question: "What is the purpose of the 'async' keyword in JavaScript?",
+        options: [
+          "Makes function run faster",
+          "Makes function return a Promise",
+          "Makes function synchronous",
+          "Prevents function from running"
+        ],
+        correctAnswer: 1,
+        explanation: "The 'async' keyword makes a function return a Promise and allows the use of 'await' inside the function.",
+        difficulty: "Medium",
+        topic: "Asynchronous",
         language: "JavaScript"
       }
     ],
@@ -196,6 +271,81 @@ export const sampleQuizzes: Quiz[] = [
         correctAnswer: 2,
         explanation: "The ** operator in Python is used for exponentiation. 2 ** 3 means 2 to the power of 3, which equals 8.",
         difficulty: "Easy",
+        topic: "Operators",
+        language: "Python"
+      },
+      {
+        id: "py-q6",
+        question: "What is the output of 'print([1, 2, 3] * 2)' in Python?",
+        options: [
+          "[2, 4, 6]",
+          "[1, 2, 3, 1, 2, 3]",
+          "[1, 2, 3, 2]",
+          "Error"
+        ],
+        correctAnswer: 1,
+        explanation: "The * operator on lists repeats the list. [1, 2, 3] * 2 creates [1, 2, 3, 1, 2, 3].",
+        difficulty: "Medium",
+        topic: "Data Structures",
+        language: "Python"
+      },
+      {
+        id: "py-q7",
+        question: "Which method is used to add an element to the end of a list in Python?",
+        options: [
+          "list.add()",
+          "list.append()",
+          "list.insert()",
+          "list.push()"
+        ],
+        correctAnswer: 1,
+        explanation: "The append() method adds an element to the end of a list in Python.",
+        difficulty: "Easy",
+        topic: "Data Structures",
+        language: "Python"
+      },
+      {
+        id: "py-q8",
+        question: "What is a Python decorator?",
+        options: [
+          "A way to modify or extend functions",
+          "A type of loop",
+          "A data structure",
+          "An error handling mechanism"
+        ],
+        correctAnswer: 0,
+        explanation: "A decorator is a design pattern that allows modification or extension of functions or classes without permanently modifying them.",
+        difficulty: "Hard",
+        topic: "Advanced Features",
+        language: "Python"
+      },
+      {
+        id: "py-q9",
+        question: "What does 'range(1, 10, 2)' generate in Python?",
+        options: [
+          "[1, 3, 5, 7, 9]",
+          "[1, 2, 3, 4, 5, 6, 7, 8, 9]",
+          "[2, 4, 6, 8, 10]",
+          "[1, 10, 2]"
+        ],
+        correctAnswer: 0,
+        explanation: "range(1, 10, 2) generates numbers from 1 to 10 (exclusive) with step 2: 1, 3, 5, 7, 9.",
+        difficulty: "Medium",
+        topic: "Built-in Functions",
+        language: "Python"
+      },
+      {
+        id: "py-q10",
+        question: "What is the difference between '==' and 'is' in Python?",
+        options: [
+          "No difference",
+          "'==' compares values, 'is' compares object identity",
+          "'==' compares identity, 'is' compares values",
+          "Both are the same operator"
+        ],
+        correctAnswer: 1,
+        explanation: "'==' compares if two objects have the same value, while 'is' compares if two variables point to the same object in memory.",
+        difficulty: "Medium",
         topic: "Operators",
         language: "Python"
       }
