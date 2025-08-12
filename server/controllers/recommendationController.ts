@@ -50,7 +50,7 @@ router.get("/problems", verifyToken, async (req: Request, res: Response) => {
     }
 
     // Generate personalized recommendations
-    const recommendationModule = await import('../agents/recommendationAgent.js');
+    const recommendationModule = await import('../agents/recommendationAgent.js') as any;
     const RecommendationAgent = recommendationModule.RecommendationAgent;
     const recommendationAgent = new RecommendationAgent();
     
@@ -102,7 +102,7 @@ router.get("/learning-path", verifyToken, async (req: Request, res: Response) =>
     const allProblems = await storage.getAssessments();
 
     // Generate learning path based on user's current skills and weaknesses
-    const recommendationModule = await import('../agents/recommendationAgent.js');
+    const recommendationModule = await import('../agents/recommendationAgent.js') as any;
     const RecommendationAgent = recommendationModule.RecommendationAgent;
     const recommendationAgent = new RecommendationAgent();
     
@@ -137,7 +137,7 @@ router.get("/learning-path", verifyToken, async (req: Request, res: Response) =>
     };
 
     const currentPath = learningPaths[userProfile.learningVelocity as keyof typeof learningPaths] || learningPaths.beginner;
-    learningPath.recommendedPath = currentPath;
+    learningPath.recommendedPath = currentPath as any;
     learningPath.nextMilestone = currentPath[0]?.phase || "Complete Basic Problems";
     learningPath.estimatedTimeToComplete = `${currentPath.reduce((sum: number, phase: any) => sum + phase.problems, 0)} problems`;
 
@@ -182,7 +182,7 @@ router.get("/daily-challenge", verifyToken, async (req: Request, res: Response) 
     
     if (todaysAttempts.length === 0) {
       // Generate new daily challenge
-      const recommendationModule = await import('../agents/recommendationAgent.js');
+      const recommendationModule = await import('../agents/recommendationAgent.js') as any;
       const RecommendationAgent = recommendationModule.RecommendationAgent;
       const recommendationAgent = new RecommendationAgent();
       
@@ -228,7 +228,7 @@ router.get("/skill-analysis", verifyToken, async (req: Request, res: Response) =
     const userAssessments = await storage.getUserAssessments(userId);
 
     // Analyze skills using recommendation engine
-    const recommendationModule = await import('../agents/recommendationAgent.js');
+    const recommendationModule = await import('../agents/recommendationAgent.js') as any;
     const RecommendationAgent = recommendationModule.RecommendationAgent;
     const recommendationAgent = new RecommendationAgent();
     

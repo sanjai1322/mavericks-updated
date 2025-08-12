@@ -1,4 +1,4 @@
-const fetch = require('node-fetch');
+import fetch from 'node-fetch';
 
 const OPENROUTER_KEY = process.env.OPENROUTER_API_KEY;
 const HF_KEY = process.env.HUGGINGFACE_API_KEY;
@@ -425,4 +425,4 @@ Provide recommendations in JSON format:
   }
 }
 
-module.exports = { RecommendationAgent };
+export { RecommendationAgent };
