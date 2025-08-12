@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Code, Brain } from "lucide-react";
 import CodeEditorModal from "@/components/CodeEditorModal";
-import { QuizSection } from "@/components/QuizSection";
+import QuizSection from "@/components/QuizSection";
 import type { Assessment } from "@shared/schema";
 
 export default function Assessments() {

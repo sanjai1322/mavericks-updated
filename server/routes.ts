@@ -8,6 +8,8 @@ import learningRoutes from "./controllers/learningController";
 import hackathonRoutes from "./controllers/hackathonController";
 import leaderboardRoutes from "./controllers/leaderboardController";
 import resumeRoutes from "./controllers/resumeRoutes";
+import quizRoutes from "./controllers/quizRoutes";
+import personalizedLearningRoutes from "./controllers/learningRoutes";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Authentication routes
@@ -30,6 +32,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Resume routes
   app.use("/api/resume", resumeRoutes);
+  
+  // Quiz routes
+  app.use("/api/quizzes", quizRoutes);
+  
+  // Personalized learning routes
+  app.use("/api/learning", personalizedLearningRoutes);
   
   // AI-powered recommendation routes
   try {

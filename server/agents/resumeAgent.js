@@ -189,29 +189,191 @@ Return only valid JSON:`;
    * Basic skill extraction using keyword matching
    */
   extractSkillsBasic(text) {
+    // Comprehensive technical skills database
     const technicalSkills = [
-      'Python', 'JavaScript', 'Java', 'C++', 'C#', 'Go', 'Rust', 'TypeScript',
-      'React', 'Angular', 'Vue', 'Node.js', 'Express', 'Django', 'Flask',
-      'PostgreSQL', 'MongoDB', 'MySQL', 'Redis', 'Git', 'Docker', 'Kubernetes',
-      'AWS', 'Azure', 'GCP', 'Linux', 'HTML', 'CSS', 'SQL', 'GraphQL',
-      'REST', 'API', 'Microservices', 'DevOps', 'CI/CD', 'Agile', 'Scrum'
+      // Programming Languages
+      'Python', 'JavaScript', 'TypeScript', 'Java', 'C++', 'C#', 'C', 'Go', 'Rust', 'Swift',
+      'Kotlin', 'Scala', 'Ruby', 'PHP', 'Perl', 'R', 'MATLAB', 'Dart', 'Objective-C',
+      'Assembly', 'Fortran', 'COBOL', 'Haskell', 'Erlang', 'Clojure', 'F#', 'VB.NET',
+      
+      // Web Technologies
+      'HTML', 'HTML5', 'CSS', 'CSS3', 'SASS', 'SCSS', 'Less', 'Stylus', 'Bootstrap',
+      'Tailwind CSS', 'Material-UI', 'Bulma', 'Foundation', 'Semantic UI',
+      
+      // Frontend Frameworks & Libraries
+      'React', 'React.js', 'Angular', 'Vue', 'Vue.js', 'Svelte', 'jQuery', 'Backbone.js',
+      'Ember.js', 'Next.js', 'Nuxt.js', 'Gatsby', 'Redux', 'MobX', 'Vuex', 'RxJS',
+      'Alpine.js', 'Lit', 'Preact', 'Solid.js',
+      
+      // Backend Frameworks
+      'Node.js', 'Express', 'Express.js', 'Fastify', 'Koa', 'Hapi', 'NestJS',
+      'Django', 'Flask', 'FastAPI', 'Tornado', 'Pyramid',
+      'Spring', 'Spring Boot', 'Spring MVC', 'Hibernate',
+      'Laravel', 'Symfony', 'CodeIgniter', 'CakePHP',
+      'Ruby on Rails', 'Rails', 'Sinatra',
+      'ASP.NET', 'ASP.NET Core', '.NET Framework', '.NET Core',
+      'Gin', 'Echo', 'Fiber', 'Beego',
+      'Actix', 'Rocket', 'Warp',
+      
+      // Mobile Development
+      'React Native', 'Flutter', 'Ionic', 'Xamarin', 'Cordova', 'PhoneGap',
+      'Swift', 'SwiftUI', 'Objective-C', 'Kotlin', 'Java Android', 'Android SDK',
+      'iOS SDK', 'Xcode', 'Android Studio',
+      
+      // Databases
+      'SQL', 'MySQL', 'PostgreSQL', 'SQLite', 'Oracle', 'SQL Server', 'MariaDB',
+      'MongoDB', 'Redis', 'Cassandra', 'DynamoDB', 'CouchDB', 'Neo4j',
+      'Elasticsearch', 'Solr', 'InfluxDB', 'Firebase', 'Supabase',
+      'GraphQL', 'Prisma', 'Sequelize', 'Mongoose', 'TypeORM', 'Drizzle',
+      
+      // Cloud & DevOps
+      'AWS', 'Amazon Web Services', 'Azure', 'Google Cloud', 'GCP', 'IBM Cloud',
+      'Docker', 'Kubernetes', 'OpenShift', 'Helm', 'Istio',
+      'Jenkins', 'GitLab CI', 'GitHub Actions', 'CircleCI', 'Travis CI', 'Bamboo',
+      'Terraform', 'Ansible', 'Chef', 'Puppet', 'Vagrant', 'Packer',
+      'Nginx', 'Apache', 'HAProxy', 'Load Balancer',
+      'Microservices', 'Serverless', 'Lambda', 'Cloud Functions',
+      
+      // Version Control & Collaboration
+      'Git', 'GitHub', 'GitLab', 'Bitbucket', 'SVN', 'Mercurial',
+      'Jira', 'Confluence', 'Trello', 'Asana', 'Slack', 'Teams',
+      
+      // Testing
+      'Jest', 'Mocha', 'Chai', 'Jasmine', 'Karma', 'Cypress', 'Selenium',
+      'WebDriver', 'Puppeteer', 'Playwright', 'TestCafe',
+      'JUnit', 'TestNG', 'Mockito', 'PyTest', 'unittest', 'PHPUnit',
+      'Postman', 'Insomnia', 'REST Assured',
+      
+      // Data Science & AI
+      'Pandas', 'NumPy', 'Scikit-learn', 'TensorFlow', 'PyTorch', 'Keras',
+      'OpenCV', 'NLTK', 'spaCy', 'Matplotlib', 'Seaborn', 'Plotly',
+      'Jupyter', 'Anaconda', 'Apache Spark', 'Hadoop', 'Kafka',
+      'Machine Learning', 'Deep Learning', 'Neural Networks', 'AI',
+      'Computer Vision', 'Natural Language Processing', 'NLP',
+      
+      // Tools & IDEs
+      'VS Code', 'Visual Studio', 'IntelliJ IDEA', 'Eclipse', 'NetBeans',
+      'Sublime Text', 'Atom', 'Vim', 'Emacs', 'WebStorm', 'PyCharm',
+      'Xcode', 'Android Studio', 'Figma', 'Sketch', 'Adobe XD',
+      'Photoshop', 'Illustrator', 'Premiere Pro', 'After Effects',
+      
+      // Build Tools & Package Managers
+      'Webpack', 'Vite', 'Rollup', 'Parcel', 'Gulp', 'Grunt',
+      'NPM', 'Yarn', 'pnpm', 'Pip', 'Composer', 'Maven', 'Gradle',
+      'Babel', 'ESLint', 'Prettier', 'TSLint', 'SonarQube',
+      
+      // Methodologies & Practices
+      'Agile', 'Scrum', 'Kanban', 'Waterfall', 'DevOps', 'CI/CD',
+      'Test-Driven Development', 'TDD', 'Behavior-Driven Development', 'BDD',
+      'Domain-Driven Design', 'DDD', 'Microservices Architecture',
+      'RESTful API', 'REST API', 'API Design', 'GraphQL API',
+      'Event-Driven Architecture', 'CQRS', 'Event Sourcing'
     ];
 
     const softSkills = [
-      'Leadership', 'Communication', 'Problem Solving', 'Teamwork',
-      'Project Management', 'Critical Thinking', 'Analytical', 'Creative'
+      'Leadership', 'Team Leadership', 'People Management', 'Project Management',
+      'Communication', 'Verbal Communication', 'Written Communication', 'Public Speaking',
+      'Problem Solving', 'Critical Thinking', 'Analytical Thinking', 'Strategic Thinking',
+      'Teamwork', 'Collaboration', 'Cross-functional Collaboration',
+      'Adaptability', 'Flexibility', 'Learning Agility', 'Growth Mindset',
+      'Creativity', 'Innovation', 'Design Thinking', 'Creative Problem Solving',
+      'Time Management', 'Organization', 'Prioritization', 'Planning',
+      'Decision Making', 'Judgment', 'Risk Assessment', 'Conflict Resolution',
+      'Negotiation', 'Persuasion', 'Influencing', 'Stakeholder Management',
+      'Mentoring', 'Coaching', 'Training', 'Knowledge Sharing',
+      'Customer Service', 'Client Relations', 'Business Acumen',
+      'Presentation', 'Documentation', 'Technical Writing',
+      'Attention to Detail', 'Quality Assurance', 'Process Improvement'
     ];
 
     const allSkills = [...technicalSkills, ...softSkills];
-    const foundSkills = [];
-
+    const foundSkills = new Set(); // Use Set to avoid duplicates
+    const textLower = text.toLowerCase();
+    
+    // Enhanced matching with word boundaries and variations
     allSkills.forEach(skill => {
-      if (text.toLowerCase().includes(skill.toLowerCase())) {
-        foundSkills.push(skill);
+      const skillLower = skill.toLowerCase();
+      
+      // Exact match with word boundaries
+      const exactMatch = new RegExp(`\\b${skillLower.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`);
+      if (exactMatch.test(textLower)) {
+        foundSkills.add(skill);
+        return;
+      }
+      
+      // Handle common variations and abbreviations
+      const variations = this.getSkillVariations(skill);
+      for (const variation of variations) {
+        const variationRegex = new RegExp(`\\b${variation.toLowerCase().replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`);
+        if (variationRegex.test(textLower)) {
+          foundSkills.add(skill);
+          break;
+        }
       }
     });
 
-    return foundSkills;
+    // Extract years of experience for each skill
+    const skillsWithExperience = Array.from(foundSkills).map(skill => {
+      const experience = this.extractSkillExperience(text, skill);
+      return {
+        name: skill,
+        experience: experience
+      };
+    });
+
+    return skillsWithExperience.map(s => s.name); // Return skill names for compatibility
+  }
+  
+  /**
+   * Get common variations and abbreviations for skills
+   */
+  getSkillVariations(skill) {
+    const variations = {
+      'JavaScript': ['JS', 'Javascript', 'ECMAScript'],
+      'TypeScript': ['TS', 'Typescript'],
+      'React.js': ['React', 'ReactJS'],
+      'Vue.js': ['Vue', 'VueJS'],
+      'Angular': ['AngularJS', 'Angular.js'],
+      'Node.js': ['Node', 'NodeJS'],
+      'Express.js': ['Express', 'ExpressJS'],
+      'PostgreSQL': ['Postgres', 'PostGres'],
+      'MongoDB': ['Mongo'],
+      'Amazon Web Services': ['AWS'],
+      'Google Cloud Platform': ['GCP', 'Google Cloud'],
+      'Artificial Intelligence': ['AI'],
+      'Machine Learning': ['ML'],
+      'Natural Language Processing': ['NLP'],
+      'Application Programming Interface': ['API'],
+      'Continuous Integration': ['CI'],
+      'Continuous Deployment': ['CD'],
+      'Test-Driven Development': ['TDD'],
+      'Behavior-Driven Development': ['BDD'],
+      'Domain-Driven Design': ['DDD']
+    };
+    
+    return variations[skill] || [];
+  }
+  
+  /**
+   * Extract years of experience for a specific skill
+   */
+  extractSkillExperience(text, skill) {
+    const skillLower = skill.toLowerCase();
+    const patterns = [
+      `(\\d+)\\+?\\s*(?:years?|yrs?)\\s+(?:of\\s+)?(?:experience\\s+)?(?:with\\s+|in\\s+|using\\s+)?${skillLower}`,
+      `${skillLower}\\s*[:-]?\\s*(\\d+)\\+?\\s*(?:years?|yrs?)`,
+      `(?:with\\s+|using\\s+)?${skillLower}\\s+for\\s+(\\d+)\\+?\\s*(?:years?|yrs?)`
+    ];
+    
+    for (const pattern of patterns) {
+      const regex = new RegExp(pattern, 'i');
+      const match = text.match(regex);
+      if (match) {
+        return parseInt(match[1]);
+      }
+    }
+    
+    return null;
   }
 
   /**

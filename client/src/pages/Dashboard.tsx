@@ -9,6 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import ProgressStepper from "@/components/ProgressStepper";
 import ResumeUpload from "@/components/ResumeUpload";
 import SkillsSummary from "@/components/SkillsSummary";
+import LearningProgressDashboard from "@/components/LearningProgressDashboard";
 
 export default function Dashboard() {
   const { user } = useAuth();
@@ -170,6 +171,15 @@ export default function Dashboard() {
                 </Card>
               </motion.div>
 
+              {/* Learning Progress Dashboard */}
+              <motion.div
+                initial={{ y: 20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 0.4 }}
+              >
+                <LearningProgressDashboard />
+              </motion.div>
+              
               {/* Quick Actions */}
               <motion.div
                 initial={{ y: 20, opacity: 0 }}
