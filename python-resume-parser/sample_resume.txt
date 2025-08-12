@@ -1,0 +1,89 @@
+JOHN SMITH
+Software Engineer
+
+Contact Information:
+Email: john.smith@email.com
+Phone: (555) 123-4567
+Location: San Francisco, CA
+
+PROFESSIONAL EXPERIENCE
+
+Senior Software Engineer | Tech Solutions Inc. | 2020 - Present
+• Developed and maintained web applications using React, Node.js, and Python
+• Collaborated with cross-functional teams to deliver high-quality software solutions
+• Implemented RESTful APIs and microservices architecture
+• Worked with AWS cloud services including EC2, S3, and Lambda
+• Led code reviews and mentored junior developers
+• Achieved 99.9% uptime for critical production systems
+
+Software Developer | Innovation Labs | 2018 - 2020
+• Built responsive web interfaces using HTML, CSS, JavaScript, and React
+• Developed backend services with Node.js and Express framework
+• Worked with databases including MySQL, PostgreSQL, and MongoDB
+• Implemented CI/CD pipelines using Jenkins and Docker
+• Participated in Agile development processes and sprint planning
+
+Junior Developer | StartupXYZ | 2017 - 2018
+• Developed mobile applications using React Native
+• Assisted in database design and optimization
+• Learned and applied best practices in software development
+• Contributed to open-source projects on GitHub
+
+EDUCATION
+
+Bachelor of Science in Computer Science
+University of California, Berkeley | 2013 - 2017
+• Relevant Coursework: Data Structures, Algorithms, Database Systems, Software Engineering
+• GPA: 3.8/4.0
+
+TECHNICAL SKILLS
+
+Programming Languages: Python, JavaScript, Java, C++, TypeScript, Go
+Frontend Technologies: React, Vue.js, Angular, HTML5, CSS3, SASS, Bootstrap, Tailwind CSS
+Backend Technologies: Node.js, Express, Django, Flask, Spring Boot, FastAPI
+Databases: MySQL, PostgreSQL, MongoDB, Redis, SQLite
+Cloud Platforms: AWS, Azure, Google Cloud Platform
+DevOps Tools: Docker, Kubernetes, Jenkins, GitLab CI, GitHub Actions
+Version Control: Git, GitHub, GitLab
+Testing: Jest, Pytest, Selenium, Cypress
+Other: REST APIs, GraphQL, Microservices, Agile, Scrum
+
+SOFT SKILLS
+• Leadership and team management
+• Strong communication and presentation skills
+• Problem-solving and analytical thinking
+• Project management and time management
+• Adaptability and continuous learning
+• Collaboration and teamwork
+
+CERTIFICATIONS
+• AWS Certified Solutions Architect (2021)
+• Google Cloud Professional Cloud Architect (2020)
+• Certified Scrum Master (2019)
+
+PROJECTS
+
+E-commerce Platform | 2023
+• Built a full-stack e-commerce application using React, Node.js, and PostgreSQL
+• Implemented payment processing with Stripe API
+• Deployed on AWS with auto-scaling capabilities
+• Technologies: React, Node.js, PostgreSQL, AWS, Docker
+
+Task Management App | 2022
+• Developed a collaborative task management application
+• Real-time updates using WebSockets
+• Mobile-responsive design
+• Technologies: Vue.js, Express, MongoDB, Socket.io
+
+Machine Learning Recommendation System | 2021
+• Built a recommendation engine for content platforms
+• Used Python, scikit-learn, and TensorFlow
+• Achieved 85% accuracy in user preference prediction
+• Technologies: Python, TensorFlow, scikit-learn, pandas
+
+ACHIEVEMENTS
+• Increased system performance by 40% through code optimization
+• Led successful migration of legacy systems to cloud infrastructure
+• Mentored 5+ junior developers leading to their promotions
+• Speaker at 2 local tech conferences on modern web development
+• 5+ years of professional software development experience
