@@ -74,30 +74,24 @@ export default function ResumeUpload() {
 
           setUploadProgress(50);
 
-          const response = await apiRequest("/api/resume/upload", {
+          const result = await apiRequest("/api/resume/upload", {
             method: "POST",
             body: uploadData
           });
 
           setUploadProgress(80);
 
-          if (response.ok) {
-            const result = await response.json();
-            setAnalysis(result.analysis);
-            setRecommendations(result.recommendations || []);
-            setUploadProgress(100);
-            
-            toast({
-              title: "Resume Uploaded Successfully!",
-              description: `Found ${result.analysis.skillsFound} skills. AI analysis completed.`,
-            });
+          setAnalysis(result.analysis);
+          setRecommendations(result.recommendations || []);
+          setUploadProgress(100);
+          
+          toast({
+            title: "Resume Uploaded Successfully!",
+            description: `Found ${result.analysis?.skillsFound || 0} skills. AI analysis completed.`,
+          });
 
-            // Reset progress after success
-            setTimeout(() => setUploadProgress(0), 2000);
-          } else {
-            const error = await response.json();
-            throw new Error(error.message || "Upload failed");
-          }
+          // Reset progress after success
+          setTimeout(() => setUploadProgress(0), 2000);
         } catch (error: any) {
           console.error("Upload error:", error);
           setUploadError(error.message || "Failed to upload resume. Please try again.");

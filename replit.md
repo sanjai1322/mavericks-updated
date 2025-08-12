@@ -46,6 +46,8 @@ The Mavericks Coding Platform is a comprehensive coding education application bu
 - Fixed critical JSON parsing error in resume upload functionality
 - Improved AI response handling with robust error handling and JSON cleaning
 - Removed double JSON encoding in frontend API calls
+- Fixed `response.json is not a function` error in ResumeUpload component
+- OpenRouter API requires payment (402 error), fallback to Hugging Face working correctly
 - Updated dark theme to professional blue color scheme for better user experience
 - Removed statistics section from landing page per user preference  
 - Project now fully compatible with standard Replit deployment
