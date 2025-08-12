@@ -14,7 +14,9 @@ import {
   type Activity,
   type InsertActivity,
   type UserAssessment,
-  type InsertUserAssessment
+  type InsertUserAssessment,
+  type Resume,
+  type InsertResume
 } from "@shared/schema";
 import { randomUUID } from "crypto";
 
@@ -61,6 +63,12 @@ export interface IStorage {
   getUserAssessments(userId: string): Promise<UserAssessment[]>;
   getUserAssessmentByChallenge(userId: string, assessmentId: string): Promise<UserAssessment | undefined>;
   createUserAssessment(assessment: InsertUserAssessment): Promise<UserAssessment>;
+  
+  // Resume methods
+  getUserResumes(userId: string): Promise<Resume[]>;
+  getLatestUserResume(userId: string): Promise<Resume | undefined>;
+  createResume(resume: InsertResume): Promise<Resume>;
+  updateResume(id: string, updates: Partial<Resume>): Promise<Resume | undefined>;
 }
 
 export class MemStorage implements IStorage {
@@ -72,6 +80,7 @@ export class MemStorage implements IStorage {
   private submissions: Map<string, Submission>;
   private activities: Map<string, Activity>;
   private userAssessments: Map<string, UserAssessment>;
+  private resumes: Map<string, Resume>;
 
   constructor() {
     this.users = new Map();
@@ -82,6 +91,7 @@ export class MemStorage implements IStorage {
     this.submissions = new Map();
     this.activities = new Map();
     this.userAssessments = new Map();
+    this.resumes = new Map();
     this.seedData();
   }
 
@@ -1426,7 +1436,12 @@ print(result)`,
       rank: insertUser.rank || this.users.size + 1,
       title: insertUser.title || "Developer",
       bio: insertUser.bio || null,
-      skills: insertUser.skills || null
+      skills: insertUser.skills || null,
+      extractedSkills: insertUser.extractedSkills || null,
+      resumeText: insertUser.resumeText || null,
+      skillStrengths: insertUser.skillStrengths || null,
+      personalizedPlan: insertUser.personalizedPlan || null,
+      resumeUpdatedAt: insertUser.resumeUpdatedAt || null
     };
     this.users.set(id, user);
     return user;
@@ -1608,6 +1623,46 @@ print(result)`,
     };
     this.userAssessments.set(id, userAssessment);
     return userAssessment;
+  }
+
+  // Resume methods
+  async getUserResumes(userId: string): Promise<Resume[]> {
+    return Array.from(this.resumes.values()).filter(resume => resume.userId === userId);
+  }
+
+  async getLatestUserResume(userId: string): Promise<Resume | undefined> {
+    const userResumes = Array.from(this.resumes.values())
+      .filter(resume => resume.userId === userId)
+      .sort((a, b) => {
+        const aTime = a.uploadedAt ? new Date(a.uploadedAt).getTime() : 0;
+        const bTime = b.uploadedAt ? new Date(b.uploadedAt).getTime() : 0;
+        return bTime - aTime;
+      });
+    return userResumes[0];
+  }
+
+  async createResume(insertResume: InsertResume): Promise<Resume> {
+    const id = randomUUID();
+    const resume: Resume = { 
+      ...insertResume, 
+      id, 
+      uploadedAt: new Date(),
+      userId: insertResume.userId || null,
+      extractedText: insertResume.extractedText || null,
+      extractedSkills: insertResume.extractedSkills || null,
+      aiAnalysis: insertResume.aiAnalysis || null
+    };
+    this.resumes.set(id, resume);
+    return resume;
+  }
+
+  async updateResume(id: string, updates: Partial<Resume>): Promise<Resume | undefined> {
+    const resume = this.resumes.get(id);
+    if (!resume) return undefined;
+
+    const updatedResume = { ...resume, ...updates };
+    this.resumes.set(id, updatedResume);
+    return updatedResume;
   }
 }
 

@@ -5,7 +5,10 @@ import Navbar from "@/components/Navbar";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import ProgressStepper from "@/components/ProgressStepper";
+import ResumeUpload from "@/components/ResumeUpload";
+import SkillsSummary from "@/components/SkillsSummary";
 
 export default function Dashboard() {
   const { user } = useAuth();
@@ -135,13 +138,43 @@ export default function Dashboard() {
               </motion.div>
             </div>
 
-            {/* Right Column - Quick Actions & Stats */}
+            {/* Right Column - Resume & Skills */}
             <div className="space-y-6">
-              {/* Quick Actions */}
+              {/* Resume & Skills Section */}
               <motion.div
                 initial={{ y: 20, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ delay: 0.3 }}
+              >
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Resume & Skills</CardTitle>
+                    <CardDescription>
+                      Upload your resume for AI-powered skill analysis and personalized recommendations
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <Tabs defaultValue="summary" className="w-full">
+                      <TabsList className="grid w-full grid-cols-2">
+                        <TabsTrigger value="summary">Skills Summary</TabsTrigger>
+                        <TabsTrigger value="upload">Upload Resume</TabsTrigger>
+                      </TabsList>
+                      <TabsContent value="summary" className="mt-4">
+                        <SkillsSummary />
+                      </TabsContent>
+                      <TabsContent value="upload" className="mt-4">
+                        <ResumeUpload />
+                      </TabsContent>
+                    </Tabs>
+                  </CardContent>
+                </Card>
+              </motion.div>
+
+              {/* Quick Actions */}
+              <motion.div
+                initial={{ y: 20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 0.4 }}
               >
                 <Card>
                   <CardHeader>
@@ -176,7 +209,7 @@ export default function Dashboard() {
               <motion.div
                 initial={{ y: 20, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
-                transition={{ delay: 0.4 }}
+                transition={{ delay: 0.5 }}
               >
                 <Card>
                   <CardHeader>
@@ -207,7 +240,7 @@ export default function Dashboard() {
               <motion.div
                 initial={{ y: 20, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
-                transition={{ delay: 0.5 }}
+                transition={{ delay: 0.6 }}
               >
                 <Card>
                   <CardHeader>

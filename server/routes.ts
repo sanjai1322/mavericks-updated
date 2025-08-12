@@ -7,6 +7,7 @@ import assessmentRoutes from "./controllers/assessmentController";
 import learningRoutes from "./controllers/learningController";
 import hackathonRoutes from "./controllers/hackathonController";
 import leaderboardRoutes from "./controllers/leaderboardController";
+import resumeRoutes from "./controllers/resumeRoutes";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Authentication routes
@@ -26,6 +27,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Leaderboard routes
   app.use("/api/leaderboard", leaderboardRoutes);
+  
+  // Resume routes
+  app.use("/api/resume", resumeRoutes);
   
   // AI-powered recommendation routes
   try {

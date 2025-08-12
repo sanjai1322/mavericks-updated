@@ -13,12 +13,17 @@ export const users = pgTable("users", {
   title: text("title").default("Developer"),
   bio: text("bio"),
   skills: text("skills").array(),
+  extractedSkills: jsonb("extracted_skills"), // AI-extracted skills from resume
+  resumeText: text("resume_text"), // Parsed resume content
+  skillStrengths: jsonb("skill_strengths"), // Skill confidence levels
+  personalizedPlan: jsonb("personalized_plan"), // Generated learning plan
   level: integer("level").default(1),
   points: integer("points").default(0),
   streak: integer("streak").default(0),
   problemsSolved: integer("problems_solved").default(0),
   rank: integer("rank").default(0),
   createdAt: timestamp("created_at").defaultNow(),
+  resumeUpdatedAt: timestamp("resume_updated_at"),
 });
 
 export const assessments = pgTable("assessments", {
@@ -105,6 +110,19 @@ export const userAssessments = pgTable("user_assessments", {
   submissionTime: timestamp("submission_time").defaultNow(),
 });
 
+// New table for resume files and metadata
+export const resumes = pgTable("resumes", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id),
+  fileName: text("file_name").notNull(),
+  fileSize: integer("file_size").notNull(),
+  mimeType: text("mime_type").notNull(),
+  extractedText: text("extracted_text"),
+  extractedSkills: jsonb("extracted_skills"),
+  aiAnalysis: jsonb("ai_analysis"), // Full AI analysis results
+  uploadedAt: timestamp("uploaded_at").defaultNow(),
+});
+
 // Insert schemas
 export const insertUserSchema = createInsertSchema(users).omit({
   id: true,
@@ -145,10 +163,23 @@ export const insertUserAssessmentSchema = createInsertSchema(userAssessments).om
   submissionTime: true,
 });
 
+export const insertResumeSchema = createInsertSchema(resumes).omit({
+  id: true,
+  uploadedAt: true,
+});
+
 // Login schema
 export const loginSchema = z.object({
   username: z.string().min(1, "Username is required"),
   password: z.string().min(1, "Password is required"),
+});
+
+// Resume upload schema
+export const resumeUploadSchema = z.object({
+  fileName: z.string().min(1, "File name is required"),
+  fileSize: z.number().min(1, "File size must be greater than 0"),
+  mimeType: z.string().min(1, "MIME type is required"),
+  fileContent: z.string().min(1, "File content is required"),
 });
 
 // Types
@@ -168,7 +199,10 @@ export type InsertActivity = z.infer<typeof insertActivitySchema>;
 export type Activity = typeof activities.$inferSelect;
 export type InsertUserAssessment = z.infer<typeof insertUserAssessmentSchema>;
 export type UserAssessment = typeof userAssessments.$inferSelect;
+export type InsertResume = z.infer<typeof insertResumeSchema>;
+export type Resume = typeof resumes.$inferSelect;
 export type LoginCredentials = z.infer<typeof loginSchema>;
+export type ResumeUpload = z.infer<typeof resumeUploadSchema>;
 
 // Judge0 related types
 export type Judge0Language = {
