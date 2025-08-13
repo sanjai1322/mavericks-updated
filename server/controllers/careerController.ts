@@ -25,13 +25,13 @@ router.post("/recommendations", async (req: any, res) => {
       });
     }
 
-    // Generate career recommendations using AI
+    // Generate career recommendations using AI (prioritize free OpenRouter)
     let recommendations;
     try {
-      if (process.env.OPENAI_API_KEY) {
-        recommendations = await generateCareerRecommendationsWithOpenAI(user.resumeText, user.extractedSkills || {});
-      } else if (process.env.OPENROUTER_API_KEY) {
+      if (process.env.OPENROUTER_API_KEY) {
         recommendations = await generateCareerRecommendationsWithOpenRouter(user.resumeText, user.extractedSkills || {});
+      } else if (process.env.OPENAI_API_KEY) {
+        recommendations = await generateCareerRecommendationsWithOpenAI(user.resumeText, user.extractedSkills || {});
       } else {
         recommendations = generateFallbackCareerRecommendations(user.extractedSkills || {});
       }

@@ -5,8 +5,9 @@ The Mavericks Coding Platform is a comprehensive coding education application de
 
 ## User Preferences
 Preferred communication style: Simple, everyday language.
-Feature priorities: Multilingual quiz expansion with comprehensive programming language coverage.
+Feature priorities: Resume upload functionality and AI-powered career recommendations working properly.
 Testing approach: Prefers sample solutions to verify assessment functionality.
+Recent requirements: Fix resume upload issues and integrate OpenAI/free API for career AI features.
 
 ## System Architecture
 

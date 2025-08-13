@@ -29,8 +29,17 @@ router.post("/upload", upload.single("resume"), async (req: any, res) => {
     const userId = req.user.id;
     const file = req.file;
     
-    // Extract text content (simplified for demo)
-    const extractedText = file.buffer.toString('utf-8');
+    // Extract text content with proper encoding handling
+    let extractedText: string;
+    try {
+      // Try UTF-8 first, fallback to latin1 if that fails
+      extractedText = file.buffer.toString('utf-8');
+      // Clean the text to remove null bytes and invalid characters
+      extractedText = extractedText.replace(/\0/g, '').replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '');
+    } catch (error) {
+      // Fallback to latin1 encoding
+      extractedText = file.buffer.toString('latin1').replace(/\0/g, '').replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '');
+    }
     
     // Simple skill extraction using keywords
     const skillKeywords = [
@@ -51,13 +60,13 @@ router.post("/upload", upload.single("resume"), async (req: any, res) => {
       }
     });
 
-    // AI Analysis using OpenAI or fallback simulation
+    // AI Analysis using OpenRouter (free) or fallback
     let aiAnalysis;
     try {
-      if (process.env.OPENAI_API_KEY) {
-        aiAnalysis = await analyzeResumeWithOpenAI(extractedText, extractedSkills);
-      } else if (process.env.OPENROUTER_API_KEY) {
+      if (process.env.OPENROUTER_API_KEY) {
         aiAnalysis = await analyzeResumeWithOpenRouter(extractedText, extractedSkills);
+      } else if (process.env.OPENAI_API_KEY) {
+        aiAnalysis = await analyzeResumeWithOpenAI(extractedText, extractedSkills);
       } else {
         throw new Error("No AI service available");
       }
