@@ -285,30 +285,59 @@ function generateFallbackCareerRecommendations(skills: Record<string, number>) {
   const hasWebSkills = skillList.some(skill => ['JavaScript', 'React', 'HTML', 'CSS'].includes(skill));
   const hasBackendSkills = skillList.some(skill => ['Node.js', 'Python', 'Java'].includes(skill));
   const hasDataSkills = skillList.some(skill => ['Python', 'SQL', 'Machine Learning'].includes(skill));
+  const hasAISkills = skillList.some(skill => ['AI', 'Machine Learning', 'TensorFlow', 'PyTorch'].includes(skill));
+  const hasDesignSkills = skillList.some(skill => ['Figma', 'Blender', 'Unity', 'UI/UX'].includes(skill));
 
   let careerPaths = ["Software Developer", "Technical Support"];
   
   if (hasWebSkills && hasBackendSkills) {
-    careerPaths = ["Full Stack Developer", "Web Developer", "Software Engineer"];
+    careerPaths = ["Full Stack Developer", "Web Developer", "Software Engineer", "Technical Lead"];
   } else if (hasWebSkills) {
-    careerPaths = ["Frontend Developer", "UI/UX Developer", "Web Designer"];
+    careerPaths = ["Frontend Developer", "UI/UX Developer", "Web Designer", "React Developer"];
   } else if (hasBackendSkills) {
-    careerPaths = ["Backend Developer", "API Developer", "System Developer"];
+    careerPaths = ["Backend Developer", "API Developer", "System Developer", "DevOps Engineer"];
   } else if (hasDataSkills) {
-    careerPaths = ["Data Analyst", "Data Scientist", "ML Engineer"];
+    careerPaths = ["Data Analyst", "Data Scientist", "ML Engineer", "Research Scientist"];
+  } else if (hasAISkills) {
+    careerPaths = ["AI Engineer", "Machine Learning Engineer", "AI Research Scientist", "NLP Engineer"];
+  } else if (hasDesignSkills) {
+    careerPaths = ["3D Artist", "Game Developer", "UI/UX Designer", "Product Designer"];
+  }
+
+  const skillBasedRecommendations = [];
+  const skillBasedTrends = [];
+  
+  if (hasAISkills || hasDataSkills) {
+    skillBasedRecommendations.push(
+      "Explore generative AI and large language models",
+      "Build AI-powered applications and tools",
+      "Learn about AI ethics and responsible AI development"
+    );
+    skillBasedTrends.push("Generative AI", "MLOps", "AI Ethics");
+  }
+  
+  if (hasWebSkills) {
+    skillBasedRecommendations.push(
+      "Master modern JavaScript frameworks and libraries",
+      "Learn about web performance optimization",
+      "Explore progressive web applications (PWAs)"
+    );
+    skillBasedTrends.push("Web3", "Jamstack", "Edge Computing");
   }
 
   return {
     careerPaths,
     nextSteps: [
-      "Build a strong portfolio showcasing your skills",
-      "Contribute to open source projects",
-      "Network with professionals in your field"
+      "Build a comprehensive portfolio showcasing diverse projects",
+      "Contribute to open source projects in your area of interest",
+      "Network with professionals and join relevant communities",
+      "Stay updated with industry trends and emerging technologies",
+      ...skillBasedRecommendations
     ],
-    skillsToImprove: ["System Design", "Testing", "DevOps"],
-    industryTrends: ["AI Integration", "Cloud Computing", "Remote Work"],
-    salaryRange: "$50,000 - $120,000 depending on location and experience",
-    timeframe: "6-18 months for significant career advancement"
+    skillsToImprove: ["System Design", "Testing", "DevOps", "Cloud Architecture", "Soft Skills"],
+    industryTrends: ["AI Integration", "Cloud Computing", "Remote Work", "Blockchain", ...skillBasedTrends],
+    salaryRange: "$60,000 - $150,000+ depending on location, experience, and specialization",
+    timeframe: "6-24 months for significant career advancement with dedicated learning"
   };
 }
 

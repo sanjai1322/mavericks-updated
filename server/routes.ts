@@ -60,6 +60,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   } catch (error: any) {
     console.log('Career controller not available:', error?.message || 'Unknown error');
   }
+
+  // Coding challenges routes
+  try {
+    const challengeController = await import('./controllers/challengeController');
+    app.use("/api/challenges", challengeController.default);
+  } catch (error: any) {
+    console.log('Challenge controller not available:', error?.message || 'Unknown error');
+  }
   
   // AI-powered recommendation routes
   try {
