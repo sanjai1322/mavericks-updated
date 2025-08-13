@@ -47,8 +47,60 @@ interface LearningResource {
   provider: string;
 }
 
-// Comprehensive learning resources from major educational platforms
+// Enhanced learning resources with structured content for all tracks
 const learningResources: Record<string, LearningResource[]> = {
+  "Programming Fundamentals": [
+    {
+      title: "Variables and Data Types Mastery",
+      type: "video",
+      duration: "1 hour",
+      url: "https://www.geeksforgeeks.org/programming-fundamentals/",
+      difficulty: "Beginner",
+      provider: "GeeksforGeeks"
+    },
+    {
+      title: "Control Structures & Logic Building",
+      type: "exercise",
+      duration: "2 hours",
+      url: "https://www.codecademy.com/learn/learn-how-to-code",
+      difficulty: "Beginner",
+      provider: "Codecademy"
+    },
+    {
+      title: "Build a Calculator Project",
+      type: "project",
+      duration: "4 hours",
+      url: "https://www.freecodecamp.org/learn/javascript-algorithms-and-data-structures/basic-javascript/",
+      difficulty: "Beginner",
+      provider: "freeCodeCamp"
+    }
+  ],
+  "First Steps in Problem Solving": [
+    {
+      title: "Algorithm Design & Pseudocode",
+      type: "article",
+      duration: "45 mins",
+      url: "https://developer.mozilla.org/en-US/docs/Learn/JavaScript/First_steps/What_is_JavaScript",
+      difficulty: "Beginner",
+      provider: "MDN Web Docs"
+    },
+    {
+      title: "Breaking Down Complex Problems",
+      type: "video",
+      duration: "30 mins",
+      url: "https://www.youtube.com/watch?v=azcrPFhaY9k",
+      difficulty: "Beginner",
+      provider: "YouTube"
+    },
+    {
+      title: "Text-Based Adventure Game Project",
+      type: "project",
+      duration: "6 hours",
+      url: "https://www.codecademy.com/projects/board-game",
+      difficulty: "Beginner",
+      provider: "Codecademy"
+    }
+  ],
   "JavaScript Fundamentals": [
     {
       title: "JavaScript Basics - Variables and Data Types",
@@ -81,6 +133,136 @@ const learningResources: Record<string, LearningResource[]> = {
       url: "https://www.youtube.com/playlist?list=PLillGF-RfqbZ7s3t6ZInY3NjEOOX7hsBv",
       difficulty: "Intermediate",
       provider: "YouTube"
+    }
+  ],
+  "Data Structures Mastery": [
+    {
+      title: "Arrays and Linked Lists Implementation",
+      type: "video",
+      duration: "1.5 hours",
+      url: "https://www.geeksforgeeks.org/data-structures/",
+      difficulty: "Intermediate",
+      provider: "GeeksforGeeks"
+    },
+    {
+      title: "Stacks, Queues, and Trees",
+      type: "exercise",
+      duration: "3 hours",
+      url: "https://leetcode.com/explore/learn/card/data-structure/",
+      difficulty: "Intermediate",
+      provider: "LeetCode"
+    },
+    {
+      title: "Build Custom Data Structure Library",
+      type: "project",
+      duration: "12 hours",
+      url: "https://github.com/trekhleb/javascript-algorithms",
+      difficulty: "Intermediate",
+      provider: "GitHub"
+    }
+  ],
+  "Algorithm Design Patterns": [
+    {
+      title: "Two Pointers & Sliding Window",
+      type: "video",
+      duration: "2 hours",
+      url: "https://www.youtube.com/watch?v=jM2dhDPYMQM",
+      difficulty: "Intermediate",
+      provider: "YouTube"
+    },
+    {
+      title: "Dynamic Programming Fundamentals",
+      type: "article",
+      duration: "1 hour",
+      url: "https://www.geeksforgeeks.org/dynamic-programming/",
+      difficulty: "Intermediate",
+      provider: "GeeksforGeeks"
+    },
+    {
+      title: "Route Optimization System Project",
+      type: "project",
+      duration: "15 hours",
+      url: "https://www.hackerrank.com/domains/algorithms",
+      difficulty: "Advanced",
+      provider: "HackerRank"
+    }
+  ],
+  "Competitive Programming Track": [
+    {
+      title: "Advanced Data Structures (Segment Trees)",
+      type: "video",
+      duration: "3 hours",
+      url: "https://www.youtube.com/watch?v=Tr-xEGoByFQ",
+      difficulty: "Advanced",
+      provider: "YouTube"
+    },
+    {
+      title: "Mathematical Algorithms & Number Theory",
+      type: "article",
+      duration: "2 hours",
+      url: "https://cp-algorithms.com/",
+      difficulty: "Advanced",
+      provider: "CP-Algorithms"
+    },
+    {
+      title: "Mock Contest Participation",
+      type: "exercise",
+      duration: "4 hours",
+      url: "https://codeforces.com/contests",
+      difficulty: "Advanced",
+      provider: "Codeforces"
+    }
+  ],
+  "System Design & Architecture": [
+    {
+      title: "Scalability & Load Balancing",
+      type: "video",
+      duration: "2 hours",
+      url: "https://www.youtube.com/watch?v=UzLMhqg3_Wc",
+      difficulty: "Advanced",
+      provider: "YouTube"
+    },
+    {
+      title: "Database Design & Optimization",
+      type: "article",
+      duration: "1.5 hours",
+      url: "https://www.geeksforgeeks.org/database-management-system/",
+      difficulty: "Advanced",
+      provider: "GeeksforGeeks"
+    },
+    {
+      title: "Design a Distributed System Project",
+      type: "project",
+      duration: "20 hours",
+      url: "https://github.com/donnemartin/system-design-primer",
+      difficulty: "Advanced",
+      provider: "GitHub"
+    }
+  ],
+  "Web Development Full Stack": [
+    {
+      title: "Frontend Fundamentals (HTML, CSS, JS)",
+      type: "video",
+      duration: "4 hours",
+      url: "https://www.freecodecamp.org/learn/responsive-web-design/",
+      difficulty: "Intermediate",
+      provider: "freeCodeCamp"
+    },
+    {
+      title: "Backend Development & APIs",
+      type: "exercise",
+      duration: "6 hours",
+      url: "https://www.codecademy.com/learn/learn-express",
+      difficulty: "Intermediate",
+      provider: "Codecademy"
+    },
+    {
+      title: "Full-Featured Web Application Project",
+      type: "project",
+      duration: "30 hours",
+      url: "https://www.theodinproject.com/paths/full-stack-javascript",
+      difficulty: "Advanced",
+      provider: "The Odin Project"
     }
   ],
   "Data Structures & Algorithms": [

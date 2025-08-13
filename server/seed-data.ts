@@ -1,7 +1,28 @@
 import { storage } from "./database-storage";
 
-// Comprehensive learning paths with real educational content
+// Comprehensive learning paths with structured content for skill development
 export const seedLearningPaths = [
+  // Beginner Learning Paths
+  {
+    title: "Programming Fundamentals",
+    description: "Variables, data types, control structures, functions, and basic debugging - Build a calculator project",
+    icon: "🔥",
+    difficulty: "Beginner",
+    lessons: 12,
+    duration: "3-4 weeks",
+    category: "Programming Basics",
+    progress: 0
+  },
+  {
+    title: "First Steps in Problem Solving",
+    description: "Understanding problems, pseudocode, algorithm design, and testing - Create a text-based adventure game",
+    icon: "🧩",
+    difficulty: "Beginner",
+    lessons: 10,
+    duration: "2-3 weeks",
+    category: "Problem Solving",
+    progress: 0
+  },
   {
     title: "JavaScript Fundamentals",
     description: "Master the basics of JavaScript programming including variables, functions, objects, and DOM manipulation",
@@ -12,14 +33,36 @@ export const seedLearningPaths = [
     category: "Programming Languages",
     progress: 0
   },
+  
+  // Intermediate Learning Paths
   {
-    title: "Data Structures & Algorithms",
-    description: "Learn essential data structures and algorithms for coding interviews and problem-solving",
+    title: "Data Structures Mastery",
+    description: "Arrays, linked lists, stacks, queues, hash tables, trees, and heaps - Build a custom data structure library",
+    icon: "📊",
+    difficulty: "Intermediate",
+    lessons: 28,
+    duration: "8-10 weeks",
+    category: "Data Structures",
+    progress: 0
+  },
+  {
+    title: "Algorithm Design Patterns",
+    description: "Two-pointer, sliding window, recursion, backtracking, divide & conquer, greedy algorithms, dynamic programming",
     icon: "🧠",
     difficulty: "Intermediate",
-    lessons: 25,
-    duration: "8-12 weeks",
-    category: "Computer Science",
+    lessons: 32,
+    duration: "10-12 weeks",
+    category: "Algorithms",
+    progress: 0
+  },
+  {
+    title: "Object-Oriented Programming",
+    description: "Classes, inheritance, polymorphism, design patterns, SOLID principles - Build a mini e-commerce system",
+    icon: "🏛️",
+    difficulty: "Intermediate",
+    lessons: 20,
+    duration: "6-8 weeks",
+    category: "Programming Paradigms",
     progress: 0
   },
   {
@@ -30,6 +73,70 @@ export const seedLearningPaths = [
     lessons: 20,
     duration: "6-8 weeks",
     category: "Frontend Development",
+    progress: 0
+  },
+  
+  // Advanced Learning Paths
+  {
+    title: "Competitive Programming Track",
+    description: "Advanced data structures, mathematical algorithms, string algorithms, contest strategy - Mock contest participation",
+    icon: "🏆",
+    difficulty: "Advanced",
+    lessons: 40,
+    duration: "12-16 weeks",
+    category: "Competitive Programming",
+    progress: 0
+  },
+  {
+    title: "System Design & Architecture",
+    description: "Scalability, load balancing, database design, caching, microservices - Design a distributed system",
+    icon: "🏗️",
+    difficulty: "Advanced",
+    lessons: 30,
+    duration: "10-12 weeks",
+    category: "System Architecture",
+    progress: 0
+  },
+  {
+    title: "Machine Learning Engineer Path",
+    description: "Python libraries, data preprocessing, ML algorithms, neural networks - Build and deploy an ML model",
+    icon: "🤖",
+    difficulty: "Advanced",
+    lessons: 35,
+    duration: "12-14 weeks",
+    category: "Machine Learning",
+    progress: 0
+  },
+  
+  // Specialized Career Tracks
+  {
+    title: "Web Development Full Stack",
+    description: "Frontend, backend, databases, authentication, deployment - Build a full-featured web application",
+    icon: "🌐",
+    difficulty: "Intermediate",
+    lessons: 45,
+    duration: "14-16 weeks",
+    category: "Web Development",
+    progress: 0
+  },
+  {
+    title: "Mobile App Development",
+    description: "Platform-specific development, cross-platform frameworks, UI/UX design - Publish a mobile application",
+    icon: "📱",
+    difficulty: "Intermediate",
+    lessons: 30,
+    duration: "10-12 weeks",
+    category: "Mobile Development",
+    progress: 0
+  },
+  {
+    title: "DevOps & Infrastructure",
+    description: "Version control, CI/CD pipelines, containers, cloud platforms - Complete deployment pipeline",
+    icon: "⚙️",
+    difficulty: "Advanced",
+    lessons: 25,
+    duration: "8-10 weeks",
+    category: "DevOps",
     progress: 0
   },
   {
@@ -43,16 +150,6 @@ export const seedLearningPaths = [
     progress: 0
   },
   {
-    title: "System Design",
-    description: "Master distributed systems, scalability, and architectural design patterns for large-scale applications",
-    icon: "🏗️",
-    difficulty: "Advanced",
-    lessons: 30,
-    duration: "10-12 weeks",
-    category: "System Architecture",
-    progress: 0
-  },
-  {
     title: "Node.js Backend Development",
     description: "Build scalable backend services with Node.js, Express, databases, and API design",
     icon: "🟢",
@@ -60,16 +157,6 @@ export const seedLearningPaths = [
     lessons: 22,
     duration: "7-9 weeks",
     category: "Backend Development",
-    progress: 0
-  },
-  {
-    title: "Machine Learning Fundamentals",
-    description: "Introduction to machine learning concepts, algorithms, and practical implementation",
-    icon: "🤖",
-    difficulty: "Intermediate",
-    lessons: 24,
-    duration: "8-10 weeks",
-    category: "Machine Learning",
     progress: 0
   },
   {
