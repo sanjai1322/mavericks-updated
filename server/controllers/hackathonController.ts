@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { storage } from "../storage";
+// Import the fetchDevpostHackathons function directly since it's already in this file
 import { verifyToken } from "./authController";
 import type { Request, Response } from "express";
 

@@ -88,21 +88,45 @@ router.post("/generate-content", verifyToken, async (req: Request, res: Response
   }
 });
 
+// Get generated content
+router.get("/generated-content", verifyToken, async (req: Request, res: Response) => {
+  try {
+    const user = (req as any).user;
+    const generatedContent = await storage.getGeneratedContent(user.id);
+    
+    res.json({
+      success: true,
+      content: generatedContent
+    });
+  } catch (error: any) {
+    res.status(500).json({ 
+      message: "Failed to get generated content", 
+      error: error.message 
+    });
+  }
+});
+
 // Function to generate content based on resume analysis
 async function generateResumeBasedContent(resumeAnalysis: any, user: any) {
   const skills = resumeAnalysis.skills?.technical || [];
   const experience = resumeAnalysis.experienceYears || 0;
   const educationLevel = resumeAnalysis.education?.level || "Not specified";
   
-  return {
+  const content = {
     profileSummary: generateProfileSummary(skills, experience, educationLevel),
     careerGoals: generateCareerGoals(skills, experience),
     skillHighlights: generateSkillHighlights(skills),
     projectIdeas: generateProjectIdeas(skills),
     learningRecommendations: generateLearningPath(skills, experience),
     networkingTips: generateNetworkingTips(skills),
-    portfolioTips: generatePortfolioTips(skills, experience)
+    portfolioTips: generatePortfolioTips(skills, experience),
+    generatedAt: new Date()
   };
+
+  // Save generated content to storage
+  await storage.saveGeneratedContent(user.id, content);
+  
+  return content;
 }
 
 function generateProfileSummary(skills: string[], experience: number, education: string): string {

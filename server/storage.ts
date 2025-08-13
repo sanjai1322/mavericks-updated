@@ -70,6 +70,14 @@ export interface IStorage {
   getLatestUserResume(userId: string): Promise<Resume | undefined>;
   createResume(resume: InsertResume): Promise<Resume>;
   updateResume(id: string, updates: Partial<Resume>): Promise<Resume | undefined>;
+  
+  // Resume analysis methods
+  getResumeAnalysis(userId: string): Promise<any>;
+  saveResumeAnalysis(userId: string, analysis: any): Promise<void>;
+  
+  // Generated content methods
+  saveGeneratedContent(userId: string, content: any): Promise<void>;
+  getGeneratedContent(userId: string): Promise<any>;
 }
 
 export class MemStorage implements IStorage {
@@ -82,6 +90,8 @@ export class MemStorage implements IStorage {
   private activities: Map<string, Activity>;
   private userAssessments: Map<string, UserAssessment>;
   private resumes: Map<string, Resume>;
+  private resumeAnalyses: Map<string, any>;
+  private generatedContent: Map<string, any>;
 
   constructor() {
     this.users = new Map();
@@ -93,6 +103,8 @@ export class MemStorage implements IStorage {
     this.activities = new Map();
     this.userAssessments = new Map();
     this.resumes = new Map();
+    this.resumeAnalyses = new Map();
+    this.generatedContent = new Map();
     this.seedData();
   }
 
@@ -1668,6 +1680,24 @@ print(result)`,
     const updatedResume = { ...resume, ...updates };
     this.resumes.set(id, updatedResume);
     return updatedResume;
+  }
+
+  // Resume analysis methods
+  async getResumeAnalysis(userId: string): Promise<any> {
+    return this.resumeAnalyses.get(userId) || null;
+  }
+
+  async saveResumeAnalysis(userId: string, analysis: any): Promise<void> {
+    this.resumeAnalyses.set(userId, analysis);
+  }
+
+  // Generated content methods
+  async saveGeneratedContent(userId: string, content: any): Promise<void> {
+    this.generatedContent.set(userId, content);
+  }
+
+  async getGeneratedContent(userId: string): Promise<any> {
+    return this.generatedContent.get(userId) || null;
   }
 }
 

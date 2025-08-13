@@ -169,7 +169,7 @@ export default function Dashboard() {
                             <div>
                               <p className="text-sm font-medium">{activity.title}</p>
                               <p className="text-xs text-gray-500">
-                                {new Date(activity.createdAt).toRelativeString()}
+                                {new Date(activity.createdAt).toDateString()}
                               </p>
                             </div>
                           </div>
