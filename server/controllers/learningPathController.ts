@@ -2,6 +2,15 @@ import { Request, Response } from "express";
 import { storage } from "../storage";
 import type { AuthenticatedRequest, User, LearningPath, LearningPathInsert } from "../../shared/schema";
 
+interface UserSkillAnalysis {
+  strongSkills: string[];
+  moderateSkills: string[];
+  weakSkills: string[];
+  primaryDomain: string;
+  overallLevel: string;
+  totalSkills: number;
+}
+
 // Generate personalized learning path based on user's skills, resume, and quiz results
 export const generatePersonalizedLearningPath = async (req: AuthenticatedRequest, res: Response) => {
   try {
@@ -37,7 +46,17 @@ export const generatePersonalizedLearningPath = async (req: AuthenticatedRequest
       tags: learningPath.tags
     };
 
-    await storage.createLearningPath(learningPathData);
+    // Store learning path using the existing interface
+    await storage.createLearningPath({
+      title: learningPath.title,
+      description: learningPath.description,
+      icon: "🎯", // Default icon for personalized paths
+      difficulty: learningPath.difficulty,
+      lessons: learningPath.content?.length || 1,
+      duration: `${learningPath.estimatedHours} hours`,
+      category: learningPath.category,
+      progress: 0
+    });
     
     res.json({
       learningPath: {
@@ -120,8 +139,9 @@ export const updateLearningProgress = async (req: AuthenticatedRequest, res: Res
       return res.status(404).json({ message: "User not found" });
     }
 
-    // For now, we'll store progress in user's metadata
-    const learningProgress = user.metadata?.learningProgress || {};
+    // For now, we'll store progress in user's personalizedPlan
+    const currentPlan = user.personalizedPlan as any || {};
+    const learningProgress = currentPlan.learningProgress || {};
     learningProgress[pathId] = {
       completedSections: completedSections || [],
       currentSection: currentSection || 0,
@@ -130,8 +150,8 @@ export const updateLearningProgress = async (req: AuthenticatedRequest, res: Res
     };
 
     await storage.updateUser(req.user.id, {
-      metadata: {
-        ...user.metadata,
+      personalizedPlan: {
+        ...currentPlan,
         learningProgress
       }
     });
@@ -317,94 +337,142 @@ function generatePathContent(skillAnalysis: any, recommendations: any[]) {
       }))
     });
   }
-  
+
   return content;
 }
 
-function calculateEstimatedHours(skillAnalysis: any, recommendations: any[]) {
-  const baseHours = 20;
-  const skillHours = (skillAnalysis.weakSkills.length * 4) + 
-                   (skillAnalysis.moderateSkills.length * 6) + 
-                   (skillAnalysis.strongSkills.length * 8);
-  return Math.min(baseHours + skillHours, 100); // Cap at 100 hours
+function calculateEstimatedHours(skillAnalysis: UserSkillAnalysis, recommendations: any[]) {
+  // Base hours calculation
+  let totalHours = 0;
+  
+  // Add hours for weak skills (more intensive)
+  totalHours += skillAnalysis.weakSkills.length * 8;
+  
+  // Add hours for moderate skills
+  totalHours += skillAnalysis.moderateSkills.length * 6;
+  
+  // Add hours for advancing strong skills
+  totalHours += skillAnalysis.strongSkills.length * 4;
+  
+  // Adjust based on overall level
+  if (skillAnalysis.overallLevel === 'Beginner') {
+    totalHours *= 1.5; // Beginners need more time
+  } else if (skillAnalysis.overallLevel === 'Advanced') {
+    totalHours *= 0.8; // Advanced learners are more efficient
+  }
+  
+  return Math.round(totalHours);
 }
 
-function calculatePathProgress(path: LearningPath, user: User): number {
-  const progress = user.metadata?.learningProgress?.[path.id];
-  return progress?.progress || 0;
+function determinePrimaryDomain(skills: string[]) {
+  // Domain classification based on skills
+  const domainKeywords = {
+    'Frontend Development': ['React', 'Vue', 'Angular', 'JavaScript', 'TypeScript', 'CSS', 'HTML', 'Redux'],
+    'Backend Development': ['Node.js', 'Express', 'Django', 'Flask', 'FastAPI', 'Spring', 'ASP.NET'],
+    'Data Science': ['Python', 'Pandas', 'NumPy', 'Scikit-learn', 'TensorFlow', 'PyTorch', 'R'],
+    'Mobile Development': ['React Native', 'Flutter', 'Swift', 'Kotlin', 'Xamarin'],
+    'DevOps': ['Docker', 'Kubernetes', 'AWS', 'Azure', 'GCP', 'Jenkins', 'Terraform'],
+    'Database': ['PostgreSQL', 'MySQL', 'MongoDB', 'Redis', 'SQLite'],
+    'Machine Learning': ['Machine Learning', 'Deep Learning', 'Neural Networks', 'AI']
+  };
+
+  let bestMatch = 'Full Stack Development';
+  let maxMatches = 0;
+
+  for (const [domain, keywords] of Object.entries(domainKeywords)) {
+    const matches = skills.filter(skill => 
+      keywords.some(keyword => 
+        skill.toLowerCase().includes(keyword.toLowerCase())
+      )
+    ).length;
+
+    if (matches > maxMatches) {
+      maxMatches = matches;
+      bestMatch = domain;
+    }
+  }
+
+  return bestMatch;
 }
 
-function getPathStatus(path: LearningPath, user: User): string {
+function getComplementarySkills(domain: string) {
+  const complementarySkillsMap: { [key: string]: string[] } = {
+    'Frontend Development': ['Node.js', 'MongoDB', 'Express', 'API Design'],
+    'Backend Development': ['React', 'Vue', 'Database Design', 'System Design'],
+    'Data Science': ['SQL', 'Cloud Computing', 'MLOps', 'Data Visualization'],
+    'Mobile Development': ['Backend APIs', 'Cloud Services', 'UI/UX Design'],
+    'DevOps': ['System Architecture', 'Security', 'Monitoring', 'Automation'],
+    'Database': ['Backend Development', 'Query Optimization', 'Data Modeling'],
+    'Machine Learning': ['Python', 'Statistics', 'Data Engineering', 'MLOps']
+  };
+
+  return complementarySkillsMap[domain] || ['System Design', 'Problem Solving', 'Testing'];
+}
+
+function calculatePathProgress(path: LearningPath, user: User) {
+  // Get user's learning progress from personalizedPlan
+  const personalizedPlan = user.personalizedPlan as any || {};
+  const learningProgress = personalizedPlan.learningProgress || {};
+  const pathProgress = learningProgress[path.id];
+  
+  if (!pathProgress) {
+    return 0;
+  }
+  
+  return pathProgress.progress || 0;
+}
+
+function getPathStatus(path: LearningPath, user: User) {
   const progress = calculatePathProgress(path, user);
+  
   if (progress === 0) return 'Not Started';
-  if (progress >= 100) return 'Completed';
-  return 'In Progress';
+  if (progress < 100) return 'In Progress';
+  return 'Completed';
 }
 
 function analyzeSkillGaps(user: User) {
-  // This would analyze gaps in user's skill set compared to industry standards
-  // For now, return placeholder data
-  return [
-    { skill: 'Advanced React Patterns', importance: 'High', currentLevel: 0.4 },
-    { skill: 'System Design', importance: 'High', currentLevel: 0.2 },
-    { skill: 'Testing Strategies', importance: 'Medium', currentLevel: 0.6 }
-  ];
-}
-
-function getNextRecommendations(user: User, paths: any[]) {
-  // Generate next steps based on current progress
-  return [
-    {
-      title: 'Complete Current Module',
-      description: 'Finish your current learning section to maintain momentum',
-      action: 'Continue Learning',
-      priority: 'immediate'
-    },
-    {
-      title: 'Take Skills Assessment',
-      description: 'Validate your knowledge with targeted quizzes',
-      action: 'Take Quiz',
-      priority: 'soon'
-    }
-  ];
-}
-
-function determinePrimaryDomain(skills: string[]): string {
-  const domainKeywords = {
-    'Frontend Development': ['React', 'Vue', 'Angular', 'JavaScript', 'TypeScript', 'HTML', 'CSS'],
-    'Backend Development': ['Node.js', 'Express', 'Python', 'Django', 'Flask', 'Java', 'Spring'],
-    'Mobile Development': ['React Native', 'Flutter', 'Swift', 'Kotlin', 'iOS', 'Android'],
-    'Data Science': ['Python', 'R', 'Machine Learning', 'Pandas', 'NumPy', 'TensorFlow'],
-    'DevOps': ['Docker', 'Kubernetes', 'AWS', 'CI/CD', 'Jenkins', 'Terraform']
-  };
+  const skillStrengths = user.skillStrengths as any || {};
+  const extractedSkills = user.extractedSkills as any || {};
   
-  let maxScore = 0;
-  let primaryDomain = 'Full Stack Development';
-  
-  Object.entries(domainKeywords).forEach(([domain, keywords]) => {
-    const score = keywords.filter(keyword => 
-      skills.some(skill => skill.toLowerCase().includes(keyword.toLowerCase()))
-    ).length;
+  // Identify skills that are mentioned but have low confidence
+  const skillGaps = Object.entries(skillStrengths)
+    .filter(([skill, strength]: [string, any]) => strength < 0.5)
+    .map(([skill, strength]: [string, any]) => ({
+      skill,
+      currentLevel: strength,
+      recommendedAction: strength < 0.3 ? 'Learn fundamentals' : 'Practice more'
+    }));
     
-    if (score > maxScore) {
-      maxScore = score;
-      primaryDomain = domain;
-    }
-  });
-  
-  return primaryDomain;
+  return skillGaps.slice(0, 5); // Top 5 skill gaps
 }
 
-function getComplementarySkills(domain: string): string[] {
-  const complementaryMap: Record<string, string[]> = {
-    'Frontend Development': ['Backend APIs', 'Database Design', 'Testing', 'Performance Optimization'],
-    'Backend Development': ['Frontend Frameworks', 'Database Administration', 'System Architecture', 'Security'],
-    'Mobile Development': ['Backend Services', 'UI/UX Design', 'App Store Optimization', 'Cross-platform Tools'],
-    'Data Science': ['Machine Learning', 'Data Visualization', 'Big Data Tools', 'Statistical Analysis'],
-    'DevOps': ['Infrastructure as Code', 'Monitoring', 'Security', 'Cloud Architecture']
-  };
+function getNextRecommendations(user: User, learningPaths: any[]) {
+  const inProgressPaths = learningPaths.filter(p => p.status === 'In Progress');
+  const completedPaths = learningPaths.filter(p => p.status === 'Completed');
   
-  return complementaryMap[domain] || ['Problem Solving', 'Communication', 'Project Management'];
+  const recommendations = [];
+  
+  // Recommend continuing in-progress paths
+  if (inProgressPaths.length > 0) {
+    recommendations.push({
+      type: 'continue',
+      title: 'Continue Learning',
+      description: `You have ${inProgressPaths.length} path(s) in progress`,
+      paths: inProgressPaths.slice(0, 2)
+    });
+  }
+  
+  // Recommend new paths based on completed ones
+  if (completedPaths.length > 0) {
+    recommendations.push({
+      type: 'expand',
+      title: 'Expand Your Skills',
+      description: 'Based on your completed paths, here are some recommendations',
+      suggestion: 'Consider exploring advanced topics in your strongest areas'
+    });
+  }
+  
+  return recommendations;
 }
 
 async function updateSkillsFromProgress(userId: string, pathId: string, completedSections: string[]) {
@@ -412,27 +480,38 @@ async function updateSkillsFromProgress(userId: string, pathId: string, complete
     const user = await storage.getUser(userId);
     if (!user) return;
     
-    const skillStrengths = user.skillStrengths || {};
+    // Extract skills from completed sections and update user's skill strengths
+    const currentStrengths = user.skillStrengths as any || {};
     
-    // Increase skill strength based on completed sections
+    // For each completed section, boost related skills
     completedSections.forEach(section => {
-      const skillName = extractSkillFromSection(section);
-      if (skillName) {
-        const currentStrength = skillStrengths[skillName] || 0.5;
-        skillStrengths[skillName] = Math.min(currentStrength + 0.1, 1.0); // Increase by 0.1, max 1.0
-      }
+      // This is a simplified implementation - in practice, you'd map sections to specific skills
+      const relatedSkills = extractSkillsFromSection(section);
+      relatedSkills.forEach(skill => {
+        const currentStrength = currentStrengths[skill] || 0;
+        currentStrengths[skill] = Math.min(1.0, currentStrength + 0.1); // Boost by 0.1, max 1.0
+      });
     });
     
-    await storage.updateUser(userId, { skillStrengths });
+    await storage.updateUser(userId, {
+      skillStrengths: currentStrengths
+    });
     
   } catch (error) {
     console.error('Error updating skills from progress:', error);
   }
 }
 
-function extractSkillFromSection(section: string): string | null {
-  // Extract skill name from section title
-  // This is a simplified version - you'd want more sophisticated parsing
-  const skills = ['JavaScript', 'React', 'Python', 'Java', 'Node.js', 'Express', 'Django', 'Flask'];
-  return skills.find(skill => section.toLowerCase().includes(skill.toLowerCase())) || null;
+function extractSkillsFromSection(sectionName: string): string[] {
+  // Simple skill extraction based on section names
+  // In practice, this would be more sophisticated
+  const skillMap: { [key: string]: string[] } = {
+    'React Fundamentals': ['React', 'JavaScript', 'Frontend Development'],
+    'Node.js Basics': ['Node.js', 'JavaScript', 'Backend Development'],
+    'Python Fundamentals': ['Python', 'Programming'],
+    'Database Design': ['SQL', 'Database', 'Data Modeling']
+  };
+  
+  return skillMap[sectionName] || [];
 }
+

@@ -123,6 +123,22 @@ export const resumes = pgTable("resumes", {
   uploadedAt: timestamp("uploaded_at").defaultNow(),
 });
 
+// Enhanced learning paths for personalized recommendations
+export const personalizedLearningPaths = pgTable("personalized_learning_paths", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id),
+  title: text("title").notNull(),
+  description: text("description").notNull(),
+  category: text("category").notNull(),
+  difficulty: text("difficulty").notNull(),
+  estimatedHours: integer("estimated_hours").default(0),
+  content: jsonb("content"), // Learning modules and lessons
+  prerequisites: text("prerequisites").array(),
+  learningObjectives: text("learning_objectives").array(),
+  tags: text("tags").array(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 // Insert schemas
 export const insertUserSchema = createInsertSchema(users).omit({
   id: true,
@@ -168,6 +184,11 @@ export const insertResumeSchema = createInsertSchema(resumes).omit({
   uploadedAt: true,
 });
 
+export const insertPersonalizedLearningPathSchema = createInsertSchema(personalizedLearningPaths).omit({
+  id: true,
+  createdAt: true,
+});
+
 // Login schema
 export const loginSchema = z.object({
   username: z.string().min(1, "Username is required"),
@@ -201,8 +222,18 @@ export type InsertUserAssessment = z.infer<typeof insertUserAssessmentSchema>;
 export type UserAssessment = typeof userAssessments.$inferSelect;
 export type InsertResume = z.infer<typeof insertResumeSchema>;
 export type Resume = typeof resumes.$inferSelect;
+export type InsertPersonalizedLearningPath = z.infer<typeof insertPersonalizedLearningPathSchema>;
+export type PersonalizedLearningPath = typeof personalizedLearningPaths.$inferSelect;
 export type LoginCredentials = z.infer<typeof loginSchema>;
 export type ResumeUpload = z.infer<typeof resumeUploadSchema>;
+
+// Authentication types
+export interface AuthenticatedRequest extends Request {
+  user: { id: string; username: string; };
+}
+
+// Type alias for compatibility
+export type LearningPathInsert = InsertPersonalizedLearningPath;
 
 // Judge0 related types
 export type Judge0Language = {
