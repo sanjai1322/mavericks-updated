@@ -1,11 +1,16 @@
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { Link } from "wouter";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import Navbar from "@/components/Navbar";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
+import { useToast } from "@/hooks/use-toast";
+import { Sparkles, Lightbulb, Target, Copy, CheckCircle } from "lucide-react";
+import { apiRequest } from "@/lib/queryClient";
 import ProgressStepper from "@/components/ProgressStepper";
 import ResumeUpload from "@/components/ResumeUpload";
 import SkillsSummary from "@/components/SkillsSummary";
@@ -13,11 +18,53 @@ import LearningProgressDashboard from "@/components/LearningProgressDashboard";
 
 export default function Dashboard() {
   const { user } = useAuth();
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+  const [generatedContent, setGeneratedContent] = useState<any>(null);
+  const [isGenerating, setIsGenerating] = useState(false);
 
   const { data: activities } = useQuery({
     queryKey: ["/api/profile/activities"],
     enabled: !!user,
   });
+
+  const { data: resumeAnalysis } = useQuery({
+    queryKey: ["/api/resume/analysis"],
+    enabled: !!user,
+  });
+
+  const generateContentMutation = useMutation({
+    mutationFn: () => apiRequest("/api/profile/generate-content", {
+      method: "POST"
+    }),
+    onMutate: () => {
+      setIsGenerating(true);
+    },
+    onSuccess: (result: any) => {
+      setGeneratedContent(result.content);
+      setIsGenerating(false);
+      toast({
+        title: "Content Generated!",
+        description: "Your personalized content has been created based on your resume",
+      });
+    },
+    onError: (error: any) => {
+      setIsGenerating(false);
+      toast({
+        title: "Generation Failed",
+        description: error.message || "Failed to generate content. Make sure you have uploaded a resume.",
+        variant: "destructive",
+      });
+    }
+  });
+
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text);
+    toast({
+      title: "Copied!",
+      description: "Content copied to clipboard",
+    });
+  };
 
   if (!user) {
     return (
@@ -171,11 +218,147 @@ export default function Dashboard() {
                 </Card>
               </motion.div>
 
-              {/* Learning Progress Dashboard */}
+              {/* AI Content Generation */}
               <motion.div
                 initial={{ y: 20, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ delay: 0.4 }}
+              >
+                <Card>
+                  <CardHeader>
+                    <div className="flex items-center gap-2">
+                      <Sparkles className="w-5 h-5 text-purple-600" />
+                      <CardTitle>AI Content Generator</CardTitle>
+                    </div>
+                    <CardDescription>
+                      Generate personalized career content based on your resume analysis
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    {resumeAnalysis ? (
+                      <>
+                        <Button
+                          onClick={() => generateContentMutation.mutate()}
+                          disabled={isGenerating}
+                          className="w-full bg-gradient-to-r from-purple-500 to-pink-600 hover:opacity-90 transition-opacity"
+                          data-testid="button-generate-content"
+                        >
+                          {isGenerating ? (
+                            <>
+                              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                              Generating...
+                            </>
+                          ) : (
+                            <>
+                              <Sparkles className="w-4 h-4 mr-2" />
+                              Generate Career Content
+                            </>
+                          )}
+                        </Button>
+                        
+                        {generatedContent && (
+                          <Tabs defaultValue="summary" className="w-full">
+                            <TabsList className="grid w-full grid-cols-3">
+                              <TabsTrigger value="summary">Profile</TabsTrigger>
+                              <TabsTrigger value="goals">Goals</TabsTrigger>
+                              <TabsTrigger value="tips">Tips</TabsTrigger>
+                            </TabsList>
+                            
+                            <TabsContent value="summary" className="space-y-3 mt-4">
+                              <div className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 p-4 rounded-lg">
+                                <div className="flex items-center justify-between mb-2">
+                                  <h4 className="font-semibold text-blue-800 dark:text-blue-200">Profile Summary</h4>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => copyToClipboard(generatedContent.profileSummary)}
+                                  >
+                                    <Copy className="w-4 h-4" />
+                                  </Button>
+                                </div>
+                                <p className="text-sm text-gray-700 dark:text-gray-300">
+                                  {generatedContent.profileSummary}
+                                </p>
+                              </div>
+                              
+                              <div className="space-y-2">
+                                <h4 className="font-semibold text-green-800 dark:text-green-200 flex items-center gap-2">
+                                  <Target className="w-4 h-4" />
+                                  Skill Highlights
+                                </h4>
+                                {generatedContent.skillHighlights?.slice(0, 3).map((highlight: string, index: number) => (
+                                  <div key={index} className="bg-green-50 dark:bg-green-900/20 p-2 rounded text-xs">
+                                    <CheckCircle className="w-3 h-3 inline mr-2 text-green-600" />
+                                    {highlight}
+                                  </div>
+                                ))}
+                              </div>
+                            </TabsContent>
+                            
+                            <TabsContent value="goals" className="space-y-3 mt-4">
+                              <div className="space-y-2">
+                                <h4 className="font-semibold text-amber-800 dark:text-amber-200 flex items-center gap-2">
+                                  <Target className="w-4 h-4" />
+                                  Career Goals
+                                </h4>
+                                {generatedContent.careerGoals?.map((goal: string, index: number) => (
+                                  <Badge key={index} variant="outline" className="block p-2 text-left text-xs">
+                                    {goal}
+                                  </Badge>
+                                ))}
+                              </div>
+                              
+                              <div className="space-y-2">
+                                <h4 className="font-semibold text-purple-800 dark:text-purple-200 flex items-center gap-2">
+                                  <Lightbulb className="w-4 h-4" />
+                                  Project Ideas
+                                </h4>
+                                {generatedContent.projectIdeas?.map((idea: string, index: number) => (
+                                  <div key={index} className="bg-purple-50 dark:bg-purple-900/20 p-2 rounded text-xs">
+                                    <Lightbulb className="w-3 h-3 inline mr-2 text-purple-600" />
+                                    {idea}
+                                  </div>
+                                ))}
+                              </div>
+                            </TabsContent>
+                            
+                            <TabsContent value="tips" className="space-y-3 mt-4">
+                              <div className="space-y-2">
+                                <h4 className="font-semibold text-teal-800 dark:text-teal-200">Learning Recommendations</h4>
+                                {generatedContent.learningRecommendations?.map((rec: string, index: number) => (
+                                  <div key={index} className="bg-teal-50 dark:bg-teal-900/20 p-2 rounded text-xs">
+                                    {rec}
+                                  </div>
+                                ))}
+                              </div>
+                              
+                              <div className="space-y-2">
+                                <h4 className="font-semibold text-pink-800 dark:text-pink-200">Portfolio Tips</h4>
+                                {generatedContent.portfolioTips?.slice(0, 3).map((tip: string, index: number) => (
+                                  <div key={index} className="bg-pink-50 dark:bg-pink-900/20 p-2 rounded text-xs">
+                                    {tip}
+                                  </div>
+                                ))}
+                              </div>
+                            </TabsContent>
+                          </Tabs>
+                        )}
+                      </>
+                    ) : (
+                      <div className="text-center py-6 text-gray-500">
+                        <Sparkles className="w-12 h-12 mx-auto mb-2 text-gray-400" />
+                        <p className="text-sm">Upload your resume first to generate personalized content</p>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              </motion.div>
+
+              {/* Learning Progress Dashboard */}
+              <motion.div
+                initial={{ y: 20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 0.5 }}
               >
                 <LearningProgressDashboard />
               </motion.div>

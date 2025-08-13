@@ -6,14 +6,21 @@ import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
+import { ExternalLink, Users, Calendar, Trophy, Target, Sparkles, Globe, MapPin } from "lucide-react";
 import type { Hackathon, Submission } from "@shared/schema";
 
 export default function Hackathons() {
   const { user } = useAuth();
-  const [activeTab, setActiveTab] = useState("ongoing");
+  const [activeTab, setActiveTab] = useState("recommended");
 
   const { data: hackathons, isLoading } = useQuery({
     queryKey: ["/api/hackathons"],
+    enabled: !!user,
+  });
+
+  const { data: recommendations } = useQuery({
+    queryKey: ["/api/hackathons", "recommendations"],
     enabled: !!user,
   });
 
@@ -25,10 +32,13 @@ export default function Hackathons() {
   const getStatusColor = (status: string) => {
     switch (status) {
       case "Live":
+      case "open":
         return "bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200";
       case "Upcoming":
+      case "upcoming":
         return "bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200";
       case "Past":
+      case "ended":
         return "bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200";
       default:
         return "bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200";
@@ -67,7 +77,26 @@ export default function Hackathons() {
   };
 
   const filterHackathonsByStatus = (status: string) => {
-    return hackathons?.filter((hackathon: Hackathon) => hackathon.status === status) || [];
+    if (status === "ongoing") {
+      return hackathons?.filter((hackathon: any) => 
+        hackathon.status === "Live" || hackathon.status === "open"
+      ) || [];
+    }
+    if (status === "upcoming") {
+      return hackathons?.filter((hackathon: any) => 
+        hackathon.status === "Upcoming" || hackathon.status === "upcoming"
+      ) || [];
+    }
+    if (status === "past") {
+      return hackathons?.filter((hackathon: any) => 
+        hackathon.status === "Past" || hackathon.status === "ended"
+      ) || [];
+    }
+    return hackathons || [];
+  };
+
+  const isDevpostHackathon = (hackathon: any) => {
+    return hackathon.url && hackathon.url.includes('devpost.com');
   };
 
   if (!user) {
@@ -102,11 +131,159 @@ export default function Hackathons() {
 
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <TabsList className="grid w-full grid-cols-4">
-              <TabsTrigger value="ongoing">Ongoing</TabsTrigger>
+              <TabsTrigger value="recommended">Recommended</TabsTrigger>
+              <TabsTrigger value="ongoing">Live</TabsTrigger>
               <TabsTrigger value="upcoming">Upcoming</TabsTrigger>
               <TabsTrigger value="past">Past Events</TabsTrigger>
-              <TabsTrigger value="submissions">My Submissions</TabsTrigger>
             </TabsList>
+
+            {/* Recommended Hackathons */}
+            <TabsContent value="recommended" className="mt-6">
+              {recommendations?.recommendations?.length > 0 ? (
+                <div className="space-y-6">
+                  <div className="text-center bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-lg p-4 mb-6">
+                    <div className="flex items-center justify-center gap-2 mb-2">
+                      <Target className="w-5 h-5 text-blue-600" />
+                      <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+                        Personalized Recommendations
+                      </h2>
+                      <Sparkles className="w-5 h-5 text-yellow-500" />
+                    </div>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                      Based on your resume skills: {recommendations?.userSkills?.join(', ')}
+                    </p>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    {recommendations.recommendations.map((hackathon: any, index: number) => (
+                      <motion.div
+                        key={hackathon.id || index}
+                        initial={{ y: 50, opacity: 0 }}
+                        animate={{ y: 0, opacity: 1 }}
+                        transition={{ delay: index * 0.1 }}
+                        whileHover={{ scale: 1.02 }}
+                      >
+                        <Card className="border-2 border-blue-200 dark:border-blue-700 hover:shadow-xl transition-all relative overflow-hidden">
+                          {hackathon.isRecommended && (
+                            <div className="absolute top-2 right-2 z-10">
+                              <Badge variant="secondary" className="bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200">
+                                <Target className="w-3 h-3 mr-1" />
+                                Recommended
+                              </Badge>
+                            </div>
+                          )}
+                          
+                          <CardContent className="p-6">
+                            <div className="flex items-start justify-between mb-4">
+                              <div className="flex-1">
+                                <div className="flex items-center gap-2 mb-2">
+                                  <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
+                                    {hackathon.title}
+                                  </h3>
+                                  {isDevpostHackathon(hackathon) && (
+                                    <Badge variant="outline" className="text-xs">
+                                      <Globe className="w-3 h-3 mr-1" />
+                                      Devpost
+                                    </Badge>
+                                  )}
+                                </div>
+                                <p className="text-gray-600 dark:text-gray-400 text-sm mb-3">
+                                  {hackathon.description}
+                                </p>
+                                
+                                {hackathon.matchingSkills && hackathon.matchingSkills.length > 0 && (
+                                  <div className="mb-3">
+                                    <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Your matching skills:</p>
+                                    <div className="flex flex-wrap gap-1">
+                                      {hackathon.matchingSkills.map((skill: string, skillIndex: number) => (
+                                        <Badge key={skillIndex} variant="secondary" className="text-xs bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+                                          {skill}
+                                        </Badge>
+                                      ))}
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                              <span className={`px-2 py-1 text-xs rounded-full ${getStatusColor(hackathon.status)}`}>
+                                {hackathon.status}
+                              </span>
+                            </div>
+
+                            <div className="space-y-2 mb-4">
+                              <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                                <Calendar className="w-4 h-4 mr-2" />
+                                <span>{hackathon.endDate ? formatTimeRemaining(hackathon.endDate) : "No end date"}</span>
+                              </div>
+                              <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                                <Users className="w-4 h-4 mr-2" />
+                                <span>{hackathon.participants?.toLocaleString()} participants</span>
+                              </div>
+                              <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                                <Trophy className="w-4 h-4 mr-2" />
+                                <span>{hackathon.prize || hackathon.prizeAmount}</span>
+                              </div>
+                              <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                                <MapPin className="w-4 h-4 mr-2" />
+                                <span className="capitalize">{hackathon.location}</span>
+                              </div>
+                            </div>
+
+                            <div className="flex flex-wrap gap-2 mb-4">
+                              {(hackathon.technologies || hackathon.tags || []).map((tech: string, techIndex: number) => (
+                                <Badge
+                                  key={techIndex}
+                                  variant="outline"
+                                  className="text-xs"
+                                >
+                                  {tech}
+                                </Badge>
+                              ))}
+                            </div>
+
+                            <div className="flex gap-2">
+                              {isDevpostHackathon(hackathon) ? (
+                                <Button 
+                                  className="flex-1 bg-gradient-to-r from-blue-500 to-purple-600 text-white hover:opacity-90 transition-opacity"
+                                  onClick={() => window.open(hackathon.url, '_blank')}
+                                  data-testid={`button-join-devpost-${index}`}
+                                >
+                                  <ExternalLink className="w-4 h-4 mr-1" />
+                                  Join on Devpost
+                                </Button>
+                              ) : (
+                                <Button 
+                                  className="flex-1 bg-gradient-to-r from-green-500 to-teal-600 text-white hover:opacity-90 transition-opacity"
+                                  data-testid={`button-join-local-${index}`}
+                                >
+                                  Join Now
+                                </Button>
+                              )}
+                            </div>
+                          </CardContent>
+                        </Card>
+                      </motion.div>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <div className="text-center py-12">
+                  <Target className="w-16 h-16 mx-auto mb-4 text-gray-400" />
+                  <h3 className="text-lg font-semibold mb-2 text-gray-900 dark:text-white">
+                    No Personalized Recommendations
+                  </h3>
+                  <p className="text-gray-600 dark:text-gray-400 mb-4">
+                    {recommendations?.message || "Upload your resume to get personalized hackathon recommendations based on your skills"}
+                  </p>
+                  <Button 
+                    variant="outline" 
+                    onClick={() => window.location.href = '/dashboard'}
+                    className="border-blue-500 text-blue-500 hover:bg-blue-50"
+                  >
+                    Upload Resume
+                  </Button>
+                </div>
+              )}
+            </TabsContent>
 
             <TabsContent value="ongoing" className="mt-6">
               {isLoading ? (
