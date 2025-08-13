@@ -300,16 +300,18 @@ export default function ResumeUpload() {
                     </div>
                   </div>
                   <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">{rec.reason}</p>
-                  <div className="flex flex-wrap gap-2">
-                    {rec.assessments.map((assessment, idx) => (
-                      <span 
-                        key={idx}
-                        className="text-xs px-2 py-1 bg-gray-100 dark:bg-gray-800 rounded"
-                      >
-                        {assessment}
-                      </span>
-                    ))}
-                  </div>
+                  {rec.assessments && rec.assessments.length > 0 && (
+                    <div className="flex flex-wrap gap-2">
+                      {rec.assessments.map((assessment, idx) => (
+                        <span 
+                          key={idx}
+                          className="text-xs px-2 py-1 bg-gray-100 dark:bg-gray-800 rounded"
+                        >
+                          {assessment}
+                        </span>
+                      ))}
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
