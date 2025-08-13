@@ -3,6 +3,12 @@ import { storage } from "../database-storage";
 import { requireAuth } from "../middleware/auth";
 import multer from "multer";
 import { z } from "zod";
+import OpenAI from "openai";
+
+// Initialize OpenAI if API key is available
+const openai = process.env.OPENAI_API_KEY ? new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY
+}) : null;
 
 const router = Router();
 const upload = multer({ 
@@ -45,32 +51,21 @@ router.post("/upload", upload.single("resume"), async (req: any, res) => {
       }
     });
 
-    // AI Analysis simulation (in real app, this would call OpenAI/Claude)
-    const aiAnalysis = {
-      experienceLevel: "Mid-Level",
-      strengths: ["Full Stack Development", "3D Design", "AI Integration", "Content Creation"],
-      recommendations: [
-        "Focus on advanced React patterns and state management",
-        "Expand machine learning skills with more hands-on projects",
-        "Consider learning cloud deployment (AWS/Azure)",
-        "Build portfolio with more complex full-stack applications"
-      ],
-      skillGaps: ["Cloud Architecture", "DevOps", "Advanced Algorithms"],
-      careerSuggestions: [
-        "Senior Full Stack Developer",
-        "AI/ML Engineer", 
-        "Technical Content Creator",
-        "3D Application Developer"
-      ],
-      overallScore: 85,
-      categories: {
-        "Technical Skills": 9,
-        "Project Experience": 8,
-        "Leadership": 7,
-        "Communication": 9,
-        "Innovation": 8
+    // AI Analysis using OpenAI or fallback simulation
+    let aiAnalysis;
+    try {
+      if (process.env.OPENAI_API_KEY) {
+        aiAnalysis = await analyzeResumeWithOpenAI(extractedText, extractedSkills);
+      } else if (process.env.OPENROUTER_API_KEY) {
+        aiAnalysis = await analyzeResumeWithOpenRouter(extractedText, extractedSkills);
+      } else {
+        throw new Error("No AI service available");
       }
-    };
+    } catch (error: any) {
+      console.log("AI analysis failed, using fallback:", error.message || "Unknown error");
+      // Fallback analysis based on extracted skills
+      aiAnalysis = generateFallbackAnalysis(extractedSkills, extractedText);
+    }
 
     // Save resume to database
     const resume = await storage.createResume({
@@ -171,5 +166,132 @@ router.get("/recommendations", async (req: any, res) => {
     res.status(500).json({ message: "Failed to get recommendations" });
   }
 });
+
+// AI Analysis Functions
+async function analyzeResumeWithOpenAI(resumeText: string, skills: Record<string, number>) {
+  try {
+    const prompt = `Analyze this resume and provide a comprehensive assessment:
+
+Resume Text: ${resumeText}
+
+Extracted Skills: ${Object.keys(skills).join(', ')}
+
+Please provide analysis in the following JSON format:
+{
+  "experienceLevel": "Entry-Level|Mid-Level|Senior-Level|Expert",
+  "strengths": ["strength1", "strength2", ...],
+  "recommendations": ["recommendation1", "recommendation2", ...],
+  "skillGaps": ["gap1", "gap2", ...],
+  "careerSuggestions": ["role1", "role2", ...],
+  "overallScore": 0-100,
+  "categories": {
+    "Technical Skills": 0-10,
+    "Project Experience": 0-10,
+    "Leadership": 0-10,
+    "Communication": 0-10,
+    "Innovation": 0-10
+  }
+}
+
+Focus on practical, actionable insights based on the actual content.`;
+
+    const response = await openai!.chat.completions.create({
+      model: "gpt-4o", // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
+      messages: [{ role: "user", content: prompt }],
+      response_format: { type: "json_object" }
+    });
+
+    return JSON.parse(response.choices[0].message.content || "{}");
+  } catch (error) {
+    console.error("OpenAI analysis failed:", error);
+    throw error;
+  }
+}
+
+async function analyzeResumeWithOpenRouter(resumeText: string, skills: Record<string, number>) {
+  try {
+    const fetch = (await import('node-fetch')).default;
+    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
+        'Content-Type': 'application/json',
+        'HTTP-Referer': 'https://mavericks-coding-platform.replit.app',
+        'X-Title': 'Mavericks Coding Platform'
+      },
+      body: JSON.stringify({
+        model: 'meta-llama/llama-3.1-8b-instruct:free',
+        messages: [{
+          role: 'user',
+          content: `Analyze this resume and provide assessment: ${resumeText.substring(0, 1000)}. Skills found: ${Object.keys(skills).join(', ')}. Return JSON with experienceLevel, strengths, recommendations, skillGaps, careerSuggestions, overallScore (0-100), and categories object with Technical Skills, Project Experience, Leadership, Communication, Innovation (all 0-10).`
+        }],
+        response_format: { type: 'json_object' }
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`OpenRouter API failed: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return JSON.parse(data.choices[0].message.content || "{}");
+  } catch (error) {
+    console.error("OpenRouter analysis failed:", error);
+    throw error;
+  }
+}
+
+function generateFallbackAnalysis(skills: Record<string, number>, resumeText: string) {
+  const skillCount = Object.keys(skills).length;
+  const textLength = resumeText.length;
+  
+  // Determine experience level based on content
+  let experienceLevel = "Entry-Level";
+  if (textLength > 2000 && skillCount > 8) {
+    experienceLevel = "Senior-Level";
+  } else if (textLength > 1000 && skillCount > 5) {
+    experienceLevel = "Mid-Level";
+  }
+
+  // Generate analysis based on detected skills
+  const topSkills = Object.entries(skills)
+    .sort(([,a], [,b]) => b - a)
+    .slice(0, 4)
+    .map(([skill]) => skill);
+
+  const techSkills = topSkills.filter(skill => 
+    ['JavaScript', 'React', 'Node.js', 'Python', 'Java', 'TypeScript'].includes(skill)
+  );
+
+  return {
+    experienceLevel,
+    strengths: topSkills.length > 0 ? topSkills : ["Software Development", "Problem Solving"],
+    recommendations: [
+      "Continue building projects with your current tech stack",
+      "Consider learning complementary technologies",
+      "Build a strong portfolio showcasing your skills",
+      "Practice coding challenges and algorithms"
+    ],
+    skillGaps: ["System Design", "DevOps", "Testing"],
+    careerSuggestions: techSkills.length > 2 ? [
+      "Full Stack Developer",
+      "Software Engineer",
+      "Frontend Developer",
+      "Backend Developer"
+    ] : [
+      "Junior Developer",
+      "Programming Trainee",
+      "IT Support Specialist"
+    ],
+    overallScore: Math.min(90, 40 + (skillCount * 5) + (textLength / 50)),
+    categories: {
+      "Technical Skills": Math.min(10, 3 + skillCount),
+      "Project Experience": Math.min(10, 2 + Math.floor(textLength / 500)),
+      "Leadership": Math.min(10, resumeText.toLowerCase().includes('lead') ? 7 : 4),
+      "Communication": Math.min(10, resumeText.toLowerCase().includes('present') ? 8 : 5),
+      "Innovation": Math.min(10, topSkills.includes('AI') || topSkills.includes('Machine Learning') ? 9 : 6)
+    }
+  };
+}
 
 export default router;

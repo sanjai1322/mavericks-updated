@@ -55,7 +55,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Career recommendation routes
   try {
-    const careerController = await import('./controllers/careerController.js');
+    const careerController = await import('./controllers/careerController');
     app.use("/api/career", careerController.default);
   } catch (error: any) {
     console.log('Career controller not available:', error?.message || 'Unknown error');
