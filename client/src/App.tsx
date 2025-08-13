@@ -18,6 +18,7 @@ import Recommendations from "@/pages/Recommendations";
 import AdminDashboard from "@/pages/AdminDashboard";
 import AdminPanel from "@/pages/AdminPanel";
 import EnhancedLearningPath from "@/pages/EnhancedLearningPath";
+import SimpleLearningPaths from "@/pages/SimpleLearningPaths";
 import CareerPath from "@/pages/CareerPath";
 import NotFound from "@/pages/not-found";
 
@@ -29,7 +30,8 @@ function Router() {
       <Route path="/register" component={Register} />
       <Route path="/dashboard" component={Dashboard} />
       <Route path="/assessments" component={Assessments} />
-      <Route path="/learning" component={EnhancedLearningPath} />
+      <Route path="/learning" component={SimpleLearningPaths} />
+      <Route path="/enhanced-learning" component={EnhancedLearningPath} />
       <Route path="/ai-learning" component={LearningPath} />
       <Route path="/hackathons" component={Hackathons} />
       <Route path="/leaderboard" component={Leaderboard} />
