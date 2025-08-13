@@ -492,6 +492,177 @@ ${resumeText}`;
       confidenceScore: Math.min(0.95, completenessScore + 0.2)
     };
   }
+
+  /**
+   * Generate assessment alignment based on resume analysis
+   */
+  async generateAssessmentAlignment(analysis, assessments) {
+    try {
+      const userSkills = analysis?.skills?.technical || [];
+      const skillLevel = analysis?.skillLevel || 'beginner';
+      const primaryDomain = analysis?.primaryDomain || 'software-development';
+
+      // Filter assessments based on user skills and level
+      const relevantAssessments = assessments.filter(assessment => {
+        const assessmentTopics = assessment.topics || [];
+        const hasMatchingSkill = userSkills.some(skill => 
+          assessmentTopics.some(topic => 
+            topic.toLowerCase().includes(skill.toLowerCase()) ||
+            skill.toLowerCase().includes(topic.toLowerCase())
+          )
+        );
+        const appropriateDifficulty = this.isAppropriateLevel(assessment.difficulty, skillLevel);
+        return hasMatchingSkill || appropriateDifficulty;
+      });
+
+      // Generate learning path recommendations
+      const learningPath = this.generateLearningPath(userSkills, skillLevel, primaryDomain);
+      
+      // Generate personalized recommendations
+      const recommendations = this.generateRecommendations(analysis, relevantAssessments);
+      
+      // Calculate skill coverage
+      const skillCoverage = this.calculateSkillCoverage(userSkills, assessments);
+      
+      // Suggest appropriate difficulty level
+      const suggestedDifficulty = this.suggestDifficulty(skillLevel);
+
+      return {
+        learningPath,
+        recommendations,
+        skillCoverage,
+        suggestedDifficulty,
+        relevantAssessments: relevantAssessments.slice(0, 5) // Limit to top 5
+      };
+    } catch (error) {
+      console.error('Error generating assessment alignment:', error);
+      return {
+        learningPath: [],
+        recommendations: [],
+        skillCoverage: {},
+        suggestedDifficulty: 'beginner',
+        relevantAssessments: []
+      };
+    }
+  }
+
+  /**
+   * Check if assessment difficulty is appropriate for skill level
+   */
+  isAppropriateLevel(assessmentDifficulty, userSkillLevel) {
+    const difficultyMap = {
+      'beginner': ['easy'],
+      'mid': ['easy', 'medium'],
+      'senior': ['medium', 'hard']
+    };
+    
+    return difficultyMap[userSkillLevel]?.includes(assessmentDifficulty.toLowerCase()) || false;
+  }
+
+  /**
+   * Generate personalized learning path
+   */
+  generateLearningPath(userSkills, skillLevel, primaryDomain) {
+    const learningPaths = {
+      'web-development': [
+        { title: 'HTML & CSS Fundamentals', completed: userSkills.includes('HTML') },
+        { title: 'JavaScript Essentials', completed: userSkills.includes('JavaScript') },
+        { title: 'React Development', completed: userSkills.includes('React') },
+        { title: 'Backend Development', completed: userSkills.includes('Node.js') },
+        { title: 'Database Design', completed: userSkills.includes('PostgreSQL') }
+      ],
+      'mobile-development': [
+        { title: 'Mobile App Fundamentals', completed: false },
+        { title: 'React Native', completed: userSkills.includes('React Native') },
+        { title: 'Flutter Development', completed: userSkills.includes('Flutter') },
+        { title: 'API Integration', completed: false },
+        { title: 'App Store Deployment', completed: false }
+      ],
+      'data-science': [
+        { title: 'Python for Data Science', completed: userSkills.includes('Python') },
+        { title: 'Data Analysis with Pandas', completed: userSkills.includes('Pandas') },
+        { title: 'Machine Learning Basics', completed: userSkills.includes('Machine Learning') },
+        { title: 'Deep Learning', completed: userSkills.includes('TensorFlow') },
+        { title: 'Data Visualization', completed: false }
+      ]
+    };
+
+    return learningPaths[primaryDomain] || learningPaths['web-development'];
+  }
+
+  /**
+   * Generate personalized recommendations
+   */
+  generateRecommendations(analysis, assessments) {
+    const recommendations = [];
+    const userSkills = analysis?.skills?.technical || [];
+    const skillLevel = analysis?.skillLevel || 'beginner';
+
+    // Skill-based recommendations
+    if (userSkills.includes('JavaScript')) {
+      recommendations.push({
+        type: 'skill_enhancement',
+        title: 'Advanced JavaScript Challenges',
+        description: 'Enhance your JavaScript skills with advanced algorithmic problems',
+        priority: 'high'
+      });
+    }
+
+    if (userSkills.includes('React')) {
+      recommendations.push({
+        type: 'project',
+        title: 'Build a Full-Stack React Application',
+        description: 'Create a complete application showcasing your React skills',
+        priority: 'medium'
+      });
+    }
+
+    // Level-based recommendations
+    if (skillLevel === 'beginner') {
+      recommendations.push({
+        type: 'fundamentals',
+        title: 'Programming Fundamentals',
+        description: 'Master the basics with our comprehensive beginner track',
+        priority: 'high'
+      });
+    }
+
+    return recommendations.slice(0, 5); // Limit to 5 recommendations
+  }
+
+  /**
+   * Calculate skill coverage based on available assessments
+   */
+  calculateSkillCoverage(userSkills, assessments) {
+    const coverage = {};
+    
+    userSkills.forEach(skill => {
+      const matchingAssessments = assessments.filter(assessment =>
+        assessment.topics?.some(topic => 
+          topic.toLowerCase().includes(skill.toLowerCase())
+        )
+      );
+      coverage[skill] = {
+        assessmentCount: matchingAssessments.length,
+        covered: matchingAssessments.length > 0
+      };
+    });
+
+    return coverage;
+  }
+
+  /**
+   * Suggest appropriate difficulty level
+   */
+  suggestDifficulty(skillLevel) {
+    const difficultyMap = {
+      'beginner': 'easy',
+      'mid': 'medium', 
+      'senior': 'hard'
+    };
+    
+    return difficultyMap[skillLevel] || 'easy';
+  }
 }
 
 // Create and export the resume agent instance

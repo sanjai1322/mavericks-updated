@@ -159,7 +159,7 @@ export default function Dashboard() {
                     <CardTitle>Recent Activity</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    {activities && activities.length > 0 ? (
+                    {activities && Array.isArray(activities) && activities.length > 0 ? (
                       <div className="space-y-3">
                         {activities.map((activity: any, index: number) => (
                           <div key={index} className="flex items-center space-x-3 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">

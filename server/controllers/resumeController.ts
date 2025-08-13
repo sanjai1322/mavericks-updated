@@ -145,7 +145,7 @@ export const uploadResume = async (req: AuthenticatedRequest, res: Response) => 
         skillLevel: aiAnalysis?.skillLevel,
         summary: aiAnalysis?.summary
       },
-      recommendations: userUpdates.personalizedPlan?.recommendations || []
+      recommendations: (userUpdates.personalizedPlan as any)?.recommendations || []
     });
 
   } catch (error) {
