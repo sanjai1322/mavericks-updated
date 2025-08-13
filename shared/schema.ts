@@ -124,41 +124,21 @@ export const resumes = pgTable("resumes", {
   uploadedAt: timestamp("uploaded_at").defaultNow(),
 });
 
-// Add devpostUrl to hackathons
-export const enhancedHackathons = pgTable("hackathons", {
+// Personalized learning paths table
+export const personalizedLearningPaths = pgTable("personalized_learning_paths", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id),
   title: text("title").notNull(),
   description: text("description").notNull(),
-  status: text("status").notNull(), // Live, Upcoming, Past
-  startDate: timestamp("start_date"),
-  endDate: timestamp("end_date"),
-  participants: integer("participants").default(0),
-  prize: text("prize").notNull(),
-  technologies: jsonb("technologies"),
-  devpostUrl: text("devpost_url"), // Direct link to Devpost hackathon page
+  difficulty: text("difficulty").notNull(),
+  estimatedDuration: text("estimated_duration").notNull(),
+  skills: text("skills").array(),
+  lessons: jsonb("lessons"), // Array of lesson objects
+  progress: integer("progress").default(0),
+  isActive: boolean("is_active").default(true),
   createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
 });
-
-// Create type exports
-export type User = typeof users.$inferSelect;
-export type InsertUser = typeof users.$inferInsert;
-export type Assessment = typeof assessments.$inferSelect;
-export type InsertAssessment = typeof assessments.$inferInsert;
-export type LearningPath = typeof learningPaths.$inferSelect;
-export type InsertLearningPath = typeof learningPaths.$inferInsert;
-export type Hackathon = typeof hackathons.$inferSelect;
-export type InsertHackathon = typeof hackathons.$inferInsert;
-export type UserProgress = typeof userProgress.$inferSelect;
-export type InsertUserProgress = typeof userProgress.$inferInsert;
-export type Submission = typeof submissions.$inferSelect;
-export type InsertSubmission = typeof submissions.$inferInsert;
-export type Activity = typeof activities.$inferSelect;
-export type InsertActivity = typeof activities.$inferInsert;
-export type UserAssessment = typeof userAssessments.$inferSelect;
-export type InsertUserAssessment = typeof userAssessments.$inferInsert;
-export type Resume = typeof resumes.$inferSelect;
-export type InsertResume = typeof resumes.$inferInsert;
-
 
 // Insert schemas with validation
 export const insertUserSchema = createInsertSchema(users).omit({ id: true, createdAt: true });
@@ -170,6 +150,7 @@ export const insertSubmissionSchema = createInsertSchema(submissions).omit({ id:
 export const insertActivitySchema = createInsertSchema(activities).omit({ id: true, createdAt: true });
 export const insertUserAssessmentSchema = createInsertSchema(userAssessments).omit({ id: true, submissionTime: true });
 export const insertResumeSchema = createInsertSchema(resumes).omit({ id: true, uploadedAt: true });
+export const insertPersonalizedLearningPathSchema = createInsertSchema(personalizedLearningPaths).omit({ id: true, createdAt: true, updatedAt: true });
 
 // Login schema
 export const loginSchema = z.object({
@@ -185,27 +166,27 @@ export const resumeUploadSchema = z.object({
   fileContent: z.string().min(1, "File content is required"),
 });
 
-// Types
-export type InsertUser = z.infer<typeof insertUserSchema>;
+// Type exports
 export type User = typeof users.$inferSelect;
-export type InsertAssessment = z.infer<typeof insertAssessmentSchema>;
+export type InsertUser = z.infer<typeof insertUserSchema>;
 export type Assessment = typeof assessments.$inferSelect;
-export type InsertLearningPath = z.infer<typeof insertLearningPathSchema>;
+export type InsertAssessment = z.infer<typeof insertAssessmentSchema>;
 export type LearningPath = typeof learningPaths.$inferSelect;
-export type InsertHackathon = z.infer<typeof insertHackathonSchema>;
+export type InsertLearningPath = z.infer<typeof insertLearningPathSchema>;
 export type Hackathon = typeof hackathons.$inferSelect;
-export type InsertUserProgress = z.infer<typeof insertUserProgressSchema>;
+export type InsertHackathon = z.infer<typeof insertHackathonSchema>;
 export type UserProgress = typeof userProgress.$inferSelect;
-export type InsertSubmission = z.infer<typeof insertSubmissionSchema>;
+export type InsertUserProgress = z.infer<typeof insertUserProgressSchema>;
 export type Submission = typeof submissions.$inferSelect;
-export type InsertActivity = z.infer<typeof insertActivitySchema>;
+export type InsertSubmission = z.infer<typeof insertSubmissionSchema>;
 export type Activity = typeof activities.$inferSelect;
-export type InsertUserAssessment = z.infer<typeof insertUserAssessmentSchema>;
+export type InsertActivity = z.infer<typeof insertActivitySchema>;
 export type UserAssessment = typeof userAssessments.$inferSelect;
-export type InsertResume = z.infer<typeof insertResumeSchema>;
+export type InsertUserAssessment = z.infer<typeof insertUserAssessmentSchema>;
 export type Resume = typeof resumes.$inferSelect;
-export type InsertPersonalizedLearningPath = z.infer<typeof insertPersonalizedLearningPathSchema>;
+export type InsertResume = z.infer<typeof insertResumeSchema>;
 export type PersonalizedLearningPath = typeof personalizedLearningPaths.$inferSelect;
+export type InsertPersonalizedLearningPath = z.infer<typeof insertPersonalizedLearningPathSchema>;
 export type LoginCredentials = z.infer<typeof loginSchema>;
 export type ResumeUpload = z.infer<typeof resumeUploadSchema>;
 
