@@ -12,6 +12,7 @@ export const users = pgTable("users", {
   lastName: text("last_name").notNull(),
   title: text("title").default("Developer"),
   bio: text("bio"),
+  role: text("role").default("user"), // user, admin
   skills: text("skills").array(),
   extractedSkills: jsonb("extracted_skills"), // AI-extracted skills from resume
   resumeText: text("resume_text"), // Parsed resume content

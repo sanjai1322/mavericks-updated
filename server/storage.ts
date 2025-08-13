@@ -73,6 +73,11 @@ export interface IStorage {
   
   // Resume analysis methods
   getResumeAnalysis(userId: string): Promise<any>;
+  
+  // Admin methods
+  getUsers(): Promise<User[]>;
+  updateAssessment(id: string, updates: Partial<Assessment>): Promise<Assessment | undefined>;
+  deleteAssessment(id: string): Promise<boolean>;
   saveResumeAnalysis(userId: string, analysis: any): Promise<void>;
   
   // Generated content methods

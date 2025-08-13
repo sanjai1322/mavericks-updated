@@ -15,6 +15,7 @@ import LearningPath from "@/pages/LearningPath";
 import Hackathons from "@/pages/Hackathons";
 import Leaderboard from "@/pages/Leaderboard";
 import Recommendations from "@/pages/Recommendations";
+import AdminDashboard from "@/pages/AdminDashboard";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -30,6 +31,7 @@ function Router() {
       <Route path="/hackathons" component={Hackathons} />
       <Route path="/leaderboard" component={Leaderboard} />
       <Route path="/recommendations" component={Recommendations} />
+      <Route path="/admin" component={AdminDashboard} />
       <Route component={NotFound} />
     </Switch>
   );

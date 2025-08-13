@@ -12,7 +12,8 @@ interface UserSkillAnalysis {
 }
 
 // Generate personalized learning path based on user's skills, resume, and quiz results
-export const generatePersonalizedLearningPath = async (req: AuthenticatedRequest, res: Response) => {
+export const generatePersonalizedLearningPath = async (req: Request, res: Response) => {
+  const authenticatedReq = req as AuthenticatedRequest;
   try {
     if (!req.user) {
       return res.status(401).json({ message: "Authentication required" });

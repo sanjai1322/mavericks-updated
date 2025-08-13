@@ -125,6 +125,11 @@ export default function Navbar() {
                   <DropdownMenuItem onClick={() => window.location.href = "/dashboard"}>
                     Dashboard
                   </DropdownMenuItem>
+                  {user?.role === 'admin' && (
+                    <DropdownMenuItem onClick={() => window.location.href = "/admin"}>
+                      Admin Panel
+                    </DropdownMenuItem>
+                  )}
                   <DropdownMenuItem onClick={logout}>
                     Logout
                   </DropdownMenuItem>

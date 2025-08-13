@@ -10,6 +10,7 @@ import leaderboardRoutes from "./controllers/leaderboardController";
 import resumeRoutes from "./controllers/resumeRoutes";
 import quizRoutes from "./controllers/quizRoutes";
 import personalizedLearningRoutes from "./controllers/learningRoutes";
+import adminRoutes from "./controllers/adminController";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Authentication routes
@@ -38,6 +39,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Personalized learning routes
   app.use("/api/learning", personalizedLearningRoutes);
+
+  // Admin routes
+  app.use("/api/admin", adminRoutes);
   
   // AI-powered recommendation routes
   try {

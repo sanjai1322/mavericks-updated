@@ -14,6 +14,8 @@ import { apiRequest } from "@/lib/queryClient";
 import ProgressStepper from "@/components/ProgressStepper";
 import ResumeUpload from "@/components/ResumeUpload";
 import SkillsSummary from "@/components/SkillsSummary";
+import PersonalizedLearningPath from "@/components/PersonalizedLearningPath";
+import ResumeBasedAssessments from "@/components/ResumeBasedAssessments";
 
 export default function Dashboard() {
   const { user } = useAuth();
@@ -440,6 +442,44 @@ export default function Dashboard() {
                       <p className="text-sm font-medium">React Hackathon</p>
                       <p className="text-xs text-gray-600 dark:text-gray-400">March 15-17</p>
                     </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+
+              {/* Personalized Learning Path */}
+              <motion.div
+                initial={{ y: 20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 0.7 }}
+              >
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Personalized Learning Path</CardTitle>
+                    <CardDescription>
+                      AI-generated learning paths based on your resume and skills
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <PersonalizedLearningPath />
+                  </CardContent>
+                </Card>
+              </motion.div>
+
+              {/* Resume-Based Assessments */}
+              <motion.div
+                initial={{ y: 20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 0.8 }}
+              >
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Resume-Based Assessments</CardTitle>
+                    <CardDescription>
+                      Coding challenges matched to your extracted skills
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <ResumeBasedAssessments />
                   </CardContent>
                 </Card>
               </motion.div>
