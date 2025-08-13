@@ -213,6 +213,7 @@ export default function SimpleLearningPaths() {
                           <Button 
                             className="w-full"
                             data-testid={`button-start-${path.id}`}
+                            onClick={() => window.location.href = `/learning/${path.id}`}
                           >
                             Start Learning
                           </Button>
