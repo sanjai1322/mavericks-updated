@@ -3,9 +3,13 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
+import { CheckCircle, XCircle, Clock, MemoryStick, Play } from "lucide-react";
 import type { Assessment, Judge0Language } from "@shared/schema";
 
 interface CodeEditorModalProps {
@@ -18,6 +22,7 @@ export default function CodeEditorModal({ isOpen, onClose, assessment }: CodeEdi
   const [selectedLanguage, setSelectedLanguage] = useState<number>(63); // Default to JavaScript
   const [code, setCode] = useState("");
   const [testResults, setTestResults] = useState<string>("");
+  const [detailedResults, setDetailedResults] = useState<any>(null);
   const [isRunning, setIsRunning] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -38,8 +43,10 @@ export default function CodeEditorModal({ isOpen, onClose, assessment }: CodeEdi
     },
     onSuccess: (result: any) => {
       setIsRunning(false);
+      setDetailedResults(result);
+      
       if (result.passed) {
-        let resultText = `✅ Success! Score: ${result.score}/100\n\nOutput:\n${result.stdout}`;
+        let resultText = `✅ Success! Score: ${result.score}/100\n\nPassed: ${result.passedTests || 0}/${result.totalTests || 0} tests\n\nOutput:\n${result.stdout}`;
         if (result.extractedSkills && result.extractedSkills.length > 0) {
           resultText += `\n\n🧠 AI-Detected Skills: ${result.extractedSkills.join(', ')}`;
         }
@@ -48,11 +55,8 @@ export default function CodeEditorModal({ isOpen, onClose, assessment }: CodeEdi
           title: "Assessment Completed!",
           description: `Great job! You scored ${result.score}/100`,
         });
-        // Invalidate queries to refresh user stats
-        queryClient.invalidateQueries({ queryKey: ["/api/auth/me"] });
-        queryClient.invalidateQueries({ queryKey: ["/api/assessments/history"] });
       } else {
-        let resultText = `❌ Failed. Score: ${result.score}/100\n\nOutput:\n${result.stdout}\n\nErrors:\n${result.stderr}`;
+        let resultText = `❌ Failed. Score: ${result.score}/100\n\nPassed: ${result.passedTests || 0}/${result.totalTests || 0} tests\n\nOutput:\n${result.stdout}\n\nErrors:\n${result.stderr}`;
         if (result.extractedSkills && result.extractedSkills.length > 0) {
           resultText += `\n\n🧠 AI-Detected Skills: ${result.extractedSkills.join(', ')}`;
         }
@@ -63,6 +67,10 @@ export default function CodeEditorModal({ isOpen, onClose, assessment }: CodeEdi
           variant: "destructive",
         });
       }
+      
+      // Invalidate queries to refresh user stats
+      queryClient.invalidateQueries({ queryKey: ["/api/auth/me"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/assessments/history"] });
     },
     onError: (error: any) => {
       setIsRunning(false);
@@ -91,6 +99,7 @@ export default function CodeEditorModal({ isOpen, onClose, assessment }: CodeEdi
     if (isOpen && assessment) {
       setCode(assessment.starterCode || "");
       setTestResults("");
+      setDetailedResults(null);
       setSelectedLanguage(63); // Default to JavaScript
     }
   }, [isOpen, assessment]);
@@ -107,6 +116,7 @@ export default function CodeEditorModal({ isOpen, onClose, assessment }: CodeEdi
 
     setIsRunning(true);
     setTestResults("Running your code...");
+    setDetailedResults(null);
     
     submitMutation.mutate({
       assessmentId: assessment.id,
@@ -248,20 +258,116 @@ export default function CodeEditorModal({ isOpen, onClose, assessment }: CodeEdi
 
                 {/* Test Results */}
                 <div className="p-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700">
-                  <h4 className="font-medium mb-2 text-gray-900 dark:text-white">
+                  <h4 className="font-medium mb-2 text-gray-900 dark:text-white flex items-center gap-2">
+                    <Play className="w-4 h-4" />
                     Test Results
                   </h4>
-                  <div className="text-sm font-mono max-h-32 overflow-y-auto">
-                    {testResults ? (
-                      <pre className="whitespace-pre-wrap text-gray-700 dark:text-gray-300">
-                        {testResults}
-                      </pre>
-                    ) : (
-                      <div className="text-gray-600 dark:text-gray-400">
-                        Write your solution and click Submit to see results...
-                      </div>
-                    )}
-                  </div>
+                  
+                  {detailedResults ? (
+                    <Tabs defaultValue="summary" className="w-full">
+                      <TabsList className="grid w-full grid-cols-3">
+                        <TabsTrigger value="summary">Summary</TabsTrigger>
+                        <TabsTrigger value="details">Test Details</TabsTrigger>
+                        <TabsTrigger value="output">Output</TabsTrigger>
+                      </TabsList>
+                      
+                      <TabsContent value="summary" className="space-y-3">
+                        <div className="flex items-center gap-4">
+                          <Badge variant={detailedResults.passed ? "default" : "destructive"} className="flex items-center gap-1">
+                            {detailedResults.passed ? <CheckCircle className="w-3 h-3" /> : <XCircle className="w-3 h-3" />}
+                            Score: {detailedResults.score}/100
+                          </Badge>
+                          <Badge variant="outline">
+                            {detailedResults.passedTests || 0}/{detailedResults.totalTests || 0} Tests Passed
+                          </Badge>
+                        </div>
+                        
+                        {detailedResults.extractedSkills && detailedResults.extractedSkills.length > 0 && (
+                          <div>
+                            <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">AI-Detected Skills:</p>
+                            <div className="flex flex-wrap gap-1">
+                              {detailedResults.extractedSkills.map((skill: string, index: number) => (
+                                <Badge key={index} variant="secondary" className="text-xs">
+                                  {skill}
+                                </Badge>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                        
+                        {detailedResults.executionDetails && (
+                          <div className="grid grid-cols-2 gap-2 text-xs">
+                            <div className="flex items-center gap-1 text-gray-600 dark:text-gray-400">
+                              <Clock className="w-3 h-3" />
+                              Avg Time: {detailedResults.executionDetails.averageExecutionTime?.toFixed(3)}s
+                            </div>
+                            <div className="flex items-center gap-1 text-gray-600 dark:text-gray-400">
+                              <MemoryStick className="w-3 h-3" />
+                              Max Memory: {detailedResults.executionDetails.totalMemoryUsed}KB
+                            </div>
+                          </div>
+                        )}
+                      </TabsContent>
+                      
+                      <TabsContent value="details" className="space-y-2 max-h-60 overflow-y-auto">
+                        {detailedResults.testResults && detailedResults.testResults.length > 0 ? (
+                          detailedResults.testResults.map((test: any, index: number) => (
+                            <Card key={index} className="text-xs">
+                              <CardHeader className="pb-2">
+                                <CardTitle className="text-sm flex items-center justify-between">
+                                  <span>Test Case {index + 1}</span>
+                                  <Badge variant={test.passed ? "default" : "destructive"} className="text-xs">
+                                    {test.passed ? "PASSED" : "FAILED"}
+                                  </Badge>
+                                </CardTitle>
+                              </CardHeader>
+                              <CardContent className="space-y-1">
+                                <div>
+                                  <span className="font-medium">Input:</span> {JSON.stringify(test.input)}
+                                </div>
+                                <div>
+                                  <span className="font-medium">Expected:</span> {JSON.stringify(test.expected)}
+                                </div>
+                                <div>
+                                  <span className="font-medium">Actual:</span> {test.actual || "No output"}
+                                </div>
+                                <div className="flex gap-4 text-xs text-gray-500">
+                                  <span>Time: {test.executionTime}</span>
+                                  <span>Memory: {test.memory}KB</span>
+                                  <span>Status: {test.status}</span>
+                                </div>
+                                {test.stderr && (
+                                  <div className="text-red-600 dark:text-red-400">
+                                    <span className="font-medium">Error:</span> {test.stderr}
+                                  </div>
+                                )}
+                              </CardContent>
+                            </Card>
+                          ))
+                        ) : (
+                          <p className="text-gray-500">No detailed test results available</p>
+                        )}
+                      </TabsContent>
+                      
+                      <TabsContent value="output">
+                        <div className="bg-gray-800 dark:bg-gray-900 p-3 rounded font-mono text-sm whitespace-pre-wrap text-green-400 dark:text-green-300 max-h-40 overflow-y-auto">
+                          {testResults || "No output yet. Run your code to see results."}
+                        </div>
+                      </TabsContent>
+                    </Tabs>
+                  ) : (
+                    <div className="text-sm font-mono max-h-32 overflow-y-auto">
+                      {testResults ? (
+                        <pre className="whitespace-pre-wrap text-gray-700 dark:text-gray-300">
+                          {testResults}
+                        </pre>
+                      ) : (
+                        <div className="text-gray-600 dark:text-gray-400">
+                          Write your solution and click Submit to see results...
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

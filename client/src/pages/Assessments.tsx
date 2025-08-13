@@ -6,7 +6,9 @@ import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Code, Brain } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { Code, Brain, Target, Sparkles } from "lucide-react";
 import CodeEditorModal from "@/components/CodeEditorModal";
 import QuizSection from "@/components/QuizSection";
 import type { Assessment } from "@shared/schema";
@@ -17,9 +19,22 @@ export default function Assessments() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [difficultyFilter, setDifficultyFilter] = useState("all");
   const [topicFilter, setTopicFilter] = useState("all");
+  const [skillFilter, setSkillFilter] = useState(false);
 
   const { data: assessments, isLoading } = useQuery({
-    queryKey: ["/api/assessments/challenges"],
+    queryKey: ["/api/assessments/challenges", skillFilter ? "skills" : "all"],
+    queryFn: ({ queryKey }) => {
+      const filterType = queryKey[1];
+      const url = filterType === "skills" 
+        ? "/api/assessments/challenges?filter=skills" 
+        : "/api/assessments/challenges";
+      return fetch(url, {
+        credentials: 'include',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+      }).then(res => res.json());
+    },
     enabled: !!user,
   });
 
@@ -41,7 +56,7 @@ export default function Assessments() {
     }
   };
 
-  const filteredAssessments = assessments?.filter((assessment: Assessment) => {
+  const filteredAssessments = assessments?.filter((assessment: Assessment & {skillRelevant?: boolean}) => {
     const matchesDifficulty = difficultyFilter === "all" || assessment.difficulty === difficultyFilter;
     const matchesTopic = topicFilter === "all" || assessment.topic === topicFilter;
     return matchesDifficulty && matchesTopic;
@@ -100,8 +115,21 @@ export default function Assessments() {
             initial={{ y: 20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.1 }}
-            className="mb-6 flex flex-wrap gap-4"
+            className="mb-6 flex flex-wrap gap-4 items-center"
           >
+            <div className="flex items-center space-x-2">
+              <Switch 
+                id="skill-filter" 
+                checked={skillFilter} 
+                onCheckedChange={setSkillFilter}
+                data-testid="switch-skill-filter"
+              />
+              <Label htmlFor="skill-filter" className="flex items-center space-x-1">
+                <Target className="w-4 h-4" />
+                <span>Match My Resume Skills</span>
+                {skillFilter && <Sparkles className="w-3 h-3 text-yellow-500" />}
+              </Label>
+            </div>
             <Select value={difficultyFilter} onValueChange={setDifficultyFilter}>
               <SelectTrigger className="w-[180px]">
                 <SelectValue placeholder="All Difficulties" />
@@ -182,12 +210,17 @@ export default function Assessments() {
                         className="hover:bg-gray-50 dark:hover:bg-gray-700"
                       >
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <div>
-                            <div className="text-sm font-medium text-gray-900 dark:text-white">
-                              {assessment.title}
-                            </div>
-                            <div className="text-sm text-gray-500 dark:text-gray-400">
-                              {assessment.description}
+                          <div className="flex items-start gap-2">
+                            <div>
+                              <div className="text-sm font-medium text-gray-900 dark:text-white flex items-center gap-2">
+                                {assessment.title}
+                                {(assessment as any).skillRelevant && (
+                                  <Target className="w-4 h-4 text-green-500" title="Matches your resume skills" />
+                                )}
+                              </div>
+                              <div className="text-sm text-gray-500 dark:text-gray-400">
+                                {assessment.description}
+                              </div>
                             </div>
                           </div>
                         </td>

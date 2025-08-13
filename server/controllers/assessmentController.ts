@@ -43,10 +43,71 @@ function extractSkillsFallback(code: string, language: string): string[] {
   return skills.slice(0, 8); // Limit to 8 skills
 }
 
-// Get all challenges
-router.get("/challenges", async (req: Request, res: Response) => {
+// Get all challenges with optional skill-based filtering
+router.get("/challenges", verifyToken, async (req: Request, res: Response) => {
   try {
-    const assessments = await storage.getAssessments();
+    const user = (req as any).user;
+    const userId = user?.id;
+    const { filter } = req.query;
+
+    let assessments = await storage.getAssessments();
+
+    // If user has resume skills and skill-based filtering is requested
+    if (filter === 'skills' && userId) {
+      const userProfile = await storage.getUser(userId);
+      
+      if (userProfile?.extractedSkills) {
+        const userSkills = userProfile.extractedSkills as any;
+        const skillsList: string[] = [];
+        
+        // Extract skills from various categories
+        if (userSkills.technical_skills) skillsList.push(...userSkills.technical_skills);
+        if (userSkills.programming_languages) skillsList.push(...userSkills.programming_languages);
+        if (userSkills.frameworks) skillsList.push(...userSkills.frameworks);
+        if (userSkills.databases) skillsList.push(...userSkills.databases);
+        if (userSkills.tools) skillsList.push(...userSkills.tools);
+        
+        // Convert skills to lowercase for matching
+        const normalizedUserSkills = skillsList.map(skill => skill.toLowerCase());
+        
+        // Filter assessments based on topic/skill relevance
+        const skillBasedAssessments = assessments.filter(assessment => {
+          const topic = assessment.topic.toLowerCase();
+          const title = assessment.title.toLowerCase();
+          const description = assessment.description.toLowerCase();
+          
+          // Check if any user skill matches assessment topic, title, or description
+          return normalizedUserSkills.some(skill => {
+            return topic.includes(skill) || 
+                   title.includes(skill) || 
+                   description.includes(skill) ||
+                   skill.includes(topic) ||
+                   // Programming language mappings
+                   (skill.includes('javascript') || skill.includes('js')) && (topic.includes('javascript') || topic.includes('array') || topic.includes('string')) ||
+                   (skill.includes('python') || skill.includes('py')) && (topic.includes('python') || topic.includes('algorithm') || topic.includes('data')) ||
+                   (skill.includes('java') && !skill.includes('javascript')) && (topic.includes('java') || topic.includes('oop')) ||
+                   skill.includes('react') && (topic.includes('javascript') || topic.includes('frontend')) ||
+                   skill.includes('algorithm') && (topic.includes('sorting') || topic.includes('search')) ||
+                   skill.includes('data') && topic.includes('structure') ||
+                   skill.includes('sql') && topic.includes('database') ||
+                   skill.includes('web') && (topic.includes('api') || topic.includes('frontend')) ||
+                   skill.includes('backend') && (topic.includes('api') || topic.includes('server'))
+          });
+        });
+        
+        // If skill-based filtering found matches, prioritize them
+        if (skillBasedAssessments.length > 0) {
+          // Add a relevance score and mix with general assessments
+          const scoredAssessments = skillBasedAssessments.map(assessment => ({ ...assessment, skillRelevant: true }));
+          const otherAssessments = assessments.filter(a => !skillBasedAssessments.find(s => s.id === a.id))
+            .map(assessment => ({ ...assessment, skillRelevant: false }));
+          
+          // Return skill-relevant first, then others
+          assessments = [...scoredAssessments, ...otherAssessments.slice(0, 10)];
+        }
+      }
+    }
+    
     res.json(assessments);
   } catch (error: any) {
     console.error("Error fetching challenges:", error);
@@ -210,6 +271,16 @@ router.post("/submit", verifyToken, async (req: Request, res: Response) => {
               console.log(`Actual: ${actualStr} (status: ${result.status.id})`);
               
               let isCorrect = false;
+              const testResult = {
+                input: testCase.input,
+                expected: testCase.expected,
+                actual: actualStr,
+                passed: false,
+                executionTime: result.time || "N/A",
+                memory: result.memory || "N/A",
+                status: result.status.description || "Unknown",
+                stderr: result.stderr || ""
+              };
               
               if (result.status.id === 3 || result.status.id === 4) { // Successful execution (3) or Memory Limit Exceeded but with output (4)
                 // Direct comparison first
@@ -282,23 +353,34 @@ router.post("/submit", verifyToken, async (req: Request, res: Response) => {
               
               console.log(`Final result: ${isCorrect ? 'PASSED' : 'FAILED'}`);
               
+              testResult.passed = isCorrect;
               if (isCorrect) {
                 passedTests++;
-                testResults.push({ passed: true, input: testCase.input, expected: testCase.expected, actual: actualStr });
-              } else {
-                testResults.push({ 
-                  passed: false, 
-                  input: testCase.input, 
-                  expected: testCase.expected, 
-                  actual: actualStr, 
-                  error: result.stderr || `Expected: ${expectedStr}, Got: ${actualStr}`
-                });
               }
+              testResults.push(testResult);
             } else {
-              testResults.push({ passed: false, input: testCase.input, expected: testCase.expected, actual: "", error: "Execution failed" });
+              testResults.push({ 
+                input: testCase.input,
+                expected: testCase.expected,
+                actual: "",
+                passed: false,
+                executionTime: "N/A",
+                memory: "N/A",
+                status: "Execution Failed",
+                stderr: "Failed to execute code"
+              });
             }
           } catch (testError: any) {
-            testResults.push({ passed: false, input: testCase.input, expected: testCase.expected, actual: "", error: testError?.message || "Unknown error" });
+            testResults.push({ 
+              input: testCase.input,
+              expected: testCase.expected,
+              actual: "",
+              passed: false,
+              executionTime: "N/A",
+              memory: "N/A",
+              status: "Error",
+              stderr: testError?.message || "Unknown error"
+            });
           }
         }
 
@@ -426,7 +508,22 @@ router.post("/submit", verifyToken, async (req: Request, res: Response) => {
       stdout,
       stderr,
       extractedSkills,
-      submissionId: userAssessment.id
+      submissionId: userAssessment.id,
+      testResults: testResults,
+      totalTests: testResults.length,
+      passedTests: testResults.filter(t => t.passed).length,
+      failedTests: testResults.filter(t => !t.passed).length,
+      executionDetails: testResults.length > 0 ? {
+        averageExecutionTime: testResults.reduce((sum, t) => {
+          const time = parseFloat(t.executionTime) || 0;
+          return sum + time;
+        }, 0) / testResults.length,
+        totalMemoryUsed: Math.max(...testResults.map(t => parseInt(t.memory) || 0)),
+        statusCounts: testResults.reduce((acc, t) => {
+          acc[t.status] = (acc[t.status] || 0) + 1;
+          return acc;
+        }, {} as Record<string, number>)
+      } : null
     });
 
   } catch (error: any) {
