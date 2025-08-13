@@ -116,13 +116,27 @@ export default function SimpleLearningPaths() {
               Learning Paths
             </motion.h1>
             <motion.p 
-              className="text-xl text-muted-foreground max-w-3xl mx-auto"
+              className="text-xl text-muted-foreground max-w-3xl mx-auto mb-6"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.1 }}
             >
               Structured learning journeys to master programming skills with hands-on projects
             </motion.p>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+            >
+              <Button 
+                onClick={() => window.location.href = "/learning/customize"}
+                className="mb-8"
+                data-testid="button-customize-path"
+              >
+                <Star className="w-4 h-4 mr-2" />
+                Create Custom Learning Path
+              </Button>
+            </motion.div>
           </div>
 
           {/* Stats */}

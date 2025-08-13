@@ -74,7 +74,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     const recommenderRoutes = await import('./routes/recommender.js');
     app.use('/api', recommenderRoutes.default);
   } catch (error: any) {
-    console.log('Legacy AI routes not available:', error?.message || 'Unknown error');
+    console.log('Recommender routes not available:', error?.message || 'Unknown error');
+  }
+
+  // Custom learning path routes
+  try {
+    const { createCustomLearningPath, getUserCustomPaths, getCustomPath } = await import('./controllers/customLearningPathController');
+    app.post('/api/learning-paths/customize', createCustomLearningPath);
+    app.get('/api/learning-paths/custom', getUserCustomPaths);
+    app.get('/api/learning-paths/custom/:id', getCustomPath);
+  } catch (error: any) {
+    console.log('Custom learning path controller not available:', error?.message || 'Unknown error');
   }
 
   // New recommendation system routes
