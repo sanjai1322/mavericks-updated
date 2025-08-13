@@ -17,6 +17,7 @@ const navLinks = [
   { href: "/dashboard", label: "Dashboard", requiresAuth: true },
   { href: "/assessments", label: "Assessments", requiresAuth: true },
   { href: "/learning", label: "Learning Path", requiresAuth: true },
+  { href: "/career-path", label: "Career AI", requiresAuth: true },
   { href: "/hackathons", label: "Hackathons", requiresAuth: true },
   { href: "/leaderboard", label: "Leaderboard", requiresAuth: true },
 ];

@@ -52,6 +52,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   } catch (error: any) {
     console.log('Admin routes not available:', error?.message || 'Unknown error');
   }
+
+  // Career recommendation routes
+  try {
+    const careerController = await import('./controllers/careerController.js');
+    app.use("/api/career", careerController.default);
+  } catch (error: any) {
+    console.log('Career controller not available:', error?.message || 'Unknown error');
+  }
   
   // AI-powered recommendation routes
   try {
