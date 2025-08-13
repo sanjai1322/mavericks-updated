@@ -1,0 +1,63 @@
+JOHN SMITH
+Software Engineer
+Email: john.smith@email.com | Phone: (555) 123-4567
+LinkedIn: linkedin.com/in/johnsmith | GitHub: github.com/johnsmith
+
+PROFESSIONAL SUMMARY
+Experienced Full-Stack Software Engineer with 5+ years of expertise in developing scalable web applications using modern technologies. Proven track record of leading development teams and delivering high-quality software solutions. Strong background in JavaScript, Python, React, Node.js, and cloud technologies.
+
+TECHNICAL SKILLS
+Programming Languages: JavaScript, Python, TypeScript, Java, C++, SQL
+Frontend: React.js, Vue.js, HTML5, CSS3, Tailwind CSS, Bootstrap
+Backend: Node.js, Express.js, FastAPI, Django, Spring Boot
+Databases: PostgreSQL, MongoDB, MySQL, Redis
+Cloud & DevOps: AWS, Docker, Kubernetes, CI/CD, Jenkins, GitHub Actions
+Tools & Others: Git, Jest, Cypress, Webpack, REST APIs, GraphQL
+
+WORK EXPERIENCE
+
+Senior Software Engineer | TechCorp Inc. | Jan 2022 - Present
+• Led a team of 4 developers in building a microservices architecture serving 100K+ users
+• Developed and maintained React.js frontend applications with 99.9% uptime
+• Implemented automated testing strategies reducing bugs by 40%
+• Designed RESTful APIs using Node.js and Express.js with PostgreSQL database
+• Collaborated with product managers and designers in agile development process
+
+Software Engineer | StartupXYZ | Jun 2020 - Dec 2021
+• Built responsive web applications using React.js and TypeScript
+• Developed Python-based data processing pipelines handling 1M+ records daily
+• Integrated third-party APIs and payment systems (Stripe, PayPal)
+• Optimized database queries improving application performance by 60%
+• Mentored junior developers and conducted code reviews
+
+Junior Developer | WebSolutions Ltd. | Aug 2019 - May 2020
+• Developed custom WordPress themes and plugins for client projects
+• Created mobile-responsive websites using HTML5, CSS3, and JavaScript
+• Participated in full software development lifecycle from planning to deployment
+• Worked with MySQL databases and PHP backend development
+
+EDUCATION
+Bachelor of Science in Computer Science | State University | 2015 - 2019
+Relevant Coursework: Data Structures, Algorithms, Database Systems, Software Engineering
+
+PROJECTS
+E-Commerce Platform (2023)
+• Built full-stack e-commerce application using React, Node.js, and PostgreSQL
+• Implemented user authentication, shopping cart, and payment processing
+• Deployed on AWS with Docker containerization
+
+Task Management App (2022)
+• Developed real-time collaborative task management tool using MERN stack
+• Implemented WebSocket connections for live updates
+• Used Redux for state management and Jest for testing
+
+CERTIFICATIONS
+• AWS Certified Solutions Architect - Associate (2023)
+• React Developer Certification - Meta (2022)
+• Google Cloud Professional Developer (2021)
+
+ACHIEVEMENTS
+• Led development of feature that increased user engagement by 35%
+• Reduced application load time by 50% through performance optimization
+• Presented at 3 tech conferences on modern web development practices
+• Contributed to 5+ open-source projects with 500+ GitHub stars combined

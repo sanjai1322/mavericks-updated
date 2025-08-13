@@ -1,0 +1,54 @@
+SANJAIKUMAR K  
+Full Stack Developer | Blender 3D Artist | AI & Web Innovator  
+LinkedIn: Sanjaikumar | Phone: 9047734581 | Email: sanjai131418@gmail.com  
+
+OBJECTIVE  
+Passionate Full Stack Developer and aspiring entrepreneur with expertise in web development, AI, and game development.  
+Strong background in coding, content creation, and technical event organization.  
+Seeking opportunities to leverage technical and leadership skills to build innovative products and contribute to the tech community.  
+
+PROFESSIONAL EXPERIENCE  
+
+Founder & Content Creator – Code Constellation (2024 – Present)  
+• Managing a coding education platform that offers tutorials, project ideas, and resources.  
+• Creating engaging coding content for Instagram, YouTube, and website to educate aspiring developers.  
+• Developing a website and web app for Code Constellation with interactive features for learning.  
+• Planning to launch an academy under the same brand to provide structured learning paths.  
+
+Technical Event Organizer – VECODERS (College Coding Club) | SRM-VEC (2024 – Present)  
+• Organizing technical and non-technical events, including hackathons and symposiums.  
+• Planning to integrate VECODERS with Code Constellation for collaborative events.  
+• Managing and developing features for a coding event website to enhance engagement.  
+
+PROJECTS  
+
+AI Voice Bot for Space Information  
+• Developed an AI-based voice assistant for space-related queries using Python and OpenAI API.  
+• Designed interactive features to provide real-time space data.  
+
+Space Weather System  
+• Researching and developing a system to enhance space weather monitoring and forecasting.  
+• Utilizing advanced data analysis and AI techniques.  
+
+Game Development with Blender  
+• Designed 3D assets for a game using Blender and integrated them into a Unity-based project.  
+• Focused on character modeling, rigging, and environment design.  
+
+SKILLS  
+• HTML | CSS | JavaScript | Java | React.js  
+• Blender | Unreal Engine | Figma  
+• DaVinci Resolve | Machine Learning  
+
+EDUCATION  
+Bachelor of Technology in Information Technology – SRM Valliammai Engineering College (3rd Year)  
+CGPA: 7.9  
+Relevant Coursework: Web Development, Artificial Intelligence, 3D Design, Animation  
+
+CERTIFICATIONS  
+• Full Stack Developer – Udemy Certified (2024)  
+• AI & Machine Learning – Udemy Certified (2024)  
+• Blender 3D Animation & Modelling – Thunderstorm Studio (2024)  
+
+LANGUAGES  
+• English (Fluent)  
+• Tamil (Native)  
