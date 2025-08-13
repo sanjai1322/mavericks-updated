@@ -32,7 +32,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use("/api/leaderboard", leaderboardRoutes);
   
   // Resume routes
-  app.use("/api/resume", resumeRoutes);
+  try {
+    const resumeController = await import('./controllers/resumeController.js');
+    app.use("/api/resume", resumeController.default);
+  } catch (error: any) {
+    console.log('Resume controller not available:', error?.message || 'Unknown error');
+  }
   
   // Quiz routes
   app.use("/api/quizzes", quizRoutes);

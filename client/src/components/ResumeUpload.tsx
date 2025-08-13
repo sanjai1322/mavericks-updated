@@ -1,337 +1,235 @@
 import { useState } from "react";
-import { Upload, FileText, Brain, Target, CheckCircle, AlertCircle, X } from "lucide-react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { apiRequest } from "@/lib/queryClient";
+import { Upload, FileText, CheckCircle, Brain, Target, Star } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface ResumeAnalysis {
-  skillsFound: number;
-  primaryDomain: string;
-  skillLevel: string;
-  summary: string;
-}
-
-interface SkillRecommendation {
-  skill: string;
-  assessments: string[];
-  priority: string;
-  reason: string;
+  experienceLevel: string;
+  strengths: string[];
+  recommendations: string[];
+  skillGaps: string[];
+  careerSuggestions: string[];
+  overallScore: number;
+  categories: Record<string, number>;
 }
 
 export default function ResumeUpload() {
-  const [isUploading, setIsUploading] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState(0);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [analysis, setAnalysis] = useState<ResumeAnalysis | null>(null);
-  const [recommendations, setRecommendations] = useState<SkillRecommendation[]>([]);
-  const [dragActive, setDragActive] = useState(false);
-  const [uploadError, setUploadError] = useState<string>("");
+  const [extractedSkills, setExtractedSkills] = useState<Record<string, number>>({});
   const { toast } = useToast();
+  const queryClient = useQueryClient();
 
-  const handleFileUpload = async (file: File) => {
-    if (!file) return;
-
-    // Validate file type
-    const allowedTypes = [
-      'application/pdf',
-      'text/plain',
-      'application/msword',
-      'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
-    ];
-
-    if (!allowedTypes.includes(file.type)) {
-      setUploadError("Please upload a PDF, DOC, DOCX, or TXT file.");
-      return;
+  const uploadMutation = useMutation({
+    mutationFn: async (file: File) => {
+      const formData = new FormData();
+      formData.append('resume', file);
+      
+      const response = await fetch('/api/resume/upload', {
+        method: 'POST',
+        body: formData,
+        credentials: 'include'
+      });
+      
+      if (!response.ok) {
+        throw new Error('Upload failed');
+      }
+      
+      return response.json();
+    },
+    onSuccess: (data) => {
+      setAnalysis(data.analysis);
+      setExtractedSkills(data.extractedSkills);
+      queryClient.invalidateQueries({ queryKey: ['/api/resume/analysis'] });
+      toast({ title: "Resume analyzed successfully!" });
+    },
+    onError: () => {
+      toast({ title: "Upload failed", description: "Please try again", variant: "destructive" });
     }
+  });
 
-    // Validate file size (5MB max)
-    if (file.size > 5 * 1024 * 1024) {
-      setUploadError("File size must be less than 5MB.");
-      return;
-    }
-
-    setIsUploading(true);
-    setUploadError("");
-    setUploadProgress(10);
-
-    try {
-      // Convert file to base64
-      const reader = new FileReader();
-      reader.onloadend = async () => {
-        try {
-          const base64String = (reader.result as string).split(',')[1];
-          setUploadProgress(30);
-
-          const uploadData = {
-            fileName: file.name,
-            fileSize: file.size,
-            mimeType: file.type,
-            fileContent: base64String
-          };
-
-          setUploadProgress(50);
-
-          const result = await apiRequest("/api/resume/upload", {
-            method: "POST",
-            body: uploadData
-          });
-
-          setUploadProgress(80);
-
-          setAnalysis(result.analysis);
-          setRecommendations(result.recommendations || []);
-          setUploadProgress(100);
-          
-          toast({
-            title: "Resume Uploaded Successfully!",
-            description: `Found ${result.analysis?.skillsFound || 0} skills. AI analysis completed.`,
-          });
-
-          // Reset progress after success
-          setTimeout(() => setUploadProgress(0), 2000);
-        } catch (error: any) {
-          console.error("Upload error:", error);
-          setUploadError(error.message || "Failed to upload resume. Please try again.");
-          setUploadProgress(0);
-        } finally {
-          setIsUploading(false);
-        }
-      };
-
-      reader.readAsDataURL(file);
-    } catch (error: any) {
-      console.error("File processing error:", error);
-      setUploadError("Failed to process file. Please try again.");
-      setIsUploading(false);
-      setUploadProgress(0);
+  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      setSelectedFile(file);
     }
   };
 
-  const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault();
-    setDragActive(false);
-    
-    const files = Array.from(e.dataTransfer.files);
-    if (files.length > 0) {
-      handleFileUpload(files[0]);
-    }
-  };
-
-  const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault();
-    setDragActive(true);
-  };
-
-  const handleDragLeave = (e: React.DragEvent) => {
-    e.preventDefault();
-    setDragActive(false);
-  };
-
-  const clearError = () => {
-    setUploadError("");
-  };
-
-  const getSkillLevelColor = (level: string) => {
-    switch (level) {
-      case 'beginner': return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300';
-      case 'intermediate': return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300';
-      case 'advanced': return 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300';
-      default: return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300';
-    }
-  };
-
-  const getPriorityColor = (priority: string) => {
-    switch (priority) {
-      case 'high': return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300';
-      case 'medium': return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300';
-      case 'low': return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300';
-      default: return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300';
+  const handleUpload = () => {
+    if (selectedFile) {
+      uploadMutation.mutate(selectedFile);
     }
   };
 
   return (
     <div className="space-y-6">
-      {/* Upload Section */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Upload className="h-5 w-5" />
-            Resume Upload & AI Analysis
+            <Upload className="w-5 h-5" />
+            Resume Analysis
           </CardTitle>
-          <CardDescription>
-            Upload your resume to automatically extract skills and get personalized learning recommendations
-          </CardDescription>
         </CardHeader>
-        <CardContent>
-          {!isUploading && !analysis && (
-            <div
-              className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
-                dragActive 
-                  ? 'border-blue-500 bg-blue-50 dark:bg-blue-950' 
-                  : 'border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500'
-              }`}
-              onDrop={handleDrop}
-              onDragOver={handleDragOver}
-              onDragLeave={handleDragLeave}
-            >
-              <FileText className="h-12 w-12 mx-auto mb-4 text-gray-400" />
-              <p className="text-lg font-medium mb-2">
-                Drop your resume here or click to upload
+        <CardContent className="space-y-4">
+          <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-6 text-center">
+            <FileText className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+            <div className="space-y-2">
+              <p className="text-lg font-medium">Upload your resume for AI analysis</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                Get personalized insights, skill analysis, and learning recommendations
               </p>
-              <p className="text-sm text-gray-500 mb-4">
-                Supports PDF, DOC, DOCX, and TXT files (max 5MB)
-              </p>
-              <Button 
-                onClick={() => document.getElementById('resume-upload')?.click()}
-                disabled={isUploading}
-              >
-                <Upload className="h-4 w-4 mr-2" />
-                Choose File
+            </div>
+            
+            <input
+              type="file"
+              accept=".txt,.pdf,.doc,.docx"
+              onChange={handleFileSelect}
+              className="hidden"
+              id="resume-upload"
+              data-testid="input-resume-file"
+            />
+            <label htmlFor="resume-upload">
+              <Button variant="outline" className="mt-4" asChild>
+                <span>Choose File</span>
               </Button>
-              <input
-                id="resume-upload"
-                type="file"
-                accept=".pdf,.doc,.docx,.txt"
-                onChange={(e) => e.target.files?.[0] && handleFileUpload(e.target.files[0])}
-                className="hidden"
-              />
-            </div>
-          )}
-
-          {/* Upload Progress */}
-          {isUploading && (
-            <div className="space-y-4">
-              <div className="flex items-center gap-3">
-                <Brain className="h-5 w-5 animate-pulse text-blue-500" />
-                <span>AI analyzing your resume...</span>
+            </label>
+            
+            {selectedFile && (
+              <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                <p className="text-sm font-medium">{selectedFile.name}</p>
+                <p className="text-xs text-gray-600 dark:text-gray-400">
+                  {(selectedFile.size / 1024).toFixed(1)} KB
+                </p>
               </div>
-              <Progress value={uploadProgress} className="w-full" />
-              <p className="text-sm text-gray-500">
-                {uploadProgress < 30 && "Reading file content..."}
-                {uploadProgress >= 30 && uploadProgress < 50 && "Extracting text..."}
-                {uploadProgress >= 50 && uploadProgress < 80 && "AI skill analysis in progress..."}
-                {uploadProgress >= 80 && "Generating recommendations..."}
-              </p>
-            </div>
-          )}
+            )}
+          </div>
 
-          {/* Upload Error */}
-          {uploadError && (
-            <Alert variant="destructive">
-              <AlertCircle className="h-4 w-4" />
-              <AlertDescription className="flex items-center justify-between">
-                {uploadError}
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  onClick={clearError}
-                  className="h-6 w-6 p-0"
-                >
-                  <X className="h-4 w-4" />
-                </Button>
-              </AlertDescription>
-            </Alert>
+          {selectedFile && (
+            <Button 
+              onClick={handleUpload} 
+              disabled={uploadMutation.isPending}
+              className="w-full"
+              data-testid="button-upload-resume"
+            >
+              {uploadMutation.isPending ? 'Analyzing...' : 'Analyze Resume'}
+            </Button>
           )}
         </CardContent>
       </Card>
 
-      {/* Analysis Results */}
       {analysis && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <CheckCircle className="h-5 w-5 text-green-500" />
-              Resume Analysis Complete
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="text-center p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                <div className="text-2xl font-bold text-blue-600">{analysis.skillsFound}</div>
-                <div className="text-sm text-gray-600 dark:text-gray-400">Skills Found</div>
+        <div className="space-y-6">
+          {/* Overall Score */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Star className="w-5 h-5 text-yellow-500" />
+                Overall Assessment
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-lg font-medium">Resume Score</span>
+                <span className="text-2xl font-bold text-blue-600">{analysis.overallScore}/100</span>
               </div>
-              <div className="text-center p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                <div className="text-lg font-semibold capitalize">{analysis.primaryDomain}</div>
-                <div className="text-sm text-gray-600 dark:text-gray-400">Primary Domain</div>
-              </div>
-              <div className="text-center p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                <Badge className={`${getSkillLevelColor(analysis.skillLevel)} capitalize`}>
-                  {analysis.skillLevel}
-                </Badge>
-                <div className="text-sm text-gray-600 dark:text-gray-400 mt-1">Skill Level</div>
-              </div>
-            </div>
-            
-            {analysis.summary && (
-              <div className="p-4 bg-blue-50 dark:bg-blue-950 rounded-lg">
-                <h4 className="font-medium mb-2">AI Summary</h4>
-                <p className="text-sm text-gray-700 dark:text-gray-300">{analysis.summary}</p>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Skill-Based Recommendations */}
-      {recommendations.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Target className="h-5 w-5" />
-              Personalized Assessment Recommendations
-            </CardTitle>
-            <CardDescription>
-              Based on your resume skills, here are the most relevant coding challenges
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {recommendations.slice(0, 5).map((rec, index) => (
-                <div key={index} className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
-                  <div className="flex items-start justify-between mb-2">
-                    <div className="flex items-center gap-2">
-                      <Badge variant="outline">{rec.skill}</Badge>
-                      <Badge className={getPriorityColor(rec.priority)}>
-                        {rec.priority} priority
-                      </Badge>
-                    </div>
+              <Progress value={analysis.overallScore} className="h-3 mb-4" />
+              
+              <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+                {Object.entries(analysis.categories).map(([category, score]) => (
+                  <div key={category} className="text-center">
+                    <div className="text-lg font-bold text-blue-600">{score}/10</div>
+                    <div className="text-xs text-gray-600 dark:text-gray-400">{category}</div>
                   </div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">{rec.reason}</p>
-                  {rec.assessments && rec.assessments.length > 0 && (
-                    <div className="flex flex-wrap gap-2">
-                      {rec.assessments.map((assessment, idx) => (
-                        <span 
-                          key={idx}
-                          className="text-xs px-2 py-1 bg-gray-100 dark:bg-gray-800 rounded"
-                        >
-                          {assessment}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      )}
+                ))}
+              </div>
+              
+              <div className="mt-4 flex items-center gap-2">
+                <Badge variant="secondary">{analysis.experienceLevel}</Badge>
+                <span className="text-sm text-gray-600 dark:text-gray-400">Experience Level</span>
+              </div>
+            </CardContent>
+          </Card>
 
-      {/* Reset Upload */}
-      {analysis && (
-        <div className="text-center">
-          <Button 
-            variant="outline" 
-            onClick={() => {
-              setAnalysis(null);
-              setRecommendations([]);
-              setUploadProgress(0);
-            }}
-          >
-            Upload New Resume
-          </Button>
+          {/* Extracted Skills */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Brain className="w-5 h-5 text-purple-500" />
+                AI-Extracted Skills
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex flex-wrap gap-2">
+                {Object.entries(extractedSkills).map(([skill, confidence]) => (
+                  <Badge key={skill} variant="outline" className="flex items-center gap-1">
+                    {skill}
+                    <span className="text-xs text-gray-500">
+                      {Math.round(confidence * 100)}%
+                    </span>
+                  </Badge>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Strengths */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <CheckCircle className="w-5 h-5 text-green-500" />
+                Key Strengths
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                {analysis.strengths.map((strength, index) => (
+                  <div key={index} className="flex items-center gap-2 p-2 bg-green-50 dark:bg-green-900/20 rounded">
+                    <CheckCircle className="w-4 h-4 text-green-600" />
+                    <span className="text-sm">{strength}</span>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Recommendations */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Target className="w-5 h-5 text-blue-500" />
+                AI Recommendations
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                {analysis.recommendations.map((rec, index) => (
+                  <div key={index} className="p-3 border border-blue-200 dark:border-blue-700 rounded-lg">
+                    <p className="text-sm">{rec}</p>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Career Suggestions */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Career Path Suggestions</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                {analysis.careerSuggestions.map((career, index) => (
+                  <Badge key={index} variant="outline" className="justify-center py-2">
+                    {career}
+                  </Badge>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
         </div>
       )}
     </div>
