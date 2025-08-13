@@ -63,8 +63,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // AI-powered recommendation routes
   try {
-    const recommenderRoutes = await import('./routes/recommender.js') as any;
-    app.use('/api', recommenderRoutes.default);
+    const recommenderRoutes = await import('./routes/recommender.js');
+    app.use('/api', (recommenderRoutes as any).default);
   } catch (error: any) {
     console.log('Legacy AI routes not available:', error?.message || 'Unknown error');
   }

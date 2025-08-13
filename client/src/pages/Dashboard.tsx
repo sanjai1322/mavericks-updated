@@ -203,16 +203,16 @@ export default function Dashboard() {
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <Tabs defaultValue="summary" className="w-full">
-                      <TabsList className="grid w-full grid-cols-2">
-                        <TabsTrigger value="summary">Skills Summary</TabsTrigger>
-                        <TabsTrigger value="upload">Upload Resume</TabsTrigger>
+                    <Tabs defaultValue="upload" className="w-full">
+                      <TabsList className="grid w-full grid-cols-2 mb-6">
+                        <TabsTrigger value="upload" className="data-[state=active]:bg-blue-500 data-[state=active]:text-white">Upload Resume</TabsTrigger>
+                        <TabsTrigger value="summary" className="data-[state=active]:bg-blue-500 data-[state=active]:text-white">Skills Summary</TabsTrigger>
                       </TabsList>
-                      <TabsContent value="summary" className="mt-4">
-                        <SkillsSummary />
-                      </TabsContent>
-                      <TabsContent value="upload" className="mt-4">
+                      <TabsContent value="upload" className="mt-6">
                         <ResumeUpload />
+                      </TabsContent>
+                      <TabsContent value="summary" className="mt-6">
+                        <SkillsSummary />
                       </TabsContent>
                     </Tabs>
                   </CardContent>

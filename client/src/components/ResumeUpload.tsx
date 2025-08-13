@@ -26,6 +26,17 @@ export default function ResumeUpload() {
 
   const uploadMutation = useMutation({
     mutationFn: async (file: File) => {
+      // Validate file size (max 10MB)
+      if (file.size > 10 * 1024 * 1024) {
+        throw new Error('File size must be less than 10MB');
+      }
+
+      // Validate file type
+      const allowedTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'text/plain'];
+      if (!allowedTypes.includes(file.type)) {
+        throw new Error('Please upload a PDF, DOC, DOCX, or TXT file');
+      }
+
       const formData = new FormData();
       formData.append('resume', file);
       
@@ -36,19 +47,33 @@ export default function ResumeUpload() {
       });
       
       if (!response.ok) {
-        throw new Error('Upload failed');
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || `Upload failed with status ${response.status}`);
       }
       
       return response.json();
     },
     onSuccess: (data) => {
-      setAnalysis(data.analysis);
-      setExtractedSkills(data.extractedSkills);
+      if (data.analysis) {
+        setAnalysis(data.analysis);
+      }
+      if (data.extractedSkills) {
+        setExtractedSkills(data.extractedSkills);
+      }
       queryClient.invalidateQueries({ queryKey: ['/api/resume/analysis'] });
-      toast({ title: "Resume analyzed successfully!" });
+      queryClient.invalidateQueries({ queryKey: ['/api/profile/me'] });
+      toast({ 
+        title: "Resume uploaded successfully!", 
+        description: "Your resume has been analyzed and skills extracted." 
+      });
+      setSelectedFile(null); // Clear the selected file
     },
-    onError: () => {
-      toast({ title: "Upload failed", description: "Please try again", variant: "destructive" });
+    onError: (error: Error) => {
+      toast({ 
+        title: "Upload failed", 
+        description: error.message || "Please try again", 
+        variant: "destructive" 
+      });
     }
   });
 
@@ -57,6 +82,18 @@ export default function ResumeUpload() {
     if (file) {
       setSelectedFile(file);
     }
+  };
+
+  const handleDrop = (event: React.DragEvent) => {
+    event.preventDefault();
+    const file = event.dataTransfer.files?.[0];
+    if (file) {
+      setSelectedFile(file);
+    }
+  };
+
+  const handleDragOver = (event: React.DragEvent) => {
+    event.preventDefault();
   };
 
   const handleUpload = () => {
@@ -75,12 +112,19 @@ export default function ResumeUpload() {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-6 text-center">
-            <FileText className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-            <div className="space-y-2">
-              <p className="text-lg font-medium">Upload your resume for AI analysis</p>
+          <div 
+            className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-8 text-center transition-colors hover:border-blue-400 dark:hover:border-blue-500"
+            onDrop={handleDrop}
+            onDragOver={handleDragOver}
+          >
+            <FileText className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+            <div className="space-y-3">
+              <p className="text-xl font-medium">Upload your resume for AI analysis</p>
               <p className="text-sm text-gray-600 dark:text-gray-400">
-                Get personalized insights, skill analysis, and learning recommendations
+                Drag and drop your file here, or click to browse
+              </p>
+              <p className="text-xs text-gray-500 dark:text-gray-500">
+                Supports PDF, DOC, DOCX, and TXT files (max 10MB)
               </p>
             </div>
             
@@ -93,17 +137,22 @@ export default function ResumeUpload() {
               data-testid="input-resume-file"
             />
             <label htmlFor="resume-upload">
-              <Button variant="outline" className="mt-4" asChild>
-                <span>Choose File</span>
+              <Button variant="outline" size="lg" className="mt-6" asChild>
+                <span className="px-8">Choose File</span>
               </Button>
             </label>
             
             {selectedFile && (
-              <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-                <p className="text-sm font-medium">{selectedFile.name}</p>
-                <p className="text-xs text-gray-600 dark:text-gray-400">
-                  {(selectedFile.size / 1024).toFixed(1)} KB
-                </p>
+              <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                <div className="flex items-center justify-center space-x-2">
+                  <FileText className="w-5 h-5 text-blue-600" />
+                  <div>
+                    <p className="text-sm font-medium text-blue-900 dark:text-blue-100">{selectedFile.name}</p>
+                    <p className="text-xs text-blue-600 dark:text-blue-400">
+                      {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
+                    </p>
+                  </div>
+                </div>
               </div>
             )}
           </div>
@@ -112,10 +161,21 @@ export default function ResumeUpload() {
             <Button 
               onClick={handleUpload} 
               disabled={uploadMutation.isPending}
-              className="w-full"
+              className="w-full h-12 text-base"
+              size="lg"
               data-testid="button-upload-resume"
             >
-              {uploadMutation.isPending ? 'Analyzing...' : 'Analyze Resume'}
+              {uploadMutation.isPending ? (
+                <div className="flex items-center space-x-2">
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  <span>Analyzing Resume...</span>
+                </div>
+              ) : (
+                <div className="flex items-center space-x-2">
+                  <Upload className="w-4 h-4" />
+                  <span>Analyze Resume</span>
+                </div>
+              )}
             </Button>
           )}
         </CardContent>
