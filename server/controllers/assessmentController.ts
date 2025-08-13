@@ -322,8 +322,8 @@ router.post("/submit", verifyToken, async (req: Request, res: Response) => {
                         }
                       }
                     }
-                  } catch (error) {
-                    console.log('Array comparison error:', error.message);
+                  } catch (error: any) {
+                    console.log('Array comparison error:', error?.message || 'Unknown error');
                   }
                 }
                 // String/primitive comparisons
@@ -449,7 +449,7 @@ router.post("/submit", verifyToken, async (req: Request, res: Response) => {
     let extractedSkills: string[] = [];
     try {
       // Try to import and use the AI profile agent
-      const profileAgent = await import('../agents/profileAgent.js');
+      const profileAgent = await import('../agents/profileAgent.js') as any;
       if (profileAgent && profileAgent.extractSkillsFromCode) {
         const languageName = languageId === 71 ? "Python" : languageId === 63 ? "JavaScript" : "Unknown";
         console.log("Extracting skills for language:", languageName);
@@ -458,8 +458,8 @@ router.post("/submit", verifyToken, async (req: Request, res: Response) => {
       } else {
         throw new Error("Profile agent not available");
       }
-    } catch (skillError) {
-      console.error("Error extracting skills:", skillError);
+    } catch (skillError: any) {
+      console.error("Error extracting skills:", skillError?.message || 'Unknown error');
       // Fallback skill extraction based on code analysis
       extractedSkills = extractSkillsFallback(sourceCode, languageId === 71 ? "Python" : languageId === 63 ? "JavaScript" : "Unknown");
     }
@@ -518,7 +518,7 @@ router.post("/submit", verifyToken, async (req: Request, res: Response) => {
           const time = parseFloat(t.executionTime) || 0;
           return sum + time;
         }, 0) / testResults.length,
-        totalMemoryUsed: Math.max(...testResults.map(t => parseInt(t.memory) || 0)),
+        totalMemoryUsed: Math.max(...testResults.map(t => parseInt(String(t.memory)) || 0)),
         statusCounts: testResults.reduce((acc, t) => {
           acc[t.status] = (acc[t.status] || 0) + 1;
           return acc;
