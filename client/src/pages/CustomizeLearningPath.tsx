@@ -120,7 +120,7 @@ export default function CustomizeLearningPath() {
         title: "Custom Learning Path Created!", 
         description: "Your personalized learning journey is ready." 
       });
-      window.location.href = `/learning/${response.pathId}`;
+      window.location.href = `/learning/custom/${response.pathId}`;
     },
     onError: () => {
       toast({ 

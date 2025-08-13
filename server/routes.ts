@@ -80,9 +80,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Custom learning path routes
   try {
     const { createCustomLearningPath, getUserCustomPaths, getCustomPath } = await import('./controllers/customLearningPathController');
-    app.post('/api/learning-paths/customize', createCustomLearningPath);
-    app.get('/api/learning-paths/custom', getUserCustomPaths);
-    app.get('/api/learning-paths/custom/:id', getCustomPath);
+    const { requireAuth } = await import('./middleware/auth');
+    app.post('/api/learning-paths/customize', requireAuth, createCustomLearningPath);
+    app.get('/api/learning-paths/custom', requireAuth, getUserCustomPaths);
+    app.get('/api/learning-paths/custom/:id', requireAuth, getCustomPath);
   } catch (error: any) {
     console.log('Custom learning path controller not available:', error?.message || 'Unknown error');
   }

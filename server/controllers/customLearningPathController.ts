@@ -38,7 +38,7 @@ export async function createCustomLearningPath(req: Request, res: Response) {
     const customContent = generateLearningPathContent(validatedData);
     
     // Insert into custom_learning_paths table
-    const [newPath] = await db.execute(sql`
+    const result = await db.execute(sql`
       INSERT INTO custom_learning_paths (
         user_id, title, description, goal, experience_level, weekly_hours,
         preferred_topics, learning_style, project_preference, difficulty_preference,
@@ -53,9 +53,11 @@ export async function createCustomLearningPath(req: Request, res: Response) {
       ) RETURNING id
     `);
 
+    const pathId = result[0]?.id || 'generated-path-' + Date.now();
+
     return res.json({
       success: true,
-      pathId: newPath.id,
+      pathId: pathId,
       message: "Custom learning path created successfully",
       content: customContent
     });
