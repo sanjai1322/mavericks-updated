@@ -16,8 +16,19 @@ import {
   type UserAssessment,
   type InsertUserAssessment,
   type Resume,
-  type InsertResume
+  type InsertResume,
+  users,
+  assessments,
+  learningPaths,
+  hackathons,
+  userProgress,
+  submissions,
+  activities,
+  userAssessments,
+  resumes
 } from "@shared/schema";
+import { db } from "./db";
+import { eq, desc, sql } from "drizzle-orm";
 import { randomUUID } from "crypto";
 
 export interface IStorage {
@@ -1706,4 +1717,6 @@ print(result)`,
   }
 }
 
-export const storage = new MemStorage();
+// Import database storage
+import { storage as dbStorage } from "./database-storage";
+export const storage = dbStorage;

@@ -41,7 +41,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use("/api/learning", personalizedLearningRoutes);
 
   // Admin routes
-  app.use("/api/admin", adminRoutes);
+  try {
+    const adminRouter = await import('./routes/admin.js');
+    app.use("/api/admin", adminRouter.default);
+  } catch (error: any) {
+    console.log('Admin routes not available:', error?.message || 'Unknown error');
+  }
   
   // AI-powered recommendation routes
   try {

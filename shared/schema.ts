@@ -124,71 +124,52 @@ export const resumes = pgTable("resumes", {
   uploadedAt: timestamp("uploaded_at").defaultNow(),
 });
 
-// Enhanced learning paths for personalized recommendations
-export const personalizedLearningPaths = pgTable("personalized_learning_paths", {
+// Add devpostUrl to hackathons
+export const enhancedHackathons = pgTable("hackathons", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  userId: varchar("user_id").references(() => users.id),
   title: text("title").notNull(),
   description: text("description").notNull(),
-  category: text("category").notNull(),
-  difficulty: text("difficulty").notNull(),
-  estimatedHours: integer("estimated_hours").default(0),
-  content: jsonb("content"), // Learning modules and lessons
-  prerequisites: text("prerequisites").array(),
-  learningObjectives: text("learning_objectives").array(),
-  tags: text("tags").array(),
+  status: text("status").notNull(), // Live, Upcoming, Past
+  startDate: timestamp("start_date"),
+  endDate: timestamp("end_date"),
+  participants: integer("participants").default(0),
+  prize: text("prize").notNull(),
+  technologies: jsonb("technologies"),
+  devpostUrl: text("devpost_url"), // Direct link to Devpost hackathon page
   createdAt: timestamp("created_at").defaultNow(),
 });
 
-// Insert schemas
-export const insertUserSchema = createInsertSchema(users).omit({
-  id: true,
-  createdAt: true,
-});
+// Create type exports
+export type User = typeof users.$inferSelect;
+export type InsertUser = typeof users.$inferInsert;
+export type Assessment = typeof assessments.$inferSelect;
+export type InsertAssessment = typeof assessments.$inferInsert;
+export type LearningPath = typeof learningPaths.$inferSelect;
+export type InsertLearningPath = typeof learningPaths.$inferInsert;
+export type Hackathon = typeof hackathons.$inferSelect;
+export type InsertHackathon = typeof hackathons.$inferInsert;
+export type UserProgress = typeof userProgress.$inferSelect;
+export type InsertUserProgress = typeof userProgress.$inferInsert;
+export type Submission = typeof submissions.$inferSelect;
+export type InsertSubmission = typeof submissions.$inferInsert;
+export type Activity = typeof activities.$inferSelect;
+export type InsertActivity = typeof activities.$inferInsert;
+export type UserAssessment = typeof userAssessments.$inferSelect;
+export type InsertUserAssessment = typeof userAssessments.$inferInsert;
+export type Resume = typeof resumes.$inferSelect;
+export type InsertResume = typeof resumes.$inferInsert;
 
-export const insertAssessmentSchema = createInsertSchema(assessments).omit({
-  id: true,
-  createdAt: true,
-});
 
-export const insertLearningPathSchema = createInsertSchema(learningPaths).omit({
-  id: true,
-  createdAt: true,
-});
-
-export const insertHackathonSchema = createInsertSchema(hackathons).omit({
-  id: true,
-  createdAt: true,
-});
-
-export const insertUserProgressSchema = createInsertSchema(userProgress).omit({
-  id: true,
-});
-
-export const insertSubmissionSchema = createInsertSchema(submissions).omit({
-  id: true,
-  createdAt: true,
-});
-
-export const insertActivitySchema = createInsertSchema(activities).omit({
-  id: true,
-  createdAt: true,
-});
-
-export const insertUserAssessmentSchema = createInsertSchema(userAssessments).omit({
-  id: true,
-  submissionTime: true,
-});
-
-export const insertResumeSchema = createInsertSchema(resumes).omit({
-  id: true,
-  uploadedAt: true,
-});
-
-export const insertPersonalizedLearningPathSchema = createInsertSchema(personalizedLearningPaths).omit({
-  id: true,
-  createdAt: true,
-});
+// Insert schemas with validation
+export const insertUserSchema = createInsertSchema(users).omit({ id: true, createdAt: true });
+export const insertAssessmentSchema = createInsertSchema(assessments).omit({ id: true, createdAt: true });
+export const insertLearningPathSchema = createInsertSchema(learningPaths).omit({ id: true, createdAt: true });
+export const insertHackathonSchema = createInsertSchema(hackathons).omit({ id: true, createdAt: true });
+export const insertUserProgressSchema = createInsertSchema(userProgress).omit({ id: true });
+export const insertSubmissionSchema = createInsertSchema(submissions).omit({ id: true, createdAt: true });
+export const insertActivitySchema = createInsertSchema(activities).omit({ id: true, createdAt: true });
+export const insertUserAssessmentSchema = createInsertSchema(userAssessments).omit({ id: true, submissionTime: true });
+export const insertResumeSchema = createInsertSchema(resumes).omit({ id: true, uploadedAt: true });
 
 // Login schema
 export const loginSchema = z.object({

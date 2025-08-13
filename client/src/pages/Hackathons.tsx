@@ -173,6 +173,86 @@ export default function Hackathons() {
                             </div>
                           )}
                           
+                          <CardHeader>
+                            <div className="flex items-start justify-between">
+                              <div className="flex-1">
+                                <CardTitle className="text-xl font-bold mb-2">{hackathon.title}</CardTitle>
+                                <div className="flex items-center gap-2 mb-2">
+                                  <Badge className={getStatusColor(hackathon.status)}>{hackathon.status}</Badge>
+                                  {hackathon.devpostUrl && (
+                                    <Badge variant="outline" className="flex items-center gap-1">
+                                      <Globe className="w-3 h-3" />
+                                      Devpost
+                                    </Badge>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          </CardHeader>
+                          
+                          <CardContent className="space-y-4">
+                            <p className="text-gray-600 dark:text-gray-400 text-sm leading-relaxed">
+                              {hackathon.description}
+                            </p>
+
+                            <div className="grid grid-cols-2 gap-4 text-sm">
+                              <div className="flex items-center gap-2">
+                                <Users className="w-4 h-4 text-blue-600" />
+                                <span>{hackathon.participants?.toLocaleString() || 'TBD'} participants</span>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <Trophy className="w-4 h-4 text-yellow-600" />
+                                <span>{hackathon.prize}</span>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <Calendar className="w-4 h-4 text-green-600" />
+                                <span>{formatStartDate(hackathon.startDate)}</span>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <MapPin className="w-4 h-4 text-purple-600" />
+                                <span>{hackathon.status === 'Live' ? formatTimeRemaining(hackathon.endDate) : 'View Details'}</span>
+                              </div>
+                            </div>
+
+                            {hackathon.technologies && hackathon.technologies.length > 0 && (
+                              <div>
+                                <h4 className="text-sm font-medium mb-2">Featured Technologies</h4>
+                                <div className="flex flex-wrap gap-2">
+                                  {hackathon.technologies.map((tech: string, techIndex: number) => (
+                                    <Badge key={techIndex} variant="outline" className={getTechColor(tech)}>
+                                      {tech}
+                                    </Badge>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+
+                            <div className="flex gap-2 pt-4">
+                              {hackathon.devpostUrl ? (
+                                <Button 
+                                  onClick={() => window.open(hackathon.devpostUrl, '_blank')} 
+                                  className="flex-1"
+                                  data-testid={`register-hackathon-${hackathon.id}`}
+                                >
+                                  <ExternalLink className="w-4 h-4 mr-2" />
+                                  Register on Devpost
+                                </Button>
+                              ) : (
+                                <Button 
+                                  onClick={() => window.open(`https://devpost.com/hackathons?search=${encodeURIComponent(hackathon.title)}`, '_blank')} 
+                                  className="flex-1"
+                                  data-testid={`search-hackathon-${hackathon.id}`}
+                                >
+                                  <ExternalLink className="w-4 h-4 mr-2" />
+                                  Find on Devpost
+                                </Button>
+                              )}
+                              <Button variant="outline" data-testid={`details-hackathon-${hackathon.id}`}>
+                                View Details
+                              </Button>
+                            </div>
+                          </CardContent>
+                          
                           <CardContent className="p-6">
                             <div className="flex items-start justify-between mb-4">
                               <div className="flex-1">
